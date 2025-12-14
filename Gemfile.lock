@@ -85,6 +85,9 @@ GEM
     brakeman (7.1.1)
       racc
     builder (3.3.0)
+    bullet (8.1.0)
+      activesupport (>= 3.0.0)
+      uniform_notifier (~> 1.11)
     bundler-audit (0.9.2)
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
@@ -188,6 +191,9 @@ GEM
       racc (~> 1.4)
     orm_adapter (0.5.0)
     ostruct (0.6.3)
+    pagy (43.2.1)
+      json
+      yaml
     parallel (1.27.0)
     parser (3.3.10.0)
       ast (~> 2.4.1)
@@ -328,6 +334,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
+    uniform_notifier (1.18.0)
     uri (1.1.1)
     useragent (0.16.11)
     warden (1.2.9)
@@ -336,6 +343,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    yaml (0.4.0)
     zeitwerk (2.7.3)
 
 PLATFORMS
@@ -352,6 +360,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   bootsnap
   brakeman
+  bullet
   bundler-audit
   byebug
   debug
@@ -360,6 +369,8 @@ DEPENDENCIES
   faker
   jbuilder
   kamal
+  pagy
+  parallel
   pg (~> 1.5)
   puma (>= 5.0)
   pundit

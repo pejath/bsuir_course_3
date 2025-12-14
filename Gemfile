@@ -18,8 +18,17 @@ gem "devise"
 # Authorization
 gem "pundit"
 
+# Pagination
+gem "pagy"
+
 # CORS support for API
 gem "rack-cors"
+
+# Fake data generator for seeds
+gem "faker"
+
+# Parallel processing for seeds
+gem "parallel"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -55,10 +64,12 @@ end
 
 group :development do
   # Rails console improvements
+  
+  # N+1 queries detection
+  gem "bullet"
 end
 
 group :test do
   # Use factory_bot for test data
   gem "factory_bot_rails"
-  gem "faker"
 end
