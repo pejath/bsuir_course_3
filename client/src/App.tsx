@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
+import api from './lib/api'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -10,6 +12,14 @@ import Analytics from './pages/Analytics'
 
 function App() {
   const { isAuthenticated } = useAuthStore()
+
+  useEffect(() => {
+    // Устанавливаем токен из localStorage при загрузке приложения
+    const token = localStorage.getItem('token')
+    if (token) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    }
+  }, [])
 
   return (
     <Router>

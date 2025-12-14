@@ -14,7 +14,6 @@ gem "bcrypt", "~> 3.1.7"
 
 # Authentication
 gem "devise"
-gem "devise-jwt"
 
 # Authorization
 gem "pundit"
@@ -40,6 +39,7 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 group :development, :test do
+  gem 'byebug'
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 

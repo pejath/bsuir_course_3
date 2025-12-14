@@ -17,6 +17,20 @@ class User < ApplicationRecord
 
   # Callbacks
   after_initialize :set_default_role, if: :new_record?
+  before_create :generate_auth_token
+
+  # Методы для auth token
+  def generate_auth_token
+    loop do
+      self.auth_token = SecureRandom.urlsafe_base64(32)
+      break unless User.exists?(auth_token: auth_token)
+    end
+  end
+
+  def regenerate_auth_token!
+    generate_auth_token
+    save!
+  end
 
   private
 

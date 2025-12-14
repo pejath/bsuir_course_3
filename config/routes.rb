@@ -1,13 +1,20 @@
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
+  devise_for :users,
+             path: 'api/v1/users',
+             controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations' },
+             defaults: { format: :json },
+             skip: [:sessions, :registrations]
+  
+  devise_scope :user do
+    post 'api/v1/users/sign_in', to: 'api/v1/sessions#create'
+    delete 'api/v1/users/sign_out', to: 'api/v1/sessions#destroy'
+    post 'api/v1/users/sign_up', to: 'api/v1/registrations#create'
+  end
+
   namespace :api do
     namespace :v1 do
-      devise_for :users, controllers: {
-        sessions: 'api/v1/sessions',
-        registrations: 'api/v1/registrations'
-      }
-
       resources :rooms do
         collection do
           get :available

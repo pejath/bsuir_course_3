@@ -61,7 +61,7 @@ npm run dev
 
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3000
-- Login: admin@hotel.com / password123
+- Login: admin@hotel.com / 123456
 
 ## Models Structure
 

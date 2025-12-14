@@ -1,5 +1,6 @@
 class Api::V1::RegistrationsController < Devise::RegistrationsController
-  skip_before_action :authenticate_user!
+  skip_before_action :verify_authenticity_token, raise: false
+  skip_before_action :authenticate_user_from_token!
   respond_to :json
 
   private
@@ -7,6 +8,7 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
   def respond_with(resource, _opts = {})
     if resource.persisted?
       render json: {
+        token: resource.auth_token,
         user: {
           id: resource.id,
           email: resource.email,

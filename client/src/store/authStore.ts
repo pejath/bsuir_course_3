@@ -22,7 +22,14 @@ export const useAuthStore = create<AuthState>()(
           const response = await api.post('/users/sign_in', {
             user: { email, password }
           })
-          const { user } = response.data
+          const { token, user } = response.data
+          
+          // Сохраняем токен в localStorage
+          localStorage.setItem('token', token)
+          
+          // Устанавливаем токен в заголовки для будущих запросов
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+          
           set({ user, isAuthenticated: true })
         } catch (error) {
           throw error
@@ -35,7 +42,9 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           console.error('Logout error:', error)
         } finally {
+          // Удаляем токен из localStorage и заголовков
           localStorage.removeItem('token')
+          delete api.defaults.headers.common['Authorization']
           set({ user: null, isAuthenticated: false })
         }
       },
