@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Home, Bed, Calendar, Users, BarChart3, LogOut } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
+import { canViewAnalytics, canManageGuests } from '../lib/roles'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -10,13 +11,15 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
   const { user, logout } = useAuthStore()
 
-  const navigation = [
-    { name: 'Dashboard', href: '/', icon: Home },
-    { name: 'Rooms', href: '/rooms', icon: Bed },
-    { name: 'Bookings', href: '/bookings', icon: Calendar },
-    { name: 'Guests', href: '/guests', icon: Users },
-    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  const allNavigation = [
+    { name: 'Dashboard', href: '/', icon: Home, show: canViewAnalytics(user) },
+    { name: 'Rooms', href: '/rooms', icon: Bed, show: true },
+    { name: 'Bookings', href: '/bookings', icon: Calendar, show: true },
+    { name: 'Guests', href: '/guests', icon: Users, show: canManageGuests(user) },
+    { name: 'Analytics', href: '/analytics', icon: BarChart3, show: canViewAnalytics(user) },
   ]
+  
+  const navigation = allNavigation.filter(item => item.show)
 
   return (
     <div className="min-h-screen bg-gray-50">
