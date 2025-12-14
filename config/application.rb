@@ -23,5 +23,8 @@ module Course
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # API only mode
+    config.api_only = true
   end
 end
