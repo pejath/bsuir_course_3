@@ -1,10 +1,10 @@
 class GuestPolicy < ApplicationPolicy
   def index?
-    true
+    user.staff? || user.manager? || user.admin?
   end
 
   def show?
-    true
+    user.staff? || user.manager? || user.admin?
   end
 
   def create?
@@ -12,10 +12,10 @@ class GuestPolicy < ApplicationPolicy
   end
 
   def update?
-    user.manager? || user.admin?
+    user.staff? || user.manager? || user.admin?
   end
 
   def destroy?
-    user.admin?
+    user.manager? || user.admin?
   end
 end

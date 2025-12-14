@@ -8,15 +8,15 @@ class RoomPolicy < ApplicationPolicy
   end
 
   def create?
-    user.manager? || user.admin?
+    user.staff? || user.manager? || user.admin?
   end
 
   def update?
-    user.manager? || user.admin?
+    user.staff? || user.manager? || user.admin?
   end
 
   def destroy?
-    user.admin?
+    user.manager? || user.admin?
   end
 
   def available?
