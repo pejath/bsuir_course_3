@@ -1,15 +1,19 @@
 class Api::V1::BookingsController < Api::V1::BaseController
-  before_action :set_booking, only: [:show, :update, :destroy, :cancel]
+  before_action :set_booking, only: [:update, :destroy, :cancel]
+  before_action :set_booking_with_details, only: [:show]
 
   def index
-    @bookings = Booking.includes(:room, :guest, :user).all
-    authorize @bookings
-    render json: @bookings, include: [:room, :guest, :user]
+    authorize Booking
+    pagy, @bookings = pagy(Booking.includes(:guest, :user, room: :room_type).order(check_in_date: :desc), limit: params[:limit] || 50)
+    render json: {
+      data: @bookings.as_json(include: { room: { include: :room_type }, guest: {}, user: {} }),
+      pagination: pagy_metadata(pagy)
+    }
   end
 
   def show
     authorize @booking
-    render json: @booking, include: [:room, :guest, :user, :services, :payments]
+    render json: @booking, include: { room: { include: :room_type }, guest: {}, user: {}, services: {}, payments: {} }
   end
 
   def create
@@ -54,6 +58,10 @@ class Api::V1::BookingsController < Api::V1::BaseController
 
   def set_booking
     @booking = Booking.find(params[:id])
+  end
+
+  def set_booking_with_details
+    @booking = Booking.includes(:guest, :user, :services, :payments, room: :room_type).find(params[:id])
   end
 
   def booking_params

@@ -2,9 +2,12 @@ class Api::V1::GuestsController < Api::V1::BaseController
   before_action :set_guest, only: [:show, :update, :destroy]
 
   def index
-    @guests = Guest.all
-    authorize @guests
-    render json: @guests
+    authorize Guest
+    pagy, @guests = pagy(Guest.order(created_at: :desc), limit: params[:limit] || 50)
+    render json: {
+      data: @guests,
+      pagination: pagy_metadata(pagy)
+    }
   end
 
   def show

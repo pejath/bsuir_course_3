@@ -2,9 +2,12 @@ class Api::V1::RoomsController < Api::V1::BaseController
   before_action :set_room, only: [:show, :update, :destroy]
 
   def index
-    @rooms = Room.includes(:room_type).all
-    authorize @rooms
-    render json: @rooms, include: :room_type
+    authorize Room
+    pagy, @rooms = pagy(Room.includes(:room_type).all, limit: params[:limit] || 50)
+    render json: {
+      data: @rooms.as_json(include: :room_type),
+      pagination: pagy_metadata(pagy)
+    }
   end
 
   def show
