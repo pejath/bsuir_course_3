@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { Hotel } from 'lucide-react'
 
@@ -41,6 +41,11 @@ export default function Login() {
           </p>
         </div>
         <form className="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-xl" onSubmit={handleSubmit}>
+          <div className="text-center">
+            <Link to="/register" className="text-sm text-primary-600 hover:text-primary-500">
+              Don't have an account? Sign up
+            </Link>
+          </div>
           {error && (
             <div className="rounded-md bg-red-50 p-4">
               <p className="text-sm text-red-800">{error}</p>
