@@ -8,7 +8,7 @@ class User < ApplicationRecord
   has_many :bookings, dependent: :nullify
 
   # Enums
-  enum :role, { staff: 0, manager: 1, admin: 2 }
+  enum :role, { guest: 0, staff: 1, manager: 2, admin: 3 }
 
   # Validations
   validates :first_name, presence: true
@@ -35,6 +35,6 @@ class User < ApplicationRecord
   private
 
   def set_default_role
-    self.role ||= :staff
+    self.role ||= :guest
   end
 end
