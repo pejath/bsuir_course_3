@@ -7,6 +7,7 @@ interface AuthState {
   user: User | null
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
+  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>
   logout: () => Promise<void>
   setUser: (user: User | null) => void
 }
@@ -24,10 +25,28 @@ export const useAuthStore = create<AuthState>()(
           })
           const { token, user } = response.data
           
-          // Сохраняем токен в localStorage
           localStorage.setItem('token', token)
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`
           
-          // Устанавливаем токен в заголовки для будущих запросов
+          set({ user, isAuthenticated: true })
+        } catch (error) {
+          throw error
+        }
+      },
+
+      register: async (email: string, password: string, firstName: string, lastName: string) => {
+        try {
+          const response = await api.post('/users/sign_up', {
+            user: { 
+              email, 
+              password, 
+              first_name: firstName, 
+              last_name: lastName 
+            }
+          })
+          const { token, user } = response.data
+          
+          localStorage.setItem('token', token)
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`
           
           set({ user, isAuthenticated: true })

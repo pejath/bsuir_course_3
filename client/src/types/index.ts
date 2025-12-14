@@ -3,7 +3,7 @@ export interface User {
   email: string
   first_name: string
   last_name: string
-  role: 'staff' | 'manager' | 'admin'
+  role: 'guest' | 'staff' | 'manager' | 'admin'
 }
 
 export interface RoomType {
@@ -94,4 +94,20 @@ export interface DashboardStats {
   upcoming_bookings: number
   total_guests: number
   total_revenue: number
+}
+
+export interface OccupancyRateStats {
+  total_rooms: number
+  occupied_rooms: number
+  occupancy_rate: number
+}
+
+export type RoomStatistics = Record<string, number>
+
+export interface RevenueReport {
+  start_date: string
+  end_date: string
+  total_revenue: number
+  total_payments: number
+  payment_methods: Record<string, number>
 }
