@@ -3,18 +3,33 @@ import api from '../lib/api'
 import type { Booking } from '../types'
 import { format } from 'date-fns'
 
+interface PaginationMeta {
+  page: number
+  limit: number
+  pages: number
+  count: number
+  from: number
+  to: number
+  prev: number | null
+  next: number | null
+}
+
 export default function Bookings() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
-    fetchBookings()
-  }, [])
+    fetchBookings(currentPage)
+  }, [currentPage])
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (page: number = 1) => {
+    setLoading(true)
     try {
-      const response = await api.get('/bookings')
-      setBookings(response.data)
+      const response = await api.get('/bookings', { params: { page, limit: 50 } })
+      setBookings(response.data.data)
+      setPagination(response.data.pagination)
     } catch (error) {
       console.error('Failed to fetch bookings:', error)
     } finally {
@@ -93,6 +108,54 @@ export default function Bookings() {
           </tbody>
         </table>
       </div>
+
+      {pagination && pagination.pages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-gray-700">
+            Showing {pagination.from} to {pagination.to} of {pagination.count} bookings
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={!pagination.prev}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <div className="flex items-center gap-2">
+              {Array.from({ length: Math.min(pagination.pages, 10) }, (_, i) => {
+                const maxPages = Math.min(pagination.pages, 10)
+                const halfVisible = Math.floor(maxPages / 2)
+                let startPage = Math.max(1, pagination.page - halfVisible)
+                let endPage = Math.min(pagination.pages, startPage + maxPages - 1)
+                if (endPage - startPage < maxPages - 1) {
+                  startPage = Math.max(1, endPage - maxPages + 1)
+                }
+                return startPage + i
+              }).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-2 border rounded-md text-sm font-medium ${
+                    page === pagination.page
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={!pagination.next}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
