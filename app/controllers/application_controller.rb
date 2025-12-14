@@ -1,5 +1,8 @@
+require 'pagy'
+
 class ApplicationController < ActionController::API
   include Pundit::Authorization
+  include Pagy::Method
 
   before_action :authenticate_user_from_token!
 
@@ -21,5 +24,18 @@ class ApplicationController < ActionController::API
 
   def user_not_authorized
     render json: { error: "You are not authorized to perform this action." }, status: :forbidden
+  end
+
+  def pagy_metadata(pagy)
+    {
+      page: pagy.page,
+      limit: pagy.limit,
+      pages: pagy.pages,
+      count: pagy.count,
+      from: pagy.from,
+      to: pagy.to,
+      prev: pagy.previous,
+      next: pagy.next
+    }
   end
 end
