@@ -7,7 +7,7 @@ admin = User.find_or_create_by!(email: 'admin@hotel.com') do |user|
   user.password = '123456'
   user.first_name = 'Admin'
   user.last_name = 'User'
-  user.role = 2 # admin
+  user.role = 3
 end
 puts "✓ Admin created: #{admin.email}"
 
@@ -15,7 +15,7 @@ manager = User.find_or_create_by!(email: 'manager@hotel.com') do |user|
   user.password = '123456'
   user.first_name = 'Manager'
   user.last_name = 'User'
-  user.role = 1 # manager
+  user.role = 2
 end
 puts "✓ Manager created: #{manager.email}"
 
@@ -23,9 +23,17 @@ staff = User.find_or_create_by!(email: 'staff@hotel.com') do |user|
   user.password = '123456'
   user.first_name = 'Staff'
   user.last_name = 'User'
-  user.role = 0 # staff
+  user.role = 1
 end
 puts "✓ Staff created: #{staff.email}"
+
+guest_user = User.find_or_create_by!(email: 'guest@hotel.com') do |user|
+  user.password = '123456'
+  user.first_name = 'Guest'
+  user.last_name = 'User'
+  user.role = 0
+end
+puts "✓ Guest created: #{guest_user.email}"
 
 puts "\nCreating room types..."
 standard = RoomType.find_or_create_by!(name: 'Standard') do |rt|
@@ -52,35 +60,156 @@ suite = RoomType.find_or_create_by!(name: 'Suite') do |rt|
 end
 puts "✓ Room type: #{suite.name}"
 
-puts "\nCreating rooms..."
-[
-  { number: '101', room_type: standard, floor: 1, status: 0 },
-  { number: '102', room_type: standard, floor: 1, status: 0 },
-  { number: '201', room_type: deluxe, floor: 2, status: 0 },
-  { number: '202', room_type: deluxe, floor: 2, status: 1 },
-  { number: '301', room_type: suite, floor: 3, status: 0 },
-].each do |attrs|
-  Room.find_or_create_by!(number: attrs[:number]) do |room|
-    room.room_type = attrs[:room_type]
-    room.floor = attrs[:floor]
-    room.status = attrs[:status]
+puts "\nCleaning existing data..."
+Booking.delete_all
+Guest.delete_all
+Room.delete_all
+
+puts "\nCreating 256 rooms..."
+room_types = [standard, deluxe, suite]
+room_distribution = { standard => 0.60, deluxe => 0.30, suite => 0.10 }
+
+rooms_created = 0
+(1..16).each do |floor|
+  (1..16).each do |room_num|
+    room_number = "#{floor}#{room_num.to_s.rjust(2, '0')}"
+    
+    rand_val = rand
+    room_type = if rand_val < 0.60
+      standard
+    elsif rand_val < 0.90
+      deluxe
+    else
+      suite
+    end
+    
+    Room.create!(
+      number: room_number,
+      room_type: room_type,
+      floor: floor,
+      status: 0
+    )
+    rooms_created += 1
   end
-  puts "✓ Room: #{attrs[:number]}"
 end
+puts "✓ Created #{rooms_created} rooms"
 
 puts "\nCreating services..."
+services = []
 [
   { name: 'Breakfast', description: 'Continental breakfast', price: 15.00, active: true },
   { name: 'Laundry', description: 'Laundry service', price: 25.00, active: true },
   { name: 'Spa', description: 'Spa and wellness', price: 80.00, active: true },
   { name: 'Airport Transfer', description: 'Airport pickup/dropoff', price: 50.00, active: true },
+  { name: 'Room Service', description: '24/7 room service', price: 20.00, active: true },
+  { name: 'Late Checkout', description: 'Late checkout until 6 PM', price: 30.00, active: true },
 ].each do |attrs|
-  Service.find_or_create_by!(name: attrs[:name]) do |service|
-    service.description = attrs[:description]
-    service.price = attrs[:price]
-    service.active = attrs[:active]
+  service = Service.find_or_create_by!(name: attrs[:name]) do |s|
+    s.description = attrs[:description]
+    s.price = attrs[:price]
+    s.active = attrs[:active]
   end
-  puts "✓ Service: #{attrs[:name]}"
+  services << service
+  puts "✓ Service: #{service.name}"
 end
 
+puts "\nCreating guests..."
+require 'faker'
+
+guests = []
+400.times do |i|
+  guest = Guest.create!(
+    first_name: Faker::Name.first_name,
+    last_name: Faker::Name.last_name,
+    email: Faker::Internet.unique.email,
+    phone: Faker::PhoneNumber.cell_phone,
+    passport_number: Faker::Alphanumeric.alphanumeric(number: 9, min_alpha: 1).upcase,
+    date_of_birth: Faker::Date.birthday(min_age: 18, max_age: 70),
+    country: Faker::Address.country,
+    notes: rand < 0.1 ? Faker::Lorem.sentence(word_count: 5) : ''
+  )
+  guests << guest
+end
+puts "✓ Created #{guests.count} guests"
+
+puts "\nCreating bookings for 365 days with 80-90% occupancy..."
+require 'parallel'
+
+rooms = Room.all.to_a
+start_date = Date.today - 182.days
+end_date = Date.today + 182.days
+
+puts "Using #{Parallel.processor_count} CPU cores for parallel processing..."
+
+bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) do |room|
+  ActiveRecord::Base.connection.reconnect!
+  
+  room_bookings = 0
+  current_date = start_date
+  
+  while current_date < end_date
+    if rand < 0.85
+      stay_duration = rand(1..7)
+      check_in = current_date
+      check_out = check_in + stay_duration.days
+      
+      break if check_out > end_date
+      
+      guest = guests.sample
+      num_guests = rand(1..room.room_type.capacity)
+      
+      nights = (check_out - check_in).to_i
+      base_price = room.room_type.base_price * nights
+      
+      status = if check_in > Date.today + 30.days
+        'pending'
+      elsif check_in > Date.today
+        rand < 0.8 ? 'confirmed' : 'pending'
+      elsif check_out < Date.today
+        'checked_out'
+      else
+        'checked_in'
+      end
+      
+      booking = Booking.create!(
+        room: room,
+        guest: guest,
+        user: admin,
+        check_in_date: check_in,
+        check_out_date: check_out,
+        number_of_guests: num_guests,
+        total_price: base_price,
+        status: status,
+        notes: rand < 0.15 ? Faker::Lorem.sentence(word_count: rand(3..8)) : ''
+      )
+      
+      if rand < 0.4
+        booking_services = services.sample(rand(1..3))
+        booking_services.each do |service|
+          quantity = rand(1..nights)
+          booking.booking_services.create!(
+            service: service, 
+            quantity: quantity,
+            price: service.price * quantity
+          )
+        end
+      end
+      
+      room_bookings += 1
+      current_date = check_out + rand(0..2).days
+    else
+      current_date += rand(1..3).days
+    end
+  end
+  
+  room_bookings
+end.sum
+
+puts "✓ Created #{bookings_created} bookings"
 puts "\n✅ Seeds completed successfully!"
+puts "📊 Statistics:"
+puts "   - Rooms: #{Room.count}"
+puts "   - Guests: #{Guest.count}"
+puts "   - Bookings: #{Booking.count}"
+puts "   - Services: #{Service.count}"
+puts "   - Average occupancy: ~85%"
