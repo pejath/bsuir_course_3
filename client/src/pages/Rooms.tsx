@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, Edit, Trash2 } from 'lucide-react'
+import { Plus, Edit, Trash2, Search, X } from 'lucide-react'
 import api from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { canManageRooms, canDeleteRooms } from '../lib/roles'
@@ -18,24 +18,56 @@ interface PaginationMeta {
   next: number | null
 }
 
+interface RoomType {
+  id: number
+  name: string
+}
+
 export default function Rooms() {
   const { user } = useAuthStore()
   const [rooms, setRooms] = useState<Room[]>([])
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
   const [pagination, setPagination] = useState<PaginationMeta | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  
+  const [filters, setFilters] = useState({
+    status: '',
+    room_type_id: '',
+    floor: '',
+    number: ''
+  })
+
+  useEffect(() => {
+    fetchRoomTypes()
+  }, [])
 
   useEffect(() => {
     fetchRooms(currentPage)
-  }, [currentPage])
+  }, [currentPage, filters])
+
+  const fetchRoomTypes = async () => {
+    try {
+      const response = await api.get('/room_types')
+      setRoomTypes(response.data)
+    } catch (error) {
+      console.error('Failed to fetch room types:', error)
+    }
+  }
 
   const fetchRooms = async (page: number = 1) => {
     setLoading(true)
     try {
-      const response = await api.get('/rooms', { params: { page, limit: 50 } })
+      const params: any = { page, limit: 50 }
+      if (filters.status) params.status = filters.status
+      if (filters.room_type_id) params.room_type_id = filters.room_type_id
+      if (filters.floor) params.floor = filters.floor
+      if (filters.number) params.number = filters.number
+      
+      const response = await api.get('/rooms', { params })
       setRooms(response.data.data)
       setPagination(response.data.pagination)
     } catch (error) {
@@ -72,6 +104,21 @@ export default function Rooms() {
     fetchRooms(currentPage)
   }
 
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }))
+    setCurrentPage(1)
+  }
+
+  const clearFilters = () => {
+    setFilters({
+      status: '',
+      room_type_id: '',
+      floor: '',
+      number: ''
+    })
+    setCurrentPage(1)
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available': return 'bg-green-100 text-green-800'
@@ -99,6 +146,79 @@ export default function Rooms() {
             Add Room
           </button>
         )}
+      </div>
+
+      <div className="mb-6 bg-white shadow sm:rounded-lg p-6">
+        <div className="flex items-center gap-4 mb-4">
+          <Search className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-medium text-gray-900">Filters</h3>
+          {(filters.status || filters.room_type_id || filters.floor || filters.number) && (
+            <button
+              onClick={clearFilters}
+              className="ml-auto text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+            >
+              <X className="w-4 h-4" />
+              Clear filters
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              value={filters.status}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            >
+              <option value="">All statuses</option>
+              <option value="available">Available</option>
+              <option value="occupied">Occupied</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="reserved">Reserved</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Room Type
+            </label>
+            <select
+              value={filters.room_type_id}
+              onChange={(e) => handleFilterChange('room_type_id', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            >
+              <option value="">All types</option>
+              {roomTypes.map(type => (
+                <option key={type.id} value={type.id}>{type.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Floor
+            </label>
+            <input
+              type="number"
+              value={filters.floor}
+              onChange={(e) => handleFilterChange('floor', e.target.value)}
+              placeholder="Filter by floor"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Room Number
+            </label>
+            <input
+              type="text"
+              value={filters.number}
+              onChange={(e) => handleFilterChange('number', e.target.value)}
+              placeholder="Search by number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+        </div>
       </div>
       
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
