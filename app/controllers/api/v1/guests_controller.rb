@@ -3,7 +3,20 @@ class Api::V1::GuestsController < Api::V1::BaseController
 
   def index
     authorize Guest
-    pagy, @guests = pagy(Guest.order(created_at: :desc), limit: params[:limit] || 50)
+    guests = Guest.all
+    
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      guests = guests.where(
+        "first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ? OR phone ILIKE ? OR passport_number ILIKE ?",
+        search_term, search_term, search_term, search_term, search_term
+      )
+    end
+    
+    guests = guests.where(country: params[:country]) if params[:country].present?
+    
+    guests = guests.order(created_at: :desc)
+    pagy, @guests = pagy(guests, limit: params[:limit] || 50)
     render json: {
       data: @guests,
       pagination: pagy_metadata(pagy)

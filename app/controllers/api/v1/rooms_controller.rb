@@ -3,7 +3,14 @@ class Api::V1::RoomsController < Api::V1::BaseController
 
   def index
     authorize Room
-    pagy, @rooms = pagy(Room.includes(:room_type).all, limit: params[:limit] || 50)
+    rooms = Room.includes(:room_type).all
+    
+    rooms = rooms.where(status: params[:status]) if params[:status].present?
+    rooms = rooms.where(room_type_id: params[:room_type_id]) if params[:room_type_id].present?
+    rooms = rooms.where(floor: params[:floor]) if params[:floor].present?
+    rooms = rooms.where("number ILIKE ?", "%#{params[:number]}%") if params[:number].present?
+    
+    pagy, @rooms = pagy(rooms, limit: params[:limit] || 50)
     render json: {
       data: @rooms.as_json(include: :room_type),
       pagination: pagy_metadata(pagy)

@@ -4,7 +4,18 @@ class Api::V1::BookingsController < Api::V1::BaseController
 
   def index
     authorize Booking
-    pagy, @bookings = pagy(Booking.includes(:guest, :user, room: :room_type).order(check_in_date: :desc), limit: params[:limit] || 50)
+    bookings = Booking.includes(:guest, :user, room: :room_type)
+    
+    bookings = bookings.where(status: params[:status]) if params[:status].present?
+    bookings = bookings.where(room_id: params[:room_id]) if params[:room_id].present?
+    bookings = bookings.where(guest_id: params[:guest_id]) if params[:guest_id].present?
+    bookings = bookings.where("check_in_date >= ?", params[:check_in_from]) if params[:check_in_from].present?
+    bookings = bookings.where("check_in_date <= ?", params[:check_in_to]) if params[:check_in_to].present?
+    bookings = bookings.where("check_out_date >= ?", params[:check_out_from]) if params[:check_out_from].present?
+    bookings = bookings.where("check_out_date <= ?", params[:check_out_to]) if params[:check_out_to].present?
+    
+    bookings = bookings.order(check_in_date: :desc)
+    pagy, @bookings = pagy(bookings, limit: params[:limit] || 50)
     render json: {
       data: @bookings.as_json(include: { room: { include: :room_type }, guest: {}, user: {} }),
       pagination: pagy_metadata(pagy)
