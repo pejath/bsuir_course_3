@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Search, X } from 'lucide-react'
 import api from '../lib/api'
 import type { Guest } from '../types'
 
@@ -18,15 +19,24 @@ export default function Guests() {
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState<PaginationMeta | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  
+  const [filters, setFilters] = useState({
+    search: '',
+    country: ''
+  })
 
   useEffect(() => {
     fetchGuests(currentPage)
-  }, [currentPage])
+  }, [currentPage, filters])
 
   const fetchGuests = async (page: number = 1) => {
     setLoading(true)
     try {
-      const response = await api.get('/guests', { params: { page, limit: 50 } })
+      const params: any = { page, limit: 50 }
+      if (filters.search) params.search = filters.search
+      if (filters.country) params.country = filters.country
+      
+      const response = await api.get('/guests', { params })
       setGuests(response.data.data)
       setPagination(response.data.pagination)
     } catch (error) {
@@ -36,6 +46,19 @@ export default function Guests() {
     }
   }
 
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }))
+    setCurrentPage(1)
+  }
+
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      country: ''
+    })
+    setCurrentPage(1)
+  }
+
   if (loading) {
     return <div className="text-center py-12">Loading...</div>
   }
@@ -43,6 +66,48 @@ export default function Guests() {
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Guests</h1>
+
+      <div className="mb-6 bg-white shadow sm:rounded-lg p-6">
+        <div className="flex items-center gap-4 mb-4">
+          <Search className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-medium text-gray-900">Filters</h3>
+          {(filters.search || filters.country) && (
+            <button
+              onClick={clearFilters}
+              className="ml-auto text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+            >
+              <X className="w-4 h-4" />
+              Clear filters
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Search
+            </label>
+            <input
+              type="text"
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              placeholder="Search by name, email, phone or passport..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Country
+            </label>
+            <input
+              type="text"
+              value={filters.country}
+              onChange={(e) => handleFilterChange('country', e.target.value)}
+              placeholder="Filter by country"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+        </div>
+      </div>
       
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
