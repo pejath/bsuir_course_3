@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Search, X } from 'lucide-react'
 import api from '../lib/api'
 import type { Booking } from '../types'
 import { format } from 'date-fns'
@@ -19,15 +20,30 @@ export default function Bookings() {
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState<PaginationMeta | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  
+  const [filters, setFilters] = useState({
+    status: '',
+    check_in_from: '',
+    check_in_to: '',
+    check_out_from: '',
+    check_out_to: ''
+  })
 
   useEffect(() => {
     fetchBookings(currentPage)
-  }, [currentPage])
+  }, [currentPage, filters])
 
   const fetchBookings = async (page: number = 1) => {
     setLoading(true)
     try {
-      const response = await api.get('/bookings', { params: { page, limit: 50 } })
+      const params: any = { page, limit: 50 }
+      if (filters.status) params.status = filters.status
+      if (filters.check_in_from) params.check_in_from = filters.check_in_from
+      if (filters.check_in_to) params.check_in_to = filters.check_in_to
+      if (filters.check_out_from) params.check_out_from = filters.check_out_from
+      if (filters.check_out_to) params.check_out_to = filters.check_out_to
+      
+      const response = await api.get('/bookings', { params })
       setBookings(response.data.data)
       setPagination(response.data.pagination)
     } catch (error) {
@@ -35,6 +51,22 @@ export default function Bookings() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }))
+    setCurrentPage(1)
+  }
+
+  const clearFilters = () => {
+    setFilters({
+      status: '',
+      check_in_from: '',
+      check_in_to: '',
+      check_out_from: '',
+      check_out_to: ''
+    })
+    setCurrentPage(1)
   }
 
   const getStatusColor = (status: string) => {
@@ -55,6 +87,85 @@ export default function Bookings() {
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Bookings</h1>
+
+      <div className="mb-6 bg-white shadow sm:rounded-lg p-6">
+        <div className="flex items-center gap-4 mb-4">
+          <Search className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-medium text-gray-900">Filters</h3>
+          {(filters.status || filters.check_in_from || filters.check_in_to || filters.check_out_from || filters.check_out_to) && (
+            <button
+              onClick={clearFilters}
+              className="ml-auto text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+            >
+              <X className="w-4 h-4" />
+              Clear filters
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              value={filters.status}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            >
+              <option value="">All statuses</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="checked_in">Checked In</option>
+              <option value="checked_out">Checked Out</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Check-in From
+            </label>
+            <input
+              type="date"
+              value={filters.check_in_from}
+              onChange={(e) => handleFilterChange('check_in_from', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Check-in To
+            </label>
+            <input
+              type="date"
+              value={filters.check_in_to}
+              onChange={(e) => handleFilterChange('check_in_to', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Check-out From
+            </label>
+            <input
+              type="date"
+              value={filters.check_out_from}
+              onChange={(e) => handleFilterChange('check_out_from', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Check-out To
+            </label>
+            <input
+              type="date"
+              value={filters.check_out_to}
+              onChange={(e) => handleFilterChange('check_out_to', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+        </div>
+      </div>
       
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
