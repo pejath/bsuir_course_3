@@ -19,6 +19,9 @@ Rails.application.routes.draw do
         collection do
           get :available
         end
+        member do
+          get :activity
+        end
       end
       
       resources :room_types

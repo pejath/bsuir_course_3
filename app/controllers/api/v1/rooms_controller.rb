@@ -1,5 +1,5 @@
 class Api::V1::RoomsController < Api::V1::BaseController
-  before_action :set_room, only: [:show, :update, :destroy]
+  before_action :set_room, only: [:show, :update, :destroy, :activity]
 
   def index
     authorize Room
@@ -53,6 +53,39 @@ class Api::V1::RoomsController < Api::V1::BaseController
     @rooms = Room.available.includes(:room_type)
     authorize @rooms
     render json: @rooms, include: :room_type
+  end
+
+  def activity
+    authorize @room
+    
+    start_date = 1.year.ago.to_date
+    end_date = Date.today
+    
+    bookings = @room.bookings
+      .where('check_in_date <= ? AND check_out_date >= ?', end_date, start_date)
+      .select(:check_in_date, :check_out_date, :status)
+    
+    activity_map = {}
+    (start_date..end_date).each do |date|
+      activity_map[date.to_s] = 0
+    end
+    
+    bookings.each do |booking|
+      booking_start = [booking.check_in_date, start_date].max
+      booking_end = [booking.check_out_date, end_date].min
+      
+      (booking_start..booking_end).each do |date|
+        activity_map[date.to_s] = 1 if ['confirmed', 'checked_in', 'checked_out'].include?(booking.status)
+      end
+    end
+    
+    render json: {
+      room_id: @room.id,
+      room_number: @room.number,
+      start_date: start_date,
+      end_date: end_date,
+      activity: activity_map
+    }
   end
 
   private
