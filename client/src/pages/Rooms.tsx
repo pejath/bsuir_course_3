@@ -21,11 +21,6 @@ interface PaginationMeta {
   next: number | null
 }
 
-interface RoomType {
-  id: number
-  name: string
-}
-
 export default function Rooms() {
   const { user } = useAuthStore()
   const [rooms, setRooms] = useState<Room[]>([])
