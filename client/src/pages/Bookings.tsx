@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, Plus } from 'lucide-react'
 import api from '../lib/api'
 import type { Booking } from '../types'
 import { format } from 'date-fns'
+import BookingForm from '../components/BookingForm'
+import { formatStatus } from '../utils/formatters'
 
 interface PaginationMeta {
   page: number
@@ -17,9 +19,12 @@ interface PaginationMeta {
 
 export default function Bookings() {
   const [bookings, setBookings] = useState<Booking[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [pagination, setPagination] = useState<PaginationMeta | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [showForm, setShowForm] = useState(false)
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   
   const [filters, setFilters] = useState({
     status: '',
@@ -50,6 +55,7 @@ export default function Bookings() {
       console.error('Failed to fetch bookings:', error)
     } finally {
       setLoading(false)
+      setInitialLoading(false)
     }
   }
 
@@ -80,13 +86,43 @@ export default function Bookings() {
     }
   }
 
-  if (loading) {
+  const handleCreateBooking = () => {
+    setSelectedBooking(null)
+    setShowForm(true)
+  }
+
+  const handleEditBooking = (booking: Booking) => {
+    setSelectedBooking(booking)
+    setShowForm(true)
+  }
+
+  const handleFormSuccess = () => {
+    setShowForm(false)
+    setSelectedBooking(null)
+    fetchBookings(currentPage)
+  }
+
+  const handleFormCancel = () => {
+    setShowForm(false)
+    setSelectedBooking(null)
+  }
+
+  if (initialLoading) {
     return <div className="text-center py-12">Loading...</div>
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Bookings</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Bookings</h1>
+        <button
+          onClick={handleCreateBooking}
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Create Booking
+        </button>
+      </div>
 
       <div className="mb-6 bg-white shadow sm:rounded-lg p-6">
         <div className="flex items-center gap-4 mb-4">
@@ -167,7 +203,12 @@ export default function Bookings() {
         </div>
       </div>
       
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg relative">
+        {loading && (
+          <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          </div>
+        )}
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -189,6 +230,9 @@ export default function Bookings() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Total
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -208,11 +252,19 @@ export default function Bookings() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(booking.status)}`}>
-                    {booking.status}
+                    {formatStatus(booking.status)}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   ${booking.total_price}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <button
+                    onClick={() => handleEditBooking(booking)}
+                    className="text-primary-600 hover:text-primary-900"
+                  >
+                    Edit
+                  </button>
                 </td>
               </tr>
             ))}
@@ -264,6 +316,25 @@ export default function Bookings() {
             >
               Next
             </button>
+          </div>
+        </div>
+      )}
+
+      {showForm && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">
+                {selectedBooking ? 'Edit Booking' : 'Create Booking'}
+              </h2>
+            </div>
+            <div className="px-6 py-4">
+              <BookingForm
+                booking={selectedBooking}
+                onSuccess={handleFormSuccess}
+                onCancel={handleFormCancel}
+              />
+            </div>
           </div>
         </div>
       )}
