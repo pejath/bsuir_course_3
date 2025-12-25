@@ -12,11 +12,11 @@ export default function Layout({ children }: LayoutProps) {
   const { user, logout } = useAuthStore()
 
   const allNavigation = [
-    { name: 'Dashboard', href: '/', icon: Home, show: canViewAnalytics(user) },
-    { name: 'Rooms', href: '/rooms', icon: Bed, show: true },
-    { name: 'Bookings', href: '/bookings', icon: Calendar, show: true },
-    { name: 'Guests', href: '/guests', icon: Users, show: canManageGuests(user) },
-    { name: 'Analytics', href: '/analytics', icon: BarChart3, show: canViewAnalytics(user) },
+    { name: 'Dashboard', href: '/admin/', icon: Home, show: canViewAnalytics(user) },
+    { name: 'Rooms', href: '/admin/rooms', icon: Bed, show: true },
+    { name: 'Bookings', href: '/admin/bookings', icon: Calendar, show: true },
+    { name: 'Guests', href: '/admin/guests', icon: Users, show: canManageGuests(user) },
+    { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, show: canViewAnalytics(user) },
   ]
   
   const navigation = allNavigation.filter(item => item.show)

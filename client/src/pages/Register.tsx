@@ -33,7 +33,7 @@ export default function Register() {
     setLoading(true)
     try {
       await register(formData.email, formData.password, formData.firstName, formData.lastName)
-      navigate('/')
+      navigate('/admin')
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed')
     } finally {

@@ -10,6 +10,9 @@ import Rooms from './pages/Rooms'
 import Bookings from './pages/Bookings'
 import Guests from './pages/Guests'
 import Analytics from './pages/Analytics'
+import PublicSearch from './pages/PublicSearch'
+import PublicRoomDetails from './pages/PublicRoomDetails'
+import BookingConfirmation from './pages/BookingConfirmation'
 
 function App() {
   const { isAuthenticated } = useAuthStore()
@@ -25,11 +28,14 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<PublicSearch />} />
+        <Route path="/room/:id" element={<PublicRoomDetails />} />
+        <Route path="/booking-confirmation/:id" element={<BookingConfirmation />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
         <Route
-          path="/*"
+          path="/admin/*"
           element={
             isAuthenticated ? (
               <Layout>

@@ -61,10 +61,10 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           console.error('Logout error:', error)
         } finally {
-          // Удаляем токен из localStorage и заголовков
           localStorage.removeItem('token')
           delete api.defaults.headers.common['Authorization']
           set({ user: null, isAuthenticated: false })
+          window.location.href = '/'
         }
       },
 

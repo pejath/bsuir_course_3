@@ -18,7 +18,7 @@ export default function Login() {
 
     try {
       await login(email, password)
-      navigate('/')
+      navigate('/admin')
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to login')
     } finally {
