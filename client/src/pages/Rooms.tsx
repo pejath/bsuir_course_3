@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react'
-import { Plus, Edit, Trash2, Search, X } from 'lucide-react'
+import { useEffect, useState, Fragment } from 'react'
+import { Plus, Edit, Trash2, Search, X, ChevronDown, ChevronRight } from 'lucide-react'
 import api from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { canManageRooms, canDeleteRooms } from '../lib/roles'
+import { useDebounce } from '../hooks/useDebounce'
 import Modal from '../components/Modal'
 import RoomForm from '../components/RoomForm'
-import type { Room } from '../types'
+import RoomActivityChart from '../components/RoomActivityChart'
+import { formatStatus } from '../utils/formatters'
+import type { Room, RoomType } from '../types'
 
 interface PaginationMeta {
   page: number
@@ -27,12 +30,14 @@ export default function Rooms() {
   const { user } = useAuthStore()
   const [rooms, setRooms] = useState<Room[]>([])
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
   const [pagination, setPagination] = useState<PaginationMeta | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [expandedRoomId, setExpandedRoomId] = useState<number | null>(null)
   
   const [filters, setFilters] = useState({
     status: '',
@@ -41,13 +46,15 @@ export default function Rooms() {
     number: ''
   })
 
+  const debouncedNumber = useDebounce(filters.number, 500)
+
   useEffect(() => {
     fetchRoomTypes()
   }, [])
 
   useEffect(() => {
     fetchRooms(currentPage)
-  }, [currentPage, filters])
+  }, [currentPage, filters.status, filters.room_type_id, filters.floor, debouncedNumber])
 
   const fetchRoomTypes = async () => {
     try {
@@ -65,7 +72,7 @@ export default function Rooms() {
       if (filters.status) params.status = filters.status
       if (filters.room_type_id) params.room_type_id = filters.room_type_id
       if (filters.floor) params.floor = filters.floor
-      if (filters.number) params.number = filters.number
+      if (debouncedNumber) params.number = debouncedNumber
       
       const response = await api.get('/rooms', { params })
       setRooms(response.data.data)
@@ -74,6 +81,7 @@ export default function Rooms() {
       console.error('Failed to fetch rooms:', error)
     } finally {
       setLoading(false)
+      setInitialLoading(false)
     }
   }
 
@@ -119,6 +127,10 @@ export default function Rooms() {
     setCurrentPage(1)
   }
 
+  const toggleRoomExpand = (roomId: number) => {
+    setExpandedRoomId(expandedRoomId === roomId ? null : roomId)
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available': return 'bg-green-100 text-green-800'
@@ -129,7 +141,7 @@ export default function Rooms() {
     }
   }
 
-  if (loading) {
+  if (initialLoading) {
     return <div className="text-center py-12">Loading...</div>
   }
 
@@ -221,7 +233,12 @@ export default function Rooms() {
         </div>
       </div>
       
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg relative">
+        {loading && (
+          <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          </div>
+        )}
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -247,64 +264,133 @@ export default function Rooms() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {rooms.map((room) => (
-              <tr key={room.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {room.number}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {room.room_type?.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {room.floor}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(room.status)}`}>
-                    {room.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${room.room_type?.base_price}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex items-center space-x-2">
-                    {canManageRooms(user) && (
-                      <button
-                        onClick={() => handleEdit(room)}
-                        className="text-primary-600 hover:text-primary-900"
-                        title="Edit room"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    )}
-                    {canDeleteRooms(user) && (
-                      deleteConfirm === room.id ? (
-                        <div className="flex items-center space-x-1">
-                          <button
-                            onClick={() => handleDelete(room.id)}
-                            className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            onClick={() => setDeleteConfirm(null)}
-                            className="text-xs px-2 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                          >
-                            Cancel
-                          </button>
-                        </div>
+              <Fragment key={room.id}>
+                <tr 
+                  key={room.id}
+                  className="hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => toggleRoomExpand(room.id)}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <div className="flex items-center gap-2">
+                      {expandedRoomId === room.id ? (
+                        <ChevronDown className="w-4 h-4 text-gray-500" />
                       ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-500" />
+                      )}
+                      {room.number}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {room.room_type?.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {room.floor}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(room.status)}`}>
+                      {formatStatus(room.status)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${room.room_type?.base_price}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center space-x-2">
+                      {canManageRooms(user) && (
                         <button
-                          onClick={() => setDeleteConfirm(room.id)}
-                          className="text-red-600 hover:text-red-900"
-                          title="Delete room"
+                          onClick={() => handleEdit(room)}
+                          className="text-primary-600 hover:text-primary-900"
+                          title="Edit room"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Edit className="w-4 h-4" />
                         </button>
-                      )
-                    )}
-                  </div>
-                </td>
-              </tr>
+                      )}
+                      {canDeleteRooms(user) && (
+                        deleteConfirm === room.id ? (
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={() => handleDelete(room.id)}
+                              className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(null)}
+                              className="text-xs px-2 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setDeleteConfirm(room.id)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Delete room"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </td>
+                </tr>
+                {expandedRoomId === room.id && (
+                  <tr key={`${room.id}-expanded`}>
+                    <td colSpan={6} className="p-0">
+                      <div className="bg-gray-50 border-t border-gray-200">
+                        <div className="px-8 py-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <h4 className="text-sm font-semibold text-gray-900 mb-3">Room Details</h4>
+                            
+                            {room.capacity && (
+                              <div>
+                                <span className="text-xs font-medium text-gray-500">Capacity:</span>
+                                <p className="text-sm text-gray-900 mt-1">{room.capacity} {room.capacity === 1 ? 'guest' : 'guests'}</p>
+                              </div>
+                            )}
+                            
+                            {room.view && (
+                              <div>
+                                <span className="text-xs font-medium text-gray-500">View:</span>
+                                <p className="text-sm text-gray-900 mt-1">{room.view}</p>
+                              </div>
+                            )}
+                            
+                            {room.description && (
+                              <div>
+                                <span className="text-xs font-medium text-gray-500">Description:</span>
+                                <p className="text-sm text-gray-700 mt-1 leading-relaxed">{room.description}</p>
+                              </div>
+                            )}
+                            
+                            {room.amenities && (
+                              <div>
+                                <span className="text-xs font-medium text-gray-500">Amenities:</span>
+                                <p className="text-sm text-gray-700 mt-1">{room.amenities}</p>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {room.image_url && (
+                            <div>
+                              <span className="text-xs font-medium text-gray-500 block mb-2">Room Image:</span>
+                              <img 
+                                src={room.image_url} 
+                                alt={`Room ${room.number}`}
+                                className="w-full h-48 object-cover rounded-lg shadow-md"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none'
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <RoomActivityChart roomId={room.id} />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>
