@@ -83,11 +83,18 @@ rooms_created = 0
       suite
     end
     
+    views = ['City', 'Garden', 'Sea', 'Mountain', 'Pool', 'Courtyard']
+    
     Room.create!(
       number: room_number,
       room_type: room_type,
       floor: floor,
-      status: 0
+      status: 0,
+      capacity: room_type.capacity,
+      description: Faker::Lorem.paragraph(sentence_count: 3),
+      amenities: "WiFi, TV, Air conditioning, #{['Mini bar', 'Safe', 'Coffee maker', 'Hairdryer'].sample(rand(2..4)).join(', ')}",
+      view: views.sample,
+      image_url: "https://picsum.photos/800/600?random=#{room_number}"
     )
     rooms_created += 1
   end
@@ -148,7 +155,7 @@ bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) d
   current_date = start_date
   
   while current_date < end_date
-    if rand < 0.85
+    if rand < 0.75
       stay_duration = rand(1..7)
       check_in = current_date
       check_out = check_in + stay_duration.days
@@ -180,6 +187,7 @@ bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) d
         number_of_guests: num_guests,
         total_price: base_price,
         status: status,
+        created_at: check_in,
         notes: rand < 0.15 ? Faker::Lorem.sentence(word_count: rand(3..8)) : ''
       )
       
@@ -196,9 +204,9 @@ bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) d
       end
       
       room_bookings += 1
-      current_date = check_out + rand(0..2).days
+      current_date = check_out + rand(1..5).days
     else
-      current_date += rand(1..3).days
+      current_date += rand(2..7).days
     end
   end
   
@@ -206,10 +214,91 @@ bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) d
 end.sum
 
 puts "✓ Created #{bookings_created} bookings"
+
+puts "\nCreating payments for bookings..."
+payment_methods = ['cash', 'card', 'bank_transfer']
+payments_created = 0
+
+Booking.where(status: [:confirmed, :checked_in, :checked_out]).find_each do |booking|
+  payment_status = if booking.status == 'checked_out'
+    'completed'
+  elsif booking.status == 'checked_in'
+    rand < 0.9 ? 'completed' : 'pending'
+  else
+    rand < 0.7 ? 'completed' : 'pending'
+  end
+  
+  payment_date = if payment_status == 'completed'
+    booking.check_in_date - rand(0..2).days
+  else
+    nil
+  end
+  
+  Payment.create!(
+    booking: booking,
+    amount: booking.total_price,
+    payment_method: payment_methods.sample,
+    status: payment_status,
+    payment_date: payment_date,
+    transaction_id: payment_status == 'completed' ? "TXN-#{SecureRandom.hex(8).upcase}" : nil,
+    notes: ''
+  )
+  payments_created += 1
+end
+
+puts "✓ Created #{payments_created} payments"
+
+puts "\nUpdating room statuses based on current bookings..."
+Room.find_each do |room|
+  today = Date.today
+  
+  current_booking = room.bookings
+    .where('check_in_date <= ? AND check_out_date >= ?', today, today)
+    .where(status: ['confirmed', 'checked_in', 'checked_out'])
+    .first
+  
+  if current_booking
+    if current_booking.status == 'checked_in'
+      room.update!(status: :occupied)
+    elsif current_booking.status == 'confirmed'
+      room.update!(status: :reserved)
+    elsif current_booking.status == 'checked_out' && current_booking.check_out_date == today
+      room.update!(status: :occupied)
+    else
+      room.update!(status: :occupied)
+    end
+  else
+    upcoming_booking = room.bookings
+      .where('check_in_date > ?', today)
+      .where(status: ['confirmed', 'pending'])
+      .order(:check_in_date)
+      .first
+    
+    if upcoming_booking && upcoming_booking.check_in_date <= today + 7.days
+      room.update!(status: :reserved)
+    else
+      room.update!(status: rand < 0.05 ? :maintenance : :available)
+    end
+  end
+end
+
+occupied_count = Room.where(status: :occupied).count
+reserved_count = Room.where(status: :reserved).count
+available_count = Room.where(status: :available).count
+maintenance_count = Room.where(status: :maintenance).count
+
+puts "✓ Room statuses updated:"
+puts "   - Occupied: #{occupied_count}"
+puts "   - Reserved: #{reserved_count}"
+puts "   - Available: #{available_count}"
+puts "   - Maintenance: #{maintenance_count}"
+
 puts "\n✅ Seeds completed successfully!"
 puts "📊 Statistics:"
 puts "   - Rooms: #{Room.count}"
 puts "   - Guests: #{Guest.count}"
 puts "   - Bookings: #{Booking.count}"
+puts "   - Payments: #{Payment.count}"
 puts "   - Services: #{Service.count}"
+puts "   - Total Revenue: $#{Payment.where(status: :completed).sum(:amount).round(2)}"
 puts "   - Average occupancy: ~85%"

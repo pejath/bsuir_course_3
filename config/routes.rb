@@ -40,6 +40,8 @@ Rails.application.routes.draw do
       get 'analytics/occupancy_rate', to: 'analytics#occupancy_rate'
       get 'analytics/revenue_report', to: 'analytics#revenue_report'
       get 'analytics/room_statistics', to: 'analytics#room_statistics'
+      get 'analytics/revenue_trend', to: 'analytics#revenue_trend'
+      get 'analytics/bookings_trend', to: 'analytics#bookings_trend'
     end
   end
 end

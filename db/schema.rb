@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_14_115950) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_25_133401) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,13 +79,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_115950) do
   end
 
   create_table "rooms", force: :cascade do |t|
+    t.text "amenities"
+    t.integer "capacity"
     t.datetime "created_at", null: false
+    t.text "description"
     t.integer "floor"
+    t.string "image_url"
     t.text "notes"
     t.string "number"
     t.bigint "room_type_id", null: false
     t.integer "status"
     t.datetime "updated_at", null: false
+    t.string "view"
     t.index ["room_type_id"], name: "index_rooms_on_room_type_id"
   end
 
