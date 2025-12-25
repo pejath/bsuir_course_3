@@ -25,6 +25,11 @@ export interface Room {
   floor: number
   status: 'available' | 'occupied' | 'maintenance' | 'reserved'
   notes: string
+  capacity?: number
+  description?: string
+  amenities?: string
+  view?: string
+  image_url?: string
   created_at: string
   updated_at: string
 }
@@ -110,4 +115,14 @@ export interface RevenueReport {
   total_revenue: number
   total_payments: number
   payment_methods: Record<string, number>
+}
+
+export interface RevenueTrendData {
+  month: string
+  revenue: number
+}
+
+export interface BookingsTrendData {
+  by_status: Record<string, number>
+  by_month: Array<{ month: string; count: number }>
 }

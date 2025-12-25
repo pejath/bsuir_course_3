@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Search, X } from 'lucide-react'
 import api from '../lib/api'
+import { useDebounce } from '../hooks/useDebounce'
 import type { Guest } from '../types'
 
 interface PaginationMeta {
@@ -16,7 +17,8 @@ interface PaginationMeta {
 
 export default function Guests() {
   const [guests, setGuests] = useState<Guest[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [pagination, setPagination] = useState<PaginationMeta | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   
@@ -25,16 +27,19 @@ export default function Guests() {
     country: ''
   })
 
+  const debouncedSearch = useDebounce(filters.search, 500)
+  const debouncedCountry = useDebounce(filters.country, 500)
+
   useEffect(() => {
     fetchGuests(currentPage)
-  }, [currentPage, filters])
+  }, [currentPage, debouncedSearch, debouncedCountry])
 
   const fetchGuests = async (page: number = 1) => {
     setLoading(true)
     try {
       const params: any = { page, limit: 50 }
-      if (filters.search) params.search = filters.search
-      if (filters.country) params.country = filters.country
+      if (debouncedSearch) params.search = debouncedSearch
+      if (debouncedCountry) params.country = debouncedCountry
       
       const response = await api.get('/guests', { params })
       setGuests(response.data.data)
@@ -43,6 +48,7 @@ export default function Guests() {
       console.error('Failed to fetch guests:', error)
     } finally {
       setLoading(false)
+      setInitialLoading(false)
     }
   }
 
@@ -59,7 +65,7 @@ export default function Guests() {
     setCurrentPage(1)
   }
 
-  if (loading) {
+  if (initialLoading) {
     return <div className="text-center py-12">Loading...</div>
   }
 
@@ -109,7 +115,12 @@ export default function Guests() {
         </div>
       </div>
       
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg relative">
+        {loading && (
+          <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          </div>
+        )}
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
