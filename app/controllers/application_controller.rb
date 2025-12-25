@@ -38,4 +38,8 @@ class ApplicationController < ActionController::API
       next: pagy.next
     }
   end
+
+  def fallback_index_html
+    render file: Rails.public_path.join('index.html')
+  end
 end

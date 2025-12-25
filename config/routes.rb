@@ -54,4 +54,8 @@ Rails.application.routes.draw do
       get 'analytics/bookings_trend', to: 'analytics#bookings_trend'
     end
   end
+
+  get '*path', to: 'application#fallback_index_html', constraints: ->(request) do
+    !request.xhr? && request.format.html?
+  end
 end
