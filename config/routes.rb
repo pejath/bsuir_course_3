@@ -15,6 +15,16 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      namespace :public do
+        resources :rooms, only: [:index, :show] do
+          member do
+            get :availability
+          end
+        end
+        resources :room_types, only: [:index, :show]
+        resources :bookings, only: [:create, :show]
+      end
+
       resources :rooms do
         collection do
           get :available
