@@ -10,6 +10,7 @@ class Room < ApplicationRecord
   validates :number, presence: true, uniqueness: true
   validates :floor, presence: true, numericality: { only_integer: true }
   validates :status, presence: true
+  validates :capacity, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
 
   # Scopes
   scope :available, -> { where(status: :available) }

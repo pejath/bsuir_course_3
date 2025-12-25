@@ -15,6 +15,10 @@ class RoomPolicy < ApplicationPolicy
     user.staff? || user.manager? || user.admin?
   end
 
+  def activity?
+    user.staff? || user.manager? || user.admin?
+  end
+
   def destroy?
     user.manager? || user.admin?
   end

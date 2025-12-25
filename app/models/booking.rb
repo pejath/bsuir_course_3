@@ -10,6 +10,9 @@ class Booking < ApplicationRecord
   # Enums
   enum :status, { pending: 0, confirmed: 1, checked_in: 2, checked_out: 3, cancelled: 4 }
 
+  # Callbacks
+  before_validation :calculate_total_price
+
   # Validations
   validates :check_in_date, presence: true
   validates :check_out_date, presence: true
@@ -24,6 +27,16 @@ class Booking < ApplicationRecord
   }
 
   private
+
+  def calculate_total_price
+    return unless check_in_date && check_out_date && room
+
+    nights = (check_out_date - check_in_date).to_i
+    return if nights <= 0
+
+    base_price = room.room_type&.base_price || 0
+    self.total_price = nights * base_price
+  end
 
   def check_out_after_check_in
     return unless check_in_date && check_out_date
