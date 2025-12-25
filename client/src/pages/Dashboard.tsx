@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Bed, Calendar, Users, DollarSign } from 'lucide-react'
 import api from '../lib/api'
 import type { DashboardStats } from '../types'
+import { formatCurrency } from '../utils/formatters'
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
@@ -31,7 +32,7 @@ export default function Dashboard() {
     { name: 'Available Rooms', value: stats?.available_rooms || 0, icon: Bed, color: 'bg-green-500' },
     { name: 'Active Bookings', value: stats?.active_bookings || 0, icon: Calendar, color: 'bg-yellow-500' },
     { name: 'Total Guests', value: stats?.total_guests || 0, icon: Users, color: 'bg-purple-500' },
-    { name: 'Total Revenue', value: `$${stats?.total_revenue || 0}`, icon: DollarSign, color: 'bg-emerald-500' },
+    { name: 'Total Revenue', value: formatCurrency(stats?.total_revenue || 0), icon: DollarSign, color: 'bg-emerald-500' },
   ]
 
   return (
