@@ -11,6 +11,7 @@ interface BookingFormProps {
 export default function BookingForm({ booking, onSuccess, onCancel }: BookingFormProps) {
   const [rooms, setRooms] = useState<Room[]>([])
   const [guests, setGuests] = useState<Guest[]>([])
+  const [guestMode, setGuestMode] = useState<'existing' | 'new'>('existing')
   const [formData, setFormData] = useState({
     room_id: '',
     guest_id: '',
@@ -18,6 +19,16 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
     check_out_date: '',
     number_of_guests: '1',
     status: 'pending' as 'pending' | 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled' | 'completed',
+    notes: ''
+  })
+  const [guestData, setGuestData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    passport_number: '',
+    date_of_birth: '',
+    country: '',
     notes: ''
   })
   const [loading, setLoading] = useState(false)
@@ -39,10 +50,24 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
     }
   }, [booking])
 
-  const fetchRooms = async () => {
+  useEffect(() => {
+    if (formData.check_in_date && formData.check_out_date) {
+      fetchRooms(formData.check_in_date, formData.check_out_date)
+    }
+  }, [formData.check_in_date, formData.check_out_date])
+
+  const fetchRooms = async (checkInDate?: string, checkOutDate?: string) => {
     try {
-      const response = await api.get('/rooms')
-      setRooms(response.data)
+      const params: any = { limit: 1000 }
+      if (checkInDate && checkOutDate) {
+        params.check_in_date = checkInDate
+        params.check_out_date = checkOutDate
+        if (booking?.id) {
+          params.exclude_booking_id = booking.id
+        }
+      }
+      const response = await api.get('/rooms', { params })
+      setRooms(response.data.data || response.data)
     } catch (err) {
       console.error('Failed to fetch rooms:', err)
     }
@@ -50,8 +75,8 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
 
   const fetchGuests = async () => {
     try {
-      const response = await api.get('/guests')
-      setGuests(response.data)
+      const response = await api.get('/guests', { params: { limit: 1000 } })
+      setGuests(response.data.data || response.data)
     } catch (err) {
       console.error('Failed to fetch guests:', err)
     }
@@ -63,10 +88,35 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
     setLoading(true)
 
     try {
+      let guestId = formData.guest_id
+
+      if (guestMode === 'new') {
+        const existingGuest = await api.get('/guests', {
+          params: {
+            search: guestData.email || guestData.passport_number,
+            limit: 1
+          }
+        })
+
+        if (existingGuest.data.data && existingGuest.data.data.length > 0) {
+          const foundGuest = existingGuest.data.data.find(
+            (g: Guest) => g.email === guestData.email || g.passport_number === guestData.passport_number
+          )
+          if (foundGuest) {
+            guestId = foundGuest.id.toString()
+          }
+        }
+
+        if (!guestId) {
+          const newGuestResponse = await api.post('/guests', { guest: guestData })
+          guestId = newGuestResponse.data.id.toString()
+        }
+      }
+
       const data = {
         booking: {
           room_id: parseInt(formData.room_id),
-          guest_id: parseInt(formData.guest_id),
+          guest_id: parseInt(guestId),
           check_in_date: formData.check_in_date,
           check_out_date: formData.check_out_date,
           number_of_guests: parseInt(formData.number_of_guests),
@@ -96,6 +146,13 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
     })
   }
 
+  const handleGuestChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setGuestData({
+      ...guestData,
+      [e.target.name]: e.target.value
+    })
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
@@ -104,25 +161,172 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
         </div>
       )}
 
-      <div>
-        <label htmlFor="guest_id" className="block text-sm font-medium text-gray-700">
-          Guest *
-        </label>
-        <select
-          id="guest_id"
-          name="guest_id"
-          required
-          value={formData.guest_id}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
-        >
-          <option value="">Select guest</option>
-          {guests.map((guest) => (
-            <option key={guest.id} value={guest.id}>
-              {guest.first_name} {guest.last_name} ({guest.email})
-            </option>
-          ))}
-        </select>
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="flex gap-4 mb-4">
+          <label className="flex items-center">
+            <input
+              type="radio"
+              value="existing"
+              checked={guestMode === 'existing'}
+              onChange={(e) => setGuestMode(e.target.value as 'existing' | 'new')}
+              className="mr-2"
+            />
+            <span className="text-sm font-medium text-gray-700">Existing Guest</span>
+          </label>
+          <label className="flex items-center">
+            <input
+              type="radio"
+              value="new"
+              checked={guestMode === 'new'}
+              onChange={(e) => setGuestMode(e.target.value as 'existing' | 'new')}
+              className="mr-2"
+            />
+            <span className="text-sm font-medium text-gray-700">New Guest</span>
+          </label>
+        </div>
+
+        {guestMode === 'existing' ? (
+          <div>
+            <label htmlFor="guest_id" className="block text-sm font-medium text-gray-700">
+              Select Guest *
+            </label>
+            <select
+              id="guest_id"
+              name="guest_id"
+              required
+              value={formData.guest_id}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+            >
+              <option value="">Select guest</option>
+              {guests.map((guest) => (
+                <option key={guest.id} value={guest.id}>
+                  {guest.first_name} {guest.last_name} ({guest.email})
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
+                  First Name *
+                </label>
+                <input
+                  type="text"
+                  id="first_name"
+                  name="first_name"
+                  required={guestMode === 'new'}
+                  value={guestData.first_name}
+                  onChange={handleGuestChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                />
+              </div>
+              <div>
+                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
+                  Last Name *
+                </label>
+                <input
+                  type="text"
+                  id="last_name"
+                  name="last_name"
+                  required={guestMode === 'new'}
+                  value={guestData.last_name}
+                  onChange={handleGuestChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required={guestMode === 'new'}
+                  value={guestData.email}
+                  onChange={handleGuestChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                />
+              </div>
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  Phone *
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  required={guestMode === 'new'}
+                  value={guestData.phone}
+                  onChange={handleGuestChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="passport_number" className="block text-sm font-medium text-gray-700">
+                  Passport Number *
+                </label>
+                <input
+                  type="text"
+                  id="passport_number"
+                  name="passport_number"
+                  required={guestMode === 'new'}
+                  value={guestData.passport_number}
+                  onChange={handleGuestChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                />
+              </div>
+              <div>
+                <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700">
+                  Date of Birth *
+                </label>
+                <input
+                  type="date"
+                  id="date_of_birth"
+                  name="date_of_birth"
+                  required={guestMode === 'new'}
+                  value={guestData.date_of_birth}
+                  onChange={handleGuestChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+                Country *
+              </label>
+              <input
+                type="text"
+                id="country"
+                name="country"
+                required={guestMode === 'new'}
+                value={guestData.country}
+                onChange={handleGuestChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+              />
+            </div>
+            <div>
+              <label htmlFor="guest_notes" className="block text-sm font-medium text-gray-700">
+                Guest Notes
+              </label>
+              <textarea
+                id="guest_notes"
+                name="notes"
+                rows={2}
+                value={guestData.notes}
+                onChange={handleGuestChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <div>

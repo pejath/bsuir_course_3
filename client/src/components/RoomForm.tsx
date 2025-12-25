@@ -16,12 +16,22 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
     floor: string
     status: 'available' | 'occupied' | 'maintenance' | 'reserved'
     notes: string
+    capacity: string
+    description: string
+    amenities: string
+    view: string
+    image_url: string
   }>({
     number: '',
     room_type_id: '',
     floor: '',
     status: 'available',
-    notes: ''
+    notes: '',
+    capacity: '',
+    description: '',
+    amenities: '',
+    view: '',
+    image_url: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -34,7 +44,12 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
         room_type_id: room.room_type_id.toString(),
         floor: room.floor.toString(),
         status: room.status,
-        notes: room.notes || ''
+        notes: room.notes || '',
+        capacity: room.capacity?.toString() || '',
+        description: room.description || '',
+        amenities: room.amenities || '',
+        view: room.view || '',
+        image_url: room.image_url || ''
       })
     }
   }, [room])
@@ -60,7 +75,12 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           room_type_id: parseInt(formData.room_type_id),
           floor: parseInt(formData.floor),
           status: formData.status,
-          notes: formData.notes
+          notes: formData.notes,
+          capacity: formData.capacity ? parseInt(formData.capacity) : null,
+          description: formData.description,
+          amenities: formData.amenities,
+          view: formData.view,
+          image_url: formData.image_url
         }
       }
 
@@ -164,15 +184,92 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
       </div>
 
       <div>
+        <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">
+          Capacity (guests)
+        </label>
+        <input
+          type="number"
+          id="capacity"
+          name="capacity"
+          min="1"
+          value={formData.capacity}
+          onChange={handleChange}
+          placeholder="e.g., 2"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="view" className="block text-sm font-medium text-gray-700">
+          View
+        </label>
+        <input
+          type="text"
+          id="view"
+          name="view"
+          value={formData.view}
+          onChange={handleChange}
+          placeholder="e.g., City, Garden, Sea"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+          Description
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          rows={3}
+          value={formData.description}
+          onChange={handleChange}
+          placeholder="Detailed description of the room for guests"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="amenities" className="block text-sm font-medium text-gray-700">
+          Amenities
+        </label>
+        <textarea
+          id="amenities"
+          name="amenities"
+          rows={2}
+          value={formData.amenities}
+          onChange={handleChange}
+          placeholder="e.g., WiFi, TV, Air conditioning, Mini bar"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="image_url" className="block text-sm font-medium text-gray-700">
+          Image URL
+        </label>
+        <input
+          type="url"
+          id="image_url"
+          name="image_url"
+          value={formData.image_url}
+          onChange={handleChange}
+          placeholder="https://example.com/room-image.jpg"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+        />
+      </div>
+
+      <div>
         <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-          Notes
+          Internal Notes
         </label>
         <textarea
           id="notes"
           name="notes"
-          rows={3}
+          rows={2}
           value={formData.notes}
           onChange={handleChange}
+          placeholder="Internal notes (not visible to guests)"
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
         />
       </div>
