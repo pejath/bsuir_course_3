@@ -13,7 +13,7 @@ export default function LanguageSwitcher() {
   return (
     <button
       onClick={() => changeLanguage(currentLanguage === 'en' ? 'ru' : 'en')}
-      className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+      className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
     >
       <Globe className="w-4 h-4 mr-2" />
       {currentLanguage === 'en' ? 'EN' : 'RU'}

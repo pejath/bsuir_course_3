@@ -68,21 +68,21 @@ export default function Guests() {
   }
 
   if (initialLoading) {
-    return <div className="text-center py-12">{t('common.loading')}</div>
+    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">{t('common.loading')}</div>
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('guests.title')}</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{t('guests.title')}</h1>
 
-      <div className="mb-6 bg-white shadow sm:rounded-lg p-6">
+      <div className="mb-6 bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
         <div className="flex items-center gap-4 mb-4">
-          <Search className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-medium text-gray-900">{t('common.filters')}</h3>
+          <Search className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">{t('common.filters')}</h3>
           {(filters.search || filters.country) && (
             <button
               onClick={clearFilters}
-              className="ml-auto text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+              className="ml-auto text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 flex items-center gap-1"
             >
               <X className="w-4 h-4" />
               {t('common.clearFilters')}
@@ -91,7 +91,7 @@ export default function Guests() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {t('guests.search')}
             </label>
             <input
@@ -99,61 +99,67 @@ export default function Guests() {
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
               placeholder={t('guests.searchPlaceholder')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {t('guests.country')}
             </label>
             <input
               type="text"
               value={filters.country}
               onChange={(e) => handleFilterChange('country', e.target.value)}
-              placeholder={t('guests.filterByCountry')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              placeholder={t('guests.countryPlaceholder')}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
         </div>
       </div>
       
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg relative">
+      <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg relative">
         {loading && (
-          <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10">
+          <div className="absolute inset-0 bg-white dark:bg-gray-800 bg-opacity-50 flex items-center justify-center z-10">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
           </div>
         )}
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {t('guests.name')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {t('guests.email')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {t('guests.phone')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {t('guests.country')}
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {t('guests.bookings')}
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {guests.map((guest) => (
               <tr key={guest.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                   {guest.first_name} {guest.last_name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {guest.email}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {guest.phone}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {guest.country}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  {guest.bookings_count || 0}
                 </td>
               </tr>
             ))}
@@ -163,14 +169,14 @@ export default function Guests() {
 
       {pagination && pagination.pages > 1 && (
         <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
             {t('guests.showing', { from: pagination.from, to: pagination.to, count: pagination.count })}
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={!pagination.prev}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('common.previous')}
             </button>

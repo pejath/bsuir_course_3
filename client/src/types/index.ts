@@ -44,6 +44,7 @@ export interface Guest {
   date_of_birth: string
   country: string
   notes: string
+  bookings_count?: number
   created_at: string
   updated_at: string
 }

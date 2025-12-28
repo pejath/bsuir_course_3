@@ -25,8 +25,13 @@ body {
   box-sizing: border-box;
 }
 
-/* Fix input field styling for light theme */
+/* Fix input field styling for light and dark themes */
 input, textarea, select {
   background-color: white !important;
   color: #111827 !important;
+}
+
+html.dark input, html.dark textarea, html.dark select {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
 }

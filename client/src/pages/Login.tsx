@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/authStore'
 import { Hotel } from 'lucide-react'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import ThemeSwitcher from '../components/ThemeSwitcher'
 
 export default function Login() {
   const { t } = useTranslation()
@@ -30,22 +31,23 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary-500 to-primary-700 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <div className="flex justify-between items-start">
             <div className="flex justify-center flex-1">
-              <Hotel className="h-16 w-16 text-white" />
+              <Hotel className="h-16 w-16 text-white dark:text-gray-300" />
             </div>
+
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-white dark:text-gray-100">
             Hotel Analytics
           </h2>
-          <p className="mt-2 text-center text-sm text-primary-100">
+          <p className="mt-2 text-center text-sm text-primary-100 dark:text-gray-300">
             {t('login.title')}
           </p>
         </div>
-        <form className="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-xl" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl" onSubmit={handleSubmit}>
           {error && (
             <div className="rounded-md bg-red-50 p-4">
               <p className="text-sm text-red-800">{error}</p>

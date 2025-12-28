@@ -5,6 +5,7 @@ import { Search, Calendar, Users, MapPin, ChevronRight } from 'lucide-react'
 import publicApi from '../lib/publicApi'
 import type { Room, RoomType } from '../types'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import ThemeSwitcher from '../components/ThemeSwitcher'
 
 interface PaginationMeta {
   page: number
@@ -86,16 +87,17 @@ export default function PublicSearch() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <header className="bg-white shadow-sm border-b dark:bg-gray-800 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">{t('public.searchRooms')}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('public.searchRooms')}</h1>
             <div className="flex items-center gap-4">
+              <ThemeSwitcher />
               <LanguageSwitcher />
               <a
                 href="/login"
-                className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                className="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
               >
                 {t('public.staffLogin')}
               </a>
@@ -105,15 +107,15 @@ export default function PublicSearch() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
-            <Search className="w-6 h-6 text-primary-600" />
-            <h2 className="text-xl font-semibold text-gray-900">{t('public.findPerfectRoom')}</h2>
+            <Search className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('public.findPerfectRoom')}</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <Calendar className="w-4 h-4" />
                 {t('public.checkIn')}
               </label>
@@ -122,12 +124,12 @@ export default function PublicSearch() {
                 min={getMinDate()}
                 value={filters.check_in_date}
                 onChange={(e) => handleFilterChange('check_in_date', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <Calendar className="w-4 h-4" />
                 {t('public.checkOut')}
               </label>
@@ -136,7 +138,7 @@ export default function PublicSearch() {
                 min={filters.check_in_date || getMinDate()}
                 value={filters.check_out_date}
                 onChange={(e) => handleFilterChange('check_out_date', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
 
@@ -150,20 +152,19 @@ export default function PublicSearch() {
                 min="1"
                 value={filters.min_capacity}
                 onChange={(e) => handleFilterChange('min_capacity', e.target.value)}
-                placeholder={t('public.minCapacityPlaceholder')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <MapPin className="w-4 h-4" />
                 {t('rooms.roomType')}
               </label>
               <select
                 value={filters.room_type_id}
                 onChange={(e) => handleFilterChange('room_type_id', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="">{t('rooms.allTypes')}</option>
                 {roomTypes.map(type => (
@@ -173,7 +174,7 @@ export default function PublicSearch() {
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <MapPin className="w-4 h-4" />
                 {t('rooms.floor')}
               </label>
@@ -182,20 +183,26 @@ export default function PublicSearch() {
                 value={filters.floor}
                 onChange={(e) => handleFilterChange('floor', e.target.value)}
                 placeholder={t('rooms.floorNumber')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
+          <button
+            type="submit"
+            className="w-full md:w-auto px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            {t('public.search')}
+          </button>
         </div>
 
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">{t('public.loadingRooms')}</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">{t('public.loadingRooms')}</p>
           </div>
         ) : rooms.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-600 text-lg">{t('public.noAvailableRooms')}</p>
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <p className="text-gray-600 dark:text-gray-400 text-lg">{t('public.noAvailableRooms')}</p>
           </div>
         ) : (
           <>
@@ -204,7 +211,7 @@ export default function PublicSearch() {
                 <div
                   key={room.id}
                   onClick={() => handleRoomClick(room.id)}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
                 >
                   {room.image_url ? (
                     <img
@@ -216,46 +223,46 @@ export default function PublicSearch() {
                       }}
                     />
                   ) : (
-                    <div className="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-                      <MapPin className="w-16 h-16 text-primary-400" />
+                    <div className="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 flex items-center justify-center">
+                      <MapPin className="w-16 h-16 text-primary-400 dark:text-primary-600" />
                     </div>
                   )}
                   
                   <div className="p-5">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">{t('rooms.room')} {room.number}</h3>
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{t('rooms.room')} {room.number}</h3>
+                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-semibold rounded-full">
                         {t('rooms.statuses.available')}
                       </span>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-3">{room.room_type?.name}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{room.room_type?.name}</p>
                     
                     {room.description && (
-                      <p className="text-sm text-gray-700 mb-3 line-clamp-2">{room.description}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 line-clamp-2">{room.description}</p>
                     )}
                     
                     <div className="flex items-center justify-between mb-3">
                       {room.capacity && (
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                           <Users className="w-4 h-4" />
                           <span>{room.capacity} {room.capacity === 1 ? t('public.guest') : t('public.guests')}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                         <MapPin className="w-4 h-4" />
                         <span>{t('rooms.floor')} {room.floor}</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                       <div>
-                        <span className="text-2xl font-bold text-primary-600">
+                        <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                           ${room.room_type?.base_price}
                         </span>
-                        <span className="text-sm text-gray-500"> / {t('public.night')}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400"> / {t('public.night')}</span>
                       </div>
-                      <button className="flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium">
+                      <button className="flex items-center gap-1 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium">
                         {t('public.viewDetails')}
                         <ChevronRight className="w-4 h-4" />
                       </button>
@@ -270,9 +277,9 @@ export default function PublicSearch() {
                 <button
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={!pagination.prev}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Назад
+                  {t('public.previous')}
                 </button>
                 
                 <div className="flex items-center gap-2">
@@ -295,7 +302,7 @@ export default function PublicSearch() {
                         className={`px-3 py-2 border rounded-lg text-sm font-medium ${
                           pageNum === pagination.page
                             ? 'bg-primary-600 text-white border-primary-600'
-                            : 'text-gray-700 border-gray-300 hover:bg-gray-50'
+                            : 'text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
                         }`}
                       >
                         {pageNum}
@@ -307,9 +314,9 @@ export default function PublicSearch() {
                 <button
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={!pagination.next}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Вперёд
+                  {t('public.next')}
                 </button>
               </div>
             )}

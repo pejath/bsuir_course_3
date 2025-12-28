@@ -1,23 +1,19 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Home, Bed, Calendar, Users, BarChart3, LogOut, Globe } from 'lucide-react'
+import { Home, Bed, Calendar, Users, BarChart3, LogOut } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { canViewAnalytics, canManageGuests } from '../lib/roles'
+import LanguageSwitcher from './LanguageSwitcher'
+import ThemeSwitcher from './ThemeSwitcher'
 
 interface LayoutProps {
   children: React.ReactNode
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const location = useLocation()
   const { user, logout } = useAuthStore()
-
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng)
-  }
-
-  const currentLanguage = i18n.language
 
   const allNavigation = [
     { name: t('navigation.dashboard'), href: '/admin/', icon: Home, show: canViewAnalytics(user) },
@@ -30,13 +26,13 @@ export default function Layout({ children }: LayoutProps) {
   const navigation = allNavigation.filter(item => item.show)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <nav className="bg-white shadow-sm border-b dark:bg-gray-800 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold text-primary-600">{t('navigation.hotelAnalytics')}</h1>
+                <h1 className="text-xl font-bold text-primary-600 dark:text-primary-400">{t('navigation.hotelAnalytics')}</h1>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 {navigation.map((item) => {
@@ -48,8 +44,8 @@ export default function Layout({ children }: LayoutProps) {
                       to={item.href}
                       className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                         isActive
-                          ? 'border-primary-500 text-gray-900'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                          ? 'border-primary-500 text-gray-900 dark:text-gray-100'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300'
                       }`}
                     >
                       <Icon className="w-4 h-4 mr-2" />
@@ -60,16 +56,9 @@ export default function Layout({ children }: LayoutProps) {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="relative">
-                <button
-                  onClick={() => changeLanguage(currentLanguage === 'en' ? 'ru' : 'en')}
-                  className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  <Globe className="w-4 h-4 mr-2" />
-                  {currentLanguage === 'en' ? 'EN' : 'RU'}
-                </button>
-              </div>
-              <span className="text-sm text-gray-700">
+              <ThemeSwitcher />
+              <LanguageSwitcher />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
                 {user?.first_name} {user?.last_name} ({user?.role})
               </span>
               <button

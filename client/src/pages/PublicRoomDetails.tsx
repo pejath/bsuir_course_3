@@ -5,6 +5,7 @@ import { ArrowLeft, Users, MapPin, Eye, Package, Check } from 'lucide-react'
 import publicApi from '../lib/publicApi'
 import PublicBookingForm from '../components/PublicBookingForm'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import ThemeSwitcher from '../components/ThemeSwitcher'
 import type { Room } from '../types'
 
 export default function PublicRoomDetails() {
@@ -60,22 +61,23 @@ export default function PublicRoomDetails() {
   const amenitiesList = room.amenities ? room.amenities.split(',').map(a => a.trim()) : []
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <header className="bg-white shadow-sm border-b dark:bg-gray-800 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>Вернуться к поиску</span>
+              <span>{t('public.backToSearch')}</span>
             </button>
             <div className="flex items-center gap-4">
+              <ThemeSwitcher />
               <LanguageSwitcher />
               <a
                 href="/login"
-                className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                className="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
               >
                 {t('public.staffLogin')}
               </a>
@@ -85,7 +87,7 @@ export default function PublicRoomDetails() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           {room.image_url ? (
             <img
               src={room.image_url}
@@ -96,34 +98,34 @@ export default function PublicRoomDetails() {
               }}
             />
           ) : (
-            <div className="w-full h-96 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-              <MapPin className="w-32 h-32 text-primary-400" />
+            <div className="w-full h-96 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 flex items-center justify-center">
+              <MapPin className="w-32 h-32 text-primary-400 dark:text-primary-600" />
             </div>
           )}
 
           <div className="p-8">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('rooms.room')} {room.number}</h1>
-                <p className="text-xl text-gray-600">{room.room_type?.name}</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('rooms.room')} {room.number}</h1>
+                <p className="text-xl text-gray-600 dark:text-gray-400">{room.room_type?.name}</p>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-primary-600">
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
                   ${room.room_type?.base_price}
                 </div>
-                <div className="text-sm text-gray-500">{t('public.perNight')}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{t('public.perNight')}</div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 pb-8 border-b border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
               {room.capacity && (
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                    <Users className="w-6 h-6 text-primary-600" />
+                  <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                    <Users className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500">{t('rooms.capacity')}</div>
-                    <div className="font-semibold text-gray-900">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('rooms.capacity')}</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">
                       {room.capacity} {room.capacity === 1 ? t('public.guest') : t('public.guests')}
                     </div>
                   </div>
@@ -131,23 +133,23 @@ export default function PublicRoomDetails() {
               )}
 
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                  <MapPin className="w-6 h-6 text-primary-600" />
+                <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">{t('rooms.floor')}</div>
-                  <div className="font-semibold text-gray-900">{room.floor}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('rooms.floor')}</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">{room.floor}</div>
                 </div>
               </div>
 
               {room.view && (
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                    <Eye className="w-6 h-6 text-primary-600" />
+                  <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                    <Eye className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500">{t('rooms.view')}</div>
-                    <div className="font-semibold text-gray-900">{room.view}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('rooms.view')}</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">{room.view}</div>
                   </div>
                 </div>
               )}
@@ -155,24 +157,24 @@ export default function PublicRoomDetails() {
 
             {room.description && (
               <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">{t('rooms.description')}</h2>
-                <p className="text-gray-700 leading-relaxed">{room.description}</p>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{t('rooms.description')}</h2>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{room.description}</p>
               </div>
             )}
 
             {amenitiesList.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <Package className="w-5 h-5" />
                   {t('rooms.amenities')}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {amenitiesList.map((amenity, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Check className="w-3 h-3 text-green-600" />
+                      <div className="w-5 h-5 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
                       </div>
-                      <span className="text-gray-700">{amenity}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{amenity}</span>
                     </div>
                   ))}
                 </div>
@@ -180,15 +182,15 @@ export default function PublicRoomDetails() {
             )}
 
             {room.room_type?.description && (
-              <div className="bg-gray-50 rounded-lg p-6 mb-8">
-                <h3 className="font-semibold text-gray-900 mb-2">{t('public.aboutRoomType')}</h3>
-                <p className="text-gray-700 text-sm">{room.room_type.description}</p>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-8">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{t('public.aboutRoomType')}</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">{room.room_type.description}</p>
               </div>
             )}
 
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">{t('public.readyToBook')}</h3>
-              <p className="text-gray-700 mb-4">
+            <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-6">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">{t('public.readyToBook')}</h3>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
                 {t('public.bookNowAndConfirm')}
               </p>
               <button

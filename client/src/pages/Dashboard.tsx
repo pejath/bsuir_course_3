@@ -26,7 +26,7 @@ export default function Dashboard() {
   }
 
   if (loading) {
-    return <div className="text-center py-12">{t('common.loading')}</div>
+    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">{t('common.loading')}</div>
   }
 
   const cards = [
@@ -39,13 +39,13 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('dashboard.title')}</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{t('dashboard.title')}</h1>
       
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => {
           const Icon = card.icon
           return (
-            <div key={card.name} className="bg-white overflow-hidden shadow rounded-lg">
+            <div key={card.name} className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
               <div className="p-5">
                 <div className="flex items-center">
                   <div className={`flex-shrink-0 ${card.color} rounded-md p-3`}>
@@ -53,8 +53,8 @@ export default function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">{card.name}</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">{card.value}</dd>
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">{card.name}</dt>
+                      <dd className="text-2xl font-semibold text-gray-900 dark:text-white">{card.value}</dd>
                     </dl>
                   </div>
                 </div>
@@ -64,24 +64,24 @@ export default function Dashboard() {
         })}
       </div>
 
-      <div className="mt-8 bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('dashboard.quickStats')}</h2>
+      <div className="mt-8 bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.quickStats')}</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-500">{t('dashboard.occupiedRooms')}</p>
-            <p className="text-2xl font-bold text-gray-900">{stats?.occupied_rooms || 0}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.occupiedRooms')}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.occupied_rooms || 0}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">{t('dashboard.upcomingBookings')}</p>
-            <p className="text-2xl font-bold text-gray-900">{stats?.upcoming_bookings || 0}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.upcomingBookings')}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.upcoming_bookings || 0}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">{t('dashboard.totalBookings')}</p>
-            <p className="text-2xl font-bold text-gray-900">{stats?.total_bookings || 0}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.totalBookings')}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.total_bookings || 0}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">{t('dashboard.occupancyRate')}</p>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.occupancyRate')}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {stats?.total_rooms ? Math.round((stats.occupied_rooms / stats.total_rooms) * 100) : 0}%
             </p>
           </div>
