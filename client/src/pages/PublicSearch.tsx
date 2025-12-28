@@ -143,7 +143,7 @@ export default function PublicSearch() {
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <Users className="w-4 h-4" />
                 {t('public.guests')}
               </label>
@@ -152,6 +152,7 @@ export default function PublicSearch() {
                 min="1"
                 value={filters.min_capacity}
                 onChange={(e) => handleFilterChange('min_capacity', e.target.value)}
+                placeholder={t('public.minCapacityPlaceholder')}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
@@ -279,7 +280,7 @@ export default function PublicSearch() {
                   disabled={!pagination.prev}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t('public.previous')}
+                  {t('common.previous')}
                 </button>
                 
                 <div className="flex items-center gap-2">
@@ -316,7 +317,7 @@ export default function PublicSearch() {
                   disabled={!pagination.next}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t('public.next')}
+                  {t('common.next')}
                 </button>
               </div>
             )}

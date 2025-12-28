@@ -365,7 +365,6 @@ export default function Analytics() {
                   labelStyle={{ color: 'rgb(243 244 246)' }}
                   itemStyle={{ color: 'rgb(243 244 246)' }}
                 />
-                <Legend wrapperStyle={{ color: 'rgb(243 244 246)' }} />
               </PieChart>
             </ResponsiveContainer>
           )}

@@ -110,7 +110,7 @@ export default function Guests() {
               type="text"
               value={filters.country}
               onChange={(e) => handleFilterChange('country', e.target.value)}
-              placeholder={t('guests.countryPlaceholder')}
+              placeholder={t('guests.filterByCountry')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
