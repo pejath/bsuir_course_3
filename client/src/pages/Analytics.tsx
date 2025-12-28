@@ -74,7 +74,7 @@ export default function Analytics() {
     } finally {
       setLoading(false)
     }
-  }, [endDate, startDate])
+  }, [])
 
   const fetchRevenue = useCallback(async () => {
     setError(null)
@@ -95,6 +95,11 @@ export default function Analytics() {
   useEffect(() => {
     fetchAll()
   }, [fetchAll])
+  
+  // Separate effect for initial date fetch
+  useEffect(() => {
+    fetchRevenue()
+  }, [])
 
   const roomStatisticsRows = useMemo(() => {
     if (!roomStatistics) return []

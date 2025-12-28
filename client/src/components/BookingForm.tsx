@@ -158,12 +158,12 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="text-sm text-red-700">{error}</div>
+        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+          <div className="text-sm text-red-700 dark:text-red-400">{error}</div>
         </div>
       )}
 
-      <div className="bg-gray-50 p-4 rounded-lg">
+      <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
         <div className="flex gap-4 mb-4">
           <label className="flex items-center">
             <input
@@ -173,7 +173,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
               onChange={(e) => setGuestMode(e.target.value as 'existing' | 'new')}
               className="mr-2"
             />
-            <span className="text-sm font-medium text-gray-700">{t('bookings.existingGuest')}</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('bookings.existingGuest')}</span>
           </label>
           <label className="flex items-center">
             <input
@@ -183,13 +183,13 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
               onChange={(e) => setGuestMode(e.target.value as 'existing' | 'new')}
               className="mr-2"
             />
-            <span className="text-sm font-medium text-gray-700">{t('bookings.newGuest')}</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('bookings.newGuest')}</span>
           </label>
         </div>
 
         {guestMode === 'existing' ? (
           <div>
-            <label htmlFor="guest_id" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="guest_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {t('bookings.selectGuest')} *
             </label>
             <select
@@ -212,7 +212,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t('guests.firstName')} *
                 </label>
                 <input
@@ -222,11 +222,11 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
                   required={guestMode === 'new'}
                   value={guestData.first_name}
                   onChange={handleGuestChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
-                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t('guests.lastName')} *
                 </label>
                 <input
@@ -236,13 +236,13 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
                   required={guestMode === 'new'}
                   value={guestData.last_name}
                   onChange={handleGuestChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t('guests.email')} *
                 </label>
                 <input
@@ -252,11 +252,11 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
                   required={guestMode === 'new'}
                   value={guestData.email}
                   onChange={handleGuestChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t('guests.phone')} *
                 </label>
                 <input
@@ -266,13 +266,13 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
                   required={guestMode === 'new'}
                   value={guestData.phone}
                   onChange={handleGuestChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="passport_number" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="passport_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t('guests.passportNumber')} *
                 </label>
                 <input
@@ -282,11 +282,11 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
                   required={guestMode === 'new'}
                   value={guestData.passport_number}
                   onChange={handleGuestChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
-                <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t('guests.dateOfBirth')} *
                 </label>
                 <input
@@ -296,12 +296,12 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
                   required={guestMode === 'new'}
                   value={guestData.date_of_birth}
                   onChange={handleGuestChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="country" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('guests.country')} *
               </label>
               <input
@@ -315,7 +315,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
               />
             </div>
             <div>
-              <label htmlFor="guest_notes" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="guest_notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('guests.notes')}
               </label>
               <textarea
@@ -332,7 +332,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
       </div>
 
       <div>
-        <label htmlFor="room_id" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="room_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('bookings.room')} *
         </label>
         <select
@@ -341,7 +341,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
           required
           value={formData.room_id}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         >
           <option value="">{t('bookings.selectRoom')}</option>
           {rooms.map((room) => (
@@ -354,7 +354,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="check_in_date" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="check_in_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {t('bookings.checkIn')} *
           </label>
           <input
@@ -364,12 +364,12 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
             required
             value={formData.check_in_date}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
           />
         </div>
 
         <div>
-          <label htmlFor="check_out_date" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="check_out_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {t('bookings.checkOut')} *
           </label>
           <input
@@ -379,13 +379,13 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
             required
             value={formData.check_out_date}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="number_of_guests" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="number_of_guests" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('bookings.guests')} *
         </label>
         <input
@@ -396,12 +396,12 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
           min="1"
           value={formData.number_of_guests}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
       <div>
-        <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('bookings.status')} *
         </label>
         <select
@@ -410,7 +410,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
           required
           value={formData.status}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         >
           <option value="pending">{t('bookings.statuses.pending')}</option>
           <option value="confirmed">{t('bookings.statuses.confirmed')}</option>
@@ -422,7 +422,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
       </div>
 
       <div>
-        <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('bookings.notes')}
         </label>
         <textarea
@@ -431,7 +431,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
           rows={3}
           value={formData.notes}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
@@ -439,7 +439,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
         >
           {t('common.cancel')}
         </button>

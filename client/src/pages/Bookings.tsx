@@ -211,7 +211,8 @@ export default function Bookings() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
           </div>
         )}
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -272,29 +273,29 @@ export default function Bookings() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {pagination && pagination.pages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="text-sm text-gray-700 dark:text-gray-300">
             {t('bookings.showing', { from: pagination.from, to: pagination.to, count: pagination.count })}
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={!pagination.prev}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('common.previous')}
             </button>
-            <div className="flex items-center gap-2">
-              {Array.from({ length: Math.min(pagination.pages, 10) }, (_, i) => {
-                const maxPages = Math.min(pagination.pages, 10)
-                const halfVisible = Math.floor(maxPages / 2)
-                let startPage = Math.max(1, pagination.page - halfVisible)
-                let endPage = Math.min(pagination.pages, startPage + maxPages - 1)
-                if (endPage - startPage < maxPages - 1) {
-                  startPage = Math.max(1, endPage - maxPages + 1)
+            <div className="flex flex-wrap items-center gap-1">
+              {Array.from({ length: Math.min(pagination.pages, 4) }, (_, i) => {
+                const maxVisible = 4
+                let startPage = Math.max(1, pagination.page - 2)
+                let endPage = Math.min(pagination.pages, startPage + maxVisible - 1)
+                if (endPage - startPage < maxVisible - 1) {
+                  startPage = Math.max(1, endPage - maxVisible + 1)
                 }
                 return startPage + i
               }).map(page => (
@@ -310,11 +311,14 @@ export default function Bookings() {
                   {page}
                 </button>
               ))}
+              {pagination.pages > 5 && (
+                <span className="px-2 text-gray-500 dark:text-gray-400">...</span>
+              )}
             </div>
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={!pagination.next}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('common.next')}
             </button>
@@ -324,9 +328,9 @@ export default function Bookings() {
 
       {showForm && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 {selectedBooking ? t('bookings.editBooking') : t('bookings.createBooking')}
               </h2>
             </div>

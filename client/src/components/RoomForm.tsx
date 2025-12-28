@@ -110,13 +110,13 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="text-sm text-red-700">{error}</div>
+        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+          <div className="text-sm text-red-700 dark:text-red-400">{error}</div>
         </div>
       )}
 
       <div>
-        <label htmlFor="number" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="number" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.roomNumber')} *
         </label>
         <input
@@ -126,12 +126,12 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           required
           value={formData.number}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
       <div>
-        <label htmlFor="room_type_id" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="room_type_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.roomType')} *
         </label>
         <select
@@ -140,7 +140,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           required
           value={formData.room_type_id}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         >
           <option value="">{t('rooms.selectType')}</option>
           {roomTypes.map((type) => (
@@ -152,7 +152,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
       </div>
 
       <div>
-        <label htmlFor="floor" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="floor" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.floor')} *
         </label>
         <input
@@ -162,12 +162,12 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           required
           value={formData.floor}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
       <div>
-        <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.status')} *
         </label>
         <select
@@ -176,7 +176,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           required
           value={formData.status}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         >
           <option value="available">{t('rooms.statuses.available')}</option>
           <option value="occupied">{t('rooms.statuses.occupied')}</option>
@@ -186,7 +186,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
       </div>
 
       <div>
-        <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="capacity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.capacity')} ({t('public.guests')})
         </label>
         <input
@@ -197,12 +197,12 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           value={formData.capacity}
           onChange={handleChange}
           placeholder={t('rooms.capacityPlaceholder')}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
       <div>
-        <label htmlFor="view" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="view" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.view')}
         </label>
         <input
@@ -212,12 +212,12 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           value={formData.view}
           onChange={handleChange}
           placeholder={t('rooms.viewPlaceholder')}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.description')}
         </label>
         <textarea
@@ -227,12 +227,12 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           value={formData.description}
           onChange={handleChange}
           placeholder={t('rooms.descriptionPlaceholder')}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
       <div>
-        <label htmlFor="amenities" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="amenities" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.amenities')}
         </label>
         <textarea
@@ -242,12 +242,12 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           value={formData.amenities}
           onChange={handleChange}
           placeholder={t('rooms.amenitiesPlaceholder')}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
       <div>
-        <label htmlFor="image_url" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.imageUrl')}
         </label>
         <input
@@ -257,12 +257,12 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           value={formData.image_url}
           onChange={handleChange}
           placeholder={t('rooms.imageUrlPlaceholder')}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
       <div>
-        <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('rooms.internalNotes')}
         </label>
         <textarea
@@ -272,7 +272,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           value={formData.notes}
           onChange={handleChange}
           placeholder={t('rooms.internalNotesPlaceholder')}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
         />
       </div>
 
@@ -280,7 +280,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
         >
           {t('common.cancel')}
         </button>

@@ -40,11 +40,11 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
   }, [roomId, selectedYear])
 
   if (loading) {
-    return <div className="text-center py-4 text-sm text-gray-500">{t('roomActivity.loadingActivity')}</div>
+    return <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">{t('roomActivity.loadingActivity')}</div>
   }
 
   if (!activityData) {
-    return <div className="text-center py-4 text-sm text-red-500">{t('roomActivity.loadError')}</div>
+    return <div className="text-center py-4 text-sm text-red-500 dark:text-red-400">{t('roomActivity.loadError')}</div>
   }
 
   const startDate = new Date(activityData.start_date)
@@ -94,9 +94,9 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
       case 'maintenance':
         return 'bg-orange-400 border border-orange-500'
       case 'available':
-        return 'bg-gray-100 border border-gray-200'
+        return 'bg-gray-100 dark:bg-gray-600 border border-gray-200 dark:border-gray-500'
       default:
-        return 'bg-gray-100 border border-gray-200'
+        return 'bg-gray-100 dark:bg-gray-600 border border-gray-200 dark:border-gray-500'
     }
   }
 
@@ -148,24 +148,24 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
   const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i)
 
   return (
-    <div className="py-6 px-8 bg-gray-50 border-t border-gray-200">
+    <div className="py-6 px-8 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-semibold text-gray-900 mb-1">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
             {t('roomActivity.roomActivity', { roomNumber: activityData.room_number })}
           </h4>
-          <p className="text-xs text-gray-600">
-            <span className="font-medium text-green-600">{occupiedDays}</span> {t('roomActivity.occupied')}, 
-            <span className="font-medium text-yellow-600 ml-1">{reservedDays}</span> {t('roomActivity.reserved')}, 
-            <span className="font-medium text-gray-600 ml-1">{totalDays - occupiedDays - reservedDays}</span> {t('roomActivity.available')}
-            <span className="ml-2 text-gray-700">({occupancyRate}% {t('roomActivity.occupancyRate')})</span>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            <span className="font-medium text-green-600 dark:text-green-400">{occupiedDays}</span> {t('roomActivity.occupied')}, 
+            <span className="font-medium text-yellow-600 dark:text-yellow-400 ml-1">{reservedDays}</span> {t('roomActivity.reserved')}, 
+            <span className="font-medium text-gray-600 dark:text-gray-300 ml-1">{totalDays - occupiedDays - reservedDays}</span> {t('roomActivity.available')}
+            <span className="ml-2 text-gray-700 dark:text-gray-200">({occupancyRate}% {t('roomActivity.occupancyRate')})</span>
           </p>
         </div>
         <div>
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-            className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
           >
             {availableYears.map(year => (
               <option key={year} value={year}>{year}</option>
@@ -176,7 +176,7 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
 
       <div className="overflow-x-auto">
         <div className="inline-block min-w-full">
-          <div className="flex gap-1 mb-2 text-xs text-gray-500">
+          <div className="flex gap-1 mb-2 text-xs text-gray-500 dark:text-gray-400">
             {months.map((month, idx) => (
               <div
                 key={idx}
@@ -192,7 +192,7 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
           </div>
 
           <div className="flex gap-1">
-            <div className="flex flex-col gap-1 text-xs text-gray-500 pr-2">
+            <div className="flex flex-col gap-1 text-xs text-gray-500 dark:text-gray-400 pr-2">
               <div style={{ height: '12px' }}>{t('roomActivity.mon')}</div>
               <div style={{ height: '12px' }}></div>
               <div style={{ height: '12px' }}>{t('roomActivity.wed')}</div>
@@ -208,7 +208,7 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
                   {week.map((date, dayIdx) => (
                     <div
                       key={dayIdx}
-                      className={`w-3 h-3 rounded-sm ${getColor(date)} cursor-pointer transition-all hover:ring-2 hover:ring-gray-400`}
+                      className={`w-3 h-3 rounded-sm ${getColor(date)} cursor-pointer transition-all hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500`}
                       title={getTooltip(date)}
                     />
                   ))}
@@ -217,10 +217,10 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 mt-4 text-xs text-gray-600">
+          <div className="flex items-center gap-4 mt-4 text-xs text-gray-600 dark:text-gray-400">
             <span className="font-medium">{t('roomActivity.legend')}:</span>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-gray-100 border border-gray-200 rounded-sm" />
+              <div className="w-3 h-3 bg-gray-100 dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-sm" />
               <span>{t('rooms.statuses.available')}</span>
             </div>
             <div className="flex items-center gap-2">

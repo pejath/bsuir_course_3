@@ -284,9 +284,9 @@ export default function PublicSearch() {
                 </button>
                 
                 <div className="flex items-center gap-2">
-                  {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => {
+                  {Array.from({ length: Math.min(pagination.pages, 4) }, (_, i) => {
                     let pageNum;
-                    if (pagination.pages <= 5) {
+                    if (pagination.pages <= 4) {
                       pageNum = i + 1;
                     } else if (currentPage <= 3) {
                       pageNum = i + 1;
