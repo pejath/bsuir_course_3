@@ -35,3 +35,4 @@
 
 app/models/user.rb
 .byebug_history
+client/.env

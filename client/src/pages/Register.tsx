@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/authStore'
 
 export default function Register() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { register } = useAuthStore()
   
@@ -21,12 +23,12 @@ export default function Register() {
     setError('')
 
     if (formData.password !== formData.passwordConfirmation) {
-      setError('Passwords do not match')
+      setError(t('register.passwordsDoNotMatch'))
       return
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError(t('register.passwordMinLength'))
       return
     }
 
@@ -35,7 +37,7 @@ export default function Register() {
       await register(formData.email, formData.password, formData.firstName, formData.lastName)
       navigate('/admin')
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed')
+      setError(err.response?.data?.error || t('register.registrationFailed'))
     } finally {
       setLoading(false)
     }
@@ -53,12 +55,12 @@ export default function Register() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
+            {t('register.title')}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Already have an account?{' '}
+            {t('register.alreadyHaveAccount')} {' '}
             <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
-              Sign in
+              {t('register.signInHere')}
             </Link>
           </p>
         </div>
@@ -73,7 +75,7 @@ export default function Register() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                  First Name
+                  {t('register.firstName')} *
                 </label>
                 <input
                   id="firstName"
@@ -87,7 +89,7 @@ export default function Register() {
               </div>
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                  Last Name
+                  {t('register.lastName')} *
                 </label>
                 <input
                   id="lastName"
@@ -103,7 +105,7 @@ export default function Register() {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+                {t('register.email')} *
               </label>
               <input
                 id="email"
@@ -119,7 +121,7 @@ export default function Register() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+                {t('register.password')} *
               </label>
               <input
                 id="password"
@@ -135,7 +137,7 @@ export default function Register() {
 
             <div>
               <label htmlFor="passwordConfirmation" className="block text-sm font-medium text-gray-700">
-                Confirm Password
+                {t('register.confirmPassword')} *
               </label>
               <input
                 id="passwordConfirmation"
@@ -156,7 +158,7 @@ export default function Register() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
             >
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? t('register.creatingAccount') : t('register.createAccount')}
             </button>
           </div>
         </form>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Search, Calendar, Users, MapPin, ChevronRight } from 'lucide-react'
 import publicApi from '../lib/publicApi'
@@ -16,6 +17,7 @@ interface PaginationMeta {
 }
 
 export default function PublicSearch() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [rooms, setRooms] = useState<Room[]>([])
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
@@ -87,12 +89,12 @@ export default function PublicSearch() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">Поиск номеров</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('public.searchRooms')}</h1>
             <a
               href="/login"
               className="text-sm font-medium text-primary-600 hover:text-primary-700"
             >
-              Вход для персонала
+              {t('public.staffLogin')}
             </a>
           </div>
         </div>
@@ -102,14 +104,14 @@ export default function PublicSearch() {
         <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
             <Search className="w-6 h-6 text-primary-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Найдите идеальный номер</h2>
+            <h2 className="text-xl font-semibold text-gray-900">{t('public.findPerfectRoom')}</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                 <Calendar className="w-4 h-4" />
-                Заезд
+                {t('public.checkIn')}
               </label>
               <input
                 type="date"
@@ -123,7 +125,7 @@ export default function PublicSearch() {
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                 <Calendar className="w-4 h-4" />
-                Выезд
+                {t('public.checkOut')}
               </label>
               <input
                 type="date"
@@ -137,14 +139,14 @@ export default function PublicSearch() {
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                 <Users className="w-4 h-4" />
-                Гостей
+                {t('public.guests')}
               </label>
               <input
                 type="number"
                 min="1"
                 value={filters.min_capacity}
                 onChange={(e) => handleFilterChange('min_capacity', e.target.value)}
-                placeholder="Мин. кол-во"
+                placeholder={t('public.minCapacityPlaceholder')}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
@@ -152,14 +154,14 @@ export default function PublicSearch() {
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="w-4 h-4" />
-                Тип номера
+                {t('rooms.roomType')}
               </label>
               <select
                 value={filters.room_type_id}
                 onChange={(e) => handleFilterChange('room_type_id', e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">Все типы</option>
+                <option value="">{t('rooms.allTypes')}</option>
                 {roomTypes.map(type => (
                   <option key={type.id} value={type.id}>{type.name}</option>
                 ))}
@@ -169,13 +171,13 @@ export default function PublicSearch() {
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="w-4 h-4" />
-                Этаж
+                {t('rooms.floor')}
               </label>
               <input
                 type="number"
                 value={filters.floor}
                 onChange={(e) => handleFilterChange('floor', e.target.value)}
-                placeholder="Номер этажа"
+                placeholder={t('rooms.floorNumber')}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
@@ -185,11 +187,11 @@ export default function PublicSearch() {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Загрузка номеров...</p>
+            <p className="mt-4 text-gray-600">{t('public.loadingRooms')}</p>
           </div>
         ) : rooms.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-600 text-lg">Нет доступных номеров по выбранным критериям</p>
+            <p className="text-gray-600 text-lg">{t('public.noAvailableRooms')}</p>
           </div>
         ) : (
           <>
@@ -217,9 +219,9 @@ export default function PublicSearch() {
                   
                   <div className="p-5">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">Номер {room.number}</h3>
+                      <h3 className="text-xl font-semibold text-gray-900">{t('rooms.room')} {room.number}</h3>
                       <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                        Доступен
+                        {t('rooms.statuses.available')}
                       </span>
                     </div>
                     
@@ -233,12 +235,12 @@ export default function PublicSearch() {
                       {room.capacity && (
                         <div className="flex items-center gap-1 text-sm text-gray-600">
                           <Users className="w-4 h-4" />
-                          <span>{room.capacity} {room.capacity === 1 ? 'гость' : 'гостей'}</span>
+                          <span>{room.capacity} {room.capacity === 1 ? t('public.guest') : t('public.guests')}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1 text-sm text-gray-600">
                         <MapPin className="w-4 h-4" />
-                        <span>Этаж {room.floor}</span>
+                        <span>{t('rooms.floor')} {room.floor}</span>
                       </div>
                     </div>
                     
@@ -247,10 +249,10 @@ export default function PublicSearch() {
                         <span className="text-2xl font-bold text-primary-600">
                           ${room.room_type?.base_price}
                         </span>
-                        <span className="text-sm text-gray-500"> / ночь</span>
+                        <span className="text-sm text-gray-500"> / {t('public.night')}</span>
                       </div>
                       <button className="flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium">
-                        Подробнее
+                        {t('public.viewDetails')}
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>

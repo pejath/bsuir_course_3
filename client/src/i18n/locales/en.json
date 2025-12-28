@@ -100,7 +100,8 @@
     "passwordsDoNotMatch": "Passwords do not match",
     "passwordMinLength": "Password must be at least 8 characters",
     "registrationFailed": "Registration failed. Please try again.",
-    "createAccount": "Create Account"
+    "createAccount": "Create Account",
+    "creatingAccount": "Creating Account..."
   },
   "analytics": {
     "title": "Analytics",
@@ -175,7 +176,6 @@
     "reserved": "Reserved",
     "revenuePeriod": "Revenue (period)",
     "payments": "Payments",
-    "totalRevenue": "Total revenue",
     "byPaymentMethod": "By payment method",
     "revenueTrend": "Revenue Trend (Last 6 Months)",
     "bookingsByMonth": "Bookings by Month (Last 6 Months)",
@@ -379,6 +379,7 @@
     "maxGuestsExceeded": "Maximum capacity exceeded (max: {{capacity}} guests)",
     "backToSearch": "Back to Search",
     "bookNow": "Book Now",
+    "booking": "Booking...",
     "bookRoom": "Book Room",
     "checkIn": "Check-in",
     "checkOut": "Check-out",

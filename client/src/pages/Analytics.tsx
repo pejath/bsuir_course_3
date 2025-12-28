@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import api from '../lib/api'
 import type { DashboardStats, OccupancyRateStats, RoomStatistics, RevenueReport, RevenueTrendData, BookingsTrendData } from '../types'
@@ -9,6 +10,7 @@ function formatDateForInput(d: Date) {
 }
 
 export default function Analytics() {
+  const { t } = useTranslation()
   const defaultStart = useMemo(() => {
     const d = new Date()
     d.setDate(1)
@@ -56,7 +58,7 @@ export default function Analytics() {
       setBookingsTrend(bookingsTrendRes.data)
     } catch (e) {
       console.error('Failed to fetch analytics:', e)
-      setError('Failed to load analytics')
+      setError(t('analytics.loadError'))
     } finally {
       setLoading(false)
     }
@@ -72,7 +74,7 @@ export default function Analytics() {
       setRevenueReport(revenueRes.data)
     } catch (e) {
       console.error('Failed to fetch revenue report:', e)
-      setError('Failed to load revenue report')
+      setError(t('analytics.revenueLoadError'))
     } finally {
       setRevenueLoading(false)
     }
@@ -105,7 +107,7 @@ export default function Analytics() {
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
   if (loading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <div className="text-center py-12">{t('common.loading')}</div>
   }
 
   if (error) {
@@ -115,48 +117,48 @@ export default function Analytics() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('analytics.title')}</h1>
         <button
           onClick={fetchAll}
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
         >
-          Refresh
+          {t('analytics.refresh')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div className="bg-white shadow rounded-lg p-6">
-          <p className="text-sm text-gray-500">Rooms</p>
+          <p className="text-sm text-gray-500">{t('analytics.rooms')}</p>
           <p className="text-3xl font-bold text-gray-900">{dashboard?.total_rooms ?? 0}</p>
-          <p className="text-sm text-gray-500 mt-1">Available: {dashboard?.available_rooms ?? 0}</p>
+          <p className="text-sm text-gray-500 mt-1">{t('analytics.available')}: {dashboard?.available_rooms ?? 0}</p>
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <p className="text-sm text-gray-500">Occupancy</p>
+          <p className="text-sm text-gray-500">{t('analytics.occupancy')}</p>
           <p className="text-3xl font-bold text-gray-900">{occupancy?.occupancy_rate ?? 0}%</p>
           <p className="text-sm text-gray-500 mt-1">
-            {occupancy?.occupied_rooms ?? 0} / {occupancy?.total_rooms ?? 0} occupied
+            {occupancy?.occupied_rooms ?? 0} / {occupancy?.total_rooms ?? 0} {t('analytics.occupied')}
           </p>
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <p className="text-sm text-gray-500">Bookings</p>
+          <p className="text-sm text-gray-500">{t('analytics.bookings')}</p>
           <p className="text-3xl font-bold text-gray-900">{dashboard?.total_bookings ?? 0}</p>
-          <p className="text-sm text-gray-500 mt-1">Active: {dashboard?.active_bookings ?? 0}</p>
+          <p className="text-sm text-gray-500 mt-1">{t('analytics.active')}: {dashboard?.active_bookings ?? 0}</p>
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <p className="text-sm text-gray-500">Revenue (period)</p>
+          <p className="text-sm text-gray-500">{t('analytics.revenuePeriod')}</p>
           <p className="text-3xl font-bold text-gray-900">{formatCurrency(revenueReport?.total_revenue ?? 0)}</p>
-          <p className="text-sm text-gray-500 mt-1">Payments: {revenueReport?.total_payments ?? 0}</p>
+          <p className="text-sm text-gray-500 mt-1">{t('analytics.payments')}: {revenueReport?.total_payments ?? 0}</p>
         </div>
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Room status statistics</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('analytics.roomStatusStatistics')}</h2>
           {roomStatisticsRows.length === 0 ? (
-            <div className="text-gray-500">No data</div>
+            <div className="text-gray-500">{t('analytics.noData')}</div>
           ) : (
             <div className="space-y-3">
               {roomStatisticsRows.map((row) => (
@@ -171,19 +173,19 @@ export default function Analytics() {
 
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Revenue report</h2>
+            <h2 className="text-xl font-semibold text-gray-900">{t('analytics.revenueReport')}</h2>
             <button
               onClick={fetchRevenue}
               disabled={revenueLoading}
               className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50"
             >
-              {revenueLoading ? 'Loading...' : 'Apply'}
+              {revenueLoading ? t('common.loading') : t('analytics.apply')}
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('analytics.startDate')}</label>
               <input
                 type="date"
                 value={startDate}
@@ -192,7 +194,7 @@ export default function Analytics() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">End date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('analytics.endDate')}</label>
               <input
                 type="date"
                 value={endDate}
@@ -204,18 +206,18 @@ export default function Analytics() {
 
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <p className="text-sm text-gray-500">Total revenue</p>
+              <p className="text-sm text-gray-500">{t('analytics.totalRevenue')}</p>
               <p className="text-2xl font-bold text-gray-900">{formatCurrency(revenueReport?.total_revenue ?? 0)}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Payments</p>
+              <p className="text-sm text-gray-500">{t('analytics.payments')}</p>
               <p className="text-2xl font-bold text-gray-900">{revenueReport?.total_payments ?? 0}</p>
             </div>
           </div>
 
-          <h3 className="text-sm font-semibold text-gray-900 mb-2">By payment method</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">{t('analytics.byPaymentMethod')}</h3>
           {paymentMethodRows.length === 0 ? (
-            <div className="text-gray-500">No data</div>
+            <div className="text-gray-500">{t('analytics.noData')}</div>
           ) : (
             <div className="space-y-2">
               {paymentMethodRows.map((row) => (
@@ -231,7 +233,7 @@ export default function Analytics() {
 
       <div className="mt-8 grid grid-cols-1 gap-6">
         <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Revenue Trend (Last 6 Months)</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('analytics.revenueTrend')}</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={revenueTrend}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -247,7 +249,7 @@ export default function Analytics() {
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Bookings by Month (Last 6 Months)</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('analytics.bookingsByMonth')}</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={bookingsTrend?.by_month || []}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -261,7 +263,7 @@ export default function Analytics() {
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Bookings by Status</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('analytics.bookingsByStatus')}</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie

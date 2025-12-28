@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Users, MapPin, Eye, Package, Check } from 'lucide-react'
 import publicApi from '../lib/publicApi'
@@ -6,6 +7,7 @@ import PublicBookingForm from '../components/PublicBookingForm'
 import type { Room } from '../types'
 
 export default function PublicRoomDetails() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [room, setRoom] = useState<Room | null>(null)
@@ -42,12 +44,12 @@ export default function PublicRoomDetails() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 text-lg mb-4">Номер не найден</p>
+          <p className="text-gray-600 text-lg mb-4">{t('public.roomNotFound')}</p>
           <button
             onClick={() => navigate('/')}
             className="text-primary-600 hover:text-primary-700 font-medium"
           >
-            Вернуться к поиску
+            {t('public.backToSearch')}
           </button>
         </div>
       </div>
@@ -98,14 +100,14 @@ export default function PublicRoomDetails() {
           <div className="p-8">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Номер {room.number}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('rooms.room')} {room.number}</h1>
                 <p className="text-xl text-gray-600">{room.room_type?.name}</p>
               </div>
               <div className="text-right">
                 <div className="text-3xl font-bold text-primary-600">
                   ${room.room_type?.base_price}
                 </div>
-                <div className="text-sm text-gray-500">за ночь</div>
+                <div className="text-sm text-gray-500">{t('public.perNight')}</div>
               </div>
             </div>
 
@@ -116,9 +118,9 @@ export default function PublicRoomDetails() {
                     <Users className="w-6 h-6 text-primary-600" />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500">Вместимость</div>
+                    <div className="text-sm text-gray-500">{t('rooms.capacity')}</div>
                     <div className="font-semibold text-gray-900">
-                      {room.capacity} {room.capacity === 1 ? 'гость' : 'гостей'}
+                      {room.capacity} {room.capacity === 1 ? t('public.guest') : t('public.guests')}
                     </div>
                   </div>
                 </div>
@@ -129,7 +131,7 @@ export default function PublicRoomDetails() {
                   <MapPin className="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">Этаж</div>
+                  <div className="text-sm text-gray-500">{t('rooms.floor')}</div>
                   <div className="font-semibold text-gray-900">{room.floor}</div>
                 </div>
               </div>
@@ -140,7 +142,7 @@ export default function PublicRoomDetails() {
                     <Eye className="w-6 h-6 text-primary-600" />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500">Вид</div>
+                    <div className="text-sm text-gray-500">{t('rooms.view')}</div>
                     <div className="font-semibold text-gray-900">{room.view}</div>
                   </div>
                 </div>
@@ -149,7 +151,7 @@ export default function PublicRoomDetails() {
 
             {room.description && (
               <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">Описание</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-3">{t('rooms.description')}</h2>
                 <p className="text-gray-700 leading-relaxed">{room.description}</p>
               </div>
             )}
@@ -158,7 +160,7 @@ export default function PublicRoomDetails() {
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <Package className="w-5 h-5" />
-                  Удобства
+                  {t('rooms.amenities')}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {amenitiesList.map((amenity, index) => (
@@ -175,21 +177,21 @@ export default function PublicRoomDetails() {
 
             {room.room_type?.description && (
               <div className="bg-gray-50 rounded-lg p-6 mb-8">
-                <h3 className="font-semibold text-gray-900 mb-2">О типе номера</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('public.aboutRoomType')}</h3>
                 <p className="text-gray-700 text-sm">{room.room_type.description}</p>
               </div>
             )}
 
             <div className="bg-primary-50 border border-primary-200 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Готовы забронировать?</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">{t('public.readyToBook')}</h3>
               <p className="text-gray-700 mb-4">
-                Забронируйте этот номер прямо сейчас и получите подтверждение на email.
+                {t('public.bookNowAndConfirm')}
               </p>
               <button
                 onClick={() => setShowBookingForm(true)}
                 className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-colors"
               >
-                Забронировать номер
+                {t('public.bookRoom')}
               </button>
             </div>
           </div>

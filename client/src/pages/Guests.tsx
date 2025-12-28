@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Search, X } from 'lucide-react'
 import api from '../lib/api'
 import { useDebounce } from '../hooks/useDebounce'
@@ -16,6 +17,7 @@ interface PaginationMeta {
 }
 
 export default function Guests() {
+  const { t } = useTranslation()
   const [guests, setGuests] = useState<Guest[]>([])
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
@@ -66,49 +68,49 @@ export default function Guests() {
   }
 
   if (initialLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <div className="text-center py-12">{t('common.loading')}</div>
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Guests</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('guests.title')}</h1>
 
       <div className="mb-6 bg-white shadow sm:rounded-lg p-6">
         <div className="flex items-center gap-4 mb-4">
           <Search className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-medium text-gray-900">Filters</h3>
+          <h3 className="text-lg font-medium text-gray-900">{t('common.filters')}</h3>
           {(filters.search || filters.country) && (
             <button
               onClick={clearFilters}
               className="ml-auto text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
             >
               <X className="w-4 h-4" />
-              Clear filters
+              {t('common.clearFilters')}
             </button>
           )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search
+              {t('guests.search')}
             </label>
             <input
               type="text"
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              placeholder="Search by name, email, phone or passport..."
+              placeholder={t('guests.searchPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Country
+              {t('guests.country')}
             </label>
             <input
               type="text"
               value={filters.country}
               onChange={(e) => handleFilterChange('country', e.target.value)}
-              placeholder="Filter by country"
+              placeholder={t('guests.filterByCountry')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
@@ -125,16 +127,16 @@ export default function Guests() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
+                {t('guests.name')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
+                {t('guests.email')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Phone
+                {t('guests.phone')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Country
+                {t('guests.country')}
               </th>
             </tr>
           </thead>
@@ -162,7 +164,7 @@ export default function Guests() {
       {pagination && pagination.pages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-700">
-            Showing {pagination.from} to {pagination.to} of {pagination.count} guests
+            {t('guests.showing', { from: pagination.from, to: pagination.to, count: pagination.count })}
           </div>
           <div className="flex gap-2">
             <button
@@ -170,7 +172,7 @@ export default function Guests() {
               disabled={!pagination.prev}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Previous
+              {t('common.previous')}
             </button>
             <div className="flex items-center gap-2">
               {Array.from({ length: Math.min(pagination.pages, 10) }, (_, i) => {
@@ -201,7 +203,7 @@ export default function Guests() {
               disabled={!pagination.next}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
+              {t('common.next')}
             </button>
           </div>
         </div>

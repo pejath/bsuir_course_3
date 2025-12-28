@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Home, Bed, Calendar, Users, BarChart3, LogOut } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { canViewAnalytics, canManageGuests } from '../lib/roles'
@@ -8,15 +9,16 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const { t } = useTranslation()
   const location = useLocation()
   const { user, logout } = useAuthStore()
 
   const allNavigation = [
-    { name: 'Dashboard', href: '/admin/', icon: Home, show: canViewAnalytics(user) },
-    { name: 'Rooms', href: '/admin/rooms', icon: Bed, show: true },
-    { name: 'Bookings', href: '/admin/bookings', icon: Calendar, show: true },
-    { name: 'Guests', href: '/admin/guests', icon: Users, show: canManageGuests(user) },
-    { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, show: canViewAnalytics(user) },
+    { name: t('navigation.dashboard'), href: '/admin/', icon: Home, show: canViewAnalytics(user) },
+    { name: t('navigation.rooms'), href: '/admin/rooms', icon: Bed, show: true },
+    { name: t('navigation.bookings'), href: '/admin/bookings', icon: Calendar, show: true },
+    { name: t('navigation.guests'), href: '/admin/guests', icon: Users, show: canManageGuests(user) },
+    { name: t('navigation.analytics'), href: '/admin/analytics', icon: BarChart3, show: canViewAnalytics(user) },
   ]
   
   const navigation = allNavigation.filter(item => item.show)
@@ -28,7 +30,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold text-primary-600">Hotel Analytics</h1>
+                <h1 className="text-xl font-bold text-primary-600">{t('navigation.hotelAnalytics')}</h1>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 {navigation.map((item) => {
@@ -60,7 +62,7 @@ export default function Layout({ children }: LayoutProps) {
                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                {t('navigation.logout')}
               </button>
             </div>
           </div>

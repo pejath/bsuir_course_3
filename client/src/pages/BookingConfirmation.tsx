@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle, Calendar, Users, MapPin, Mail, Phone, User, ArrowLeft } from 'lucide-react'
 import publicApi from '../lib/publicApi'
@@ -30,6 +31,7 @@ interface Booking {
 }
 
 export default function BookingConfirmation() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -49,7 +51,7 @@ export default function BookingConfirmation() {
     try {
       const email = searchParams.get('email')
       if (!email) {
-        setError('Email параметр отсутствует')
+        setError(t('bookingConfirmation.emailParamMissing'))
         setLoading(false)
         return
       }
@@ -59,7 +61,7 @@ export default function BookingConfirmation() {
       })
       setBooking(response.data)
     } catch (err: any) {
-      setError('Не удалось загрузить информацию о бронировании')
+      setError(t('bookingConfirmation.loadError'))
     } finally {
       setLoading(false)
     }
@@ -94,7 +96,7 @@ export default function BookingConfirmation() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md">
-          <p className="text-gray-600 text-lg mb-4">{error || 'Бронирование не найдено'}</p>
+          <p className="text-gray-600 text-lg mb-4">{error || t('bookingConfirmation.bookingNotFound')}</p>
           <button
             onClick={() => navigate('/')}
             className="text-primary-600 hover:text-primary-700 font-medium"
@@ -128,66 +130,66 @@ export default function BookingConfirmation() {
             <div className="flex items-center justify-center mb-4">
               <CheckCircle className="w-16 h-16" />
             </div>
-            <h1 className="text-3xl font-bold text-center mb-2">Бронирование подтверждено!</h1>
+            <h1 className="text-3xl font-bold text-center mb-2">{t('bookingConfirmation.bookingConfirmed')}</h1>
             <p className="text-center text-green-100">
-              Номер бронирования: <span className="font-semibold">#{booking.id}</span>
+              {t('bookingConfirmation.bookingNumber')}: <span className="font-semibold">#{booking.id}</span>
             </p>
           </div>
 
           <div className="p-8 space-y-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
-                Подтверждение бронирования отправлено на <strong>{booking.guest.email}</strong>. 
-                Наши сотрудники свяжутся с вами в ближайшее время для подтверждения деталей.
+                {t('bookingConfirmation.confirmationSent', { email: booking.guest.email })}. 
+                {t('bookingConfirmation.staffWillContact')}.
               </p>
             </div>
 
             <div className="border-t border-gray-200 pt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Детали бронирования</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('bookingConfirmation.bookingDetails')}</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Номер</h3>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">{t('rooms.room')}</h3>
                     <div className="flex items-center gap-2">
                       <MapPin className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="font-semibold text-gray-900">Номер {booking.room.number}</p>
+                        <p className="font-semibold text-gray-900">{t('rooms.room')} {booking.room.number}</p>
                         <p className="text-sm text-gray-600">{booking.room.room_type.name}</p>
-                        <p className="text-sm text-gray-500">Этаж {booking.room.floor}</p>
+                        <p className="text-sm text-gray-500">{t('rooms.floor')} {booking.room.floor}</p>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Даты</h3>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">{t('public.dates')}</h3>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-5 h-5 text-gray-400" />
                         <div>
-                          <p className="text-sm text-gray-600">Заезд</p>
+                          <p className="text-sm text-gray-600">{t('public.checkIn')}</p>
                           <p className="font-semibold text-gray-900">{formatDate(booking.check_in_date)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-5 h-5 text-gray-400" />
                         <div>
-                          <p className="text-sm text-gray-600">Выезд</p>
+                          <p className="text-sm text-gray-600">{t('public.checkOut')}</p>
                           <p className="font-semibold text-gray-900">{formatDate(booking.check_out_date)}</p>
                         </div>
                       </div>
                       <p className="text-sm text-gray-500 ml-7">
-                        {nights} {nights === 1 ? 'ночь' : nights < 5 ? 'ночи' : 'ночей'}
+                        {nights} {nights === 1 ? t('public.night') : nights < 5 ? t('public.nights2') : t('public.nights5')}
                       </p>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Гости</h3>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">{t('public.guests')}</h3>
                     <div className="flex items-center gap-2">
                       <Users className="w-5 h-5 text-gray-400" />
                       <p className="font-semibold text-gray-900">
-                        {booking.number_of_guests} {booking.number_of_guests === 1 ? 'гость' : 'гостей'}
+                        {booking.number_of_guests} {booking.number_of_guests === 1 ? t('public.guest') : t('public.guests')}
                       </p>
                     </div>
                   </div>
@@ -195,7 +197,7 @@ export default function BookingConfirmation() {
 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Информация о госте</h3>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">{t('public.guestInformation')}</h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <User className="w-5 h-5 text-gray-400" />
@@ -222,7 +224,7 @@ export default function BookingConfirmation() {
 
                   {booking.notes && (
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-2">Дополнительные пожелания</h3>
+                      <h3 className="text-sm font-medium text-gray-500 mb-2">{t('public.specialRequests')}</h3>
                       <p className="text-sm text-gray-700 bg-gray-50 rounded p-3">{booking.notes}</p>
                     </div>
                   )}
@@ -233,11 +235,11 @@ export default function BookingConfirmation() {
             <div className="border-t border-gray-200 pt-6">
               <div className="bg-gray-50 rounded-lg p-6">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-600">${booking.room.room_type.base_price} × {nights} {nights === 1 ? 'ночь' : 'ночей'}</span>
+                  <span className="text-gray-600">${booking.room.room_type.base_price} × {nights} {nights === 1 ? t('public.night') : t('public.nights')}</span>
                   <span className="text-gray-900">${booking.room.room_type.base_price * nights}</span>
                 </div>
                 <div className="flex justify-between items-center text-xl font-bold text-gray-900 pt-2 border-t border-gray-200">
-                  <span>Итого</span>
+                  <span>{t('public.total')}</span>
                   <span className="text-primary-600">${booking.total_price}</span>
                 </div>
               </div>
@@ -245,12 +247,12 @@ export default function BookingConfirmation() {
 
             <div className="border-t border-gray-200 pt-6">
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="font-semibold text-yellow-900 mb-2">Важная информация</h3>
+                <h3 className="font-semibold text-yellow-900 mb-2">{t('bookingConfirmation.importantInfo')}</h3>
                 <ul className="text-sm text-yellow-800 space-y-1 list-disc list-inside">
-                  <li>Заезд осуществляется с 14:00</li>
-                  <li>Выезд до 12:00</li>
-                  <li>Оплата производится при заселении</li>
-                  <li>Для отмены бронирования свяжитесь с нами по email или телефону</li>
+                  <li>{t('bookingConfirmation.checkInTime')}</li>
+                  <li>{t('bookingConfirmation.checkOutTime')}</li>
+                  <li>{t('bookingConfirmation.paymentInfo')}</li>
+                  <li>{t('bookingConfirmation.cancellationInfo')}</li>
                 </ul>
               </div>
             </div>
@@ -260,13 +262,13 @@ export default function BookingConfirmation() {
                 onClick={() => navigate('/')}
                 className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
               >
-                Вернуться к поиску
+                {t('bookingConfirmation.backToSearch')}
               </button>
               <button
                 onClick={() => window.print()}
                 className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-colors"
               >
-                Распечатать подтверждение
+                {t('bookingConfirmation.printConfirmation')}
               </button>
             </div>
           </div>

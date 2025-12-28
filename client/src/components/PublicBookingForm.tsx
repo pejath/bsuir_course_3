@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Calendar, Users, User, Mail, Phone, Globe, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import publicApi from '../lib/publicApi'
 import type { Room } from '../types'
@@ -10,6 +11,7 @@ interface PublicBookingFormProps {
 }
 
 export default function PublicBookingForm({ room, onClose }: PublicBookingFormProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -213,7 +215,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-2xl font-bold text-gray-900">Забронировать номер {room.number}</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('public.bookRoom')} {room.number}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -230,77 +232,17 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
           )}
 
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-2">Детали номера</h3>
+            <h3 className="font-semibold text-gray-900 mb-2">{t('public.roomDetails')}</h3>
             <div className="text-sm text-gray-700 space-y-1">
               <p><strong>Тип:</strong> {room.room_type?.name}</p>
               <p><strong>Цена за ночь:</strong> ${room.room_type?.base_price}</p>
               {room.capacity && <p><strong>Вместимость:</strong> {room.capacity} гостей</p>}
             </div>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Даты проживания
-            </h3>
-
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <div className="flex items-center justify-between mb-3">
-                <button
-                  type="button"
-                  onClick={() => changeMonth(-1)}
-                  className="p-2 hover:bg-gray-200 rounded-lg border border-gray-300 bg-white transition-colors"
-                  title="Предыдущий месяц"
-                >
-                  <ChevronLeft className="w-5 h-5 text-gray-700" />
-                </button>
-                <h4 className="font-semibold text-gray-900 text-center flex-1">
-                  {currentMonth.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}
-                </h4>
-                <button
-                  type="button"
-                  onClick={() => changeMonth(1)}
-                  className="p-2 hover:bg-gray-200 rounded-lg border border-gray-300 bg-white transition-colors"
-                  title="Следующий месяц"
-                >
-                  <ChevronRight className="w-5 h-5 text-gray-700" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-7 gap-1 mb-2">
-                {['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'].map(day => (
-                  <div key={day} className="text-center text-xs font-medium text-gray-600">
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              {loadingAvailability ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-7 gap-1">
-                  {renderCalendar()}
-                </div>
-              )}
-
-              <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-200 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-50 border border-green-200 rounded"></div>
-                  <span className="text-gray-600">Доступно</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded"></div>
-                  <span className="text-gray-600">Занято</span>
-                </div>
-              </div>
-            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Дата заезда *
+                  {t('public.checkIn')} *
                 </label>
                 <input
                   type="date"
@@ -314,7 +256,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Дата выезда *
+                  {t('public.checkOut')} *
                 </label>
                 <input
                   type="date"
@@ -330,7 +272,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
                 <Users className="w-4 h-4" />
-                Количество гостей *
+                {t('public.guests')} *
               </label>
               <input
                 type="number"
@@ -346,11 +288,11 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
             {nights > 0 && (
               <div className="bg-primary-50 rounded-lg p-4">
                 <div className="flex justify-between items-center text-sm mb-1">
-                  <span className="text-gray-700">Количество ночей:</span>
+                  <span className="text-gray-700">{t('public.numberOfNights')}:</span>
                   <span className="font-semibold text-gray-900">{nights}</span>
                 </div>
                 <div className="flex justify-between items-center text-lg font-bold text-primary-600">
-                  <span>Итого:</span>
+                  <span>{t('public.total')}:</span>
                   <span>${totalPrice}</span>
                 </div>
               </div>
@@ -360,13 +302,13 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
           <div className="space-y-4 pt-4 border-t border-gray-200">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
               <User className="w-5 h-5" />
-              Информация о госте
+              {t('public.guestInformation')}
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Имя *
+                  {t('guests.firstName')} *
                 </label>
                 <input
                   type="text"
@@ -379,7 +321,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Фамилия *
+                  {t('guests.lastName')} *
                 </label>
                 <input
                   type="text"
@@ -394,7 +336,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
                 <Mail className="w-4 h-4" />
-                Email *
+                {t('guests.email')} *
               </label>
               <input
                 type="email"
@@ -404,14 +346,14 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Подтверждение бронирования будет отправлено на этот email
+                {t('public.confirmationEmail')}
               </p>
             </div>
 
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
                 <Phone className="w-4 h-4" />
-                Телефон *
+                {t('guests.phone')} *
               </label>
               <input
                 type="tel"
@@ -425,7 +367,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
                 <Globe className="w-4 h-4" />
-                Страна
+                {t('guests.country')}
               </label>
               <input
                 type="text"
@@ -437,14 +379,14 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Дополнительные пожелания
+                {t('guests.notes')}
               </label>
               <textarea
                 value={guestData.notes}
                 onChange={(e) => handleGuestChange('notes', e.target.value)}
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="Особые пожелания или комментарии..."
+                placeholder={t('public.specialRequests')}
               />
             </div>
           </div>
@@ -455,14 +397,14 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
               onClick={onClose}
               className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
             >
-              Отмена
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={loading || nights <= 0}
               className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Бронирование...' : 'Забронировать'}
+              {loading ? t('public.booking') : t('public.bookNow')}
             </button>
           </div>
         </form>

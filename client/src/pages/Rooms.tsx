@@ -1,4 +1,5 @@
 import { useEffect, useState, Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, Edit, Trash2, Search, X, ChevronDown, ChevronRight } from 'lucide-react'
 import api from '../lib/api'
 import { useAuthStore } from '../store/authStore'
@@ -22,6 +23,7 @@ interface PaginationMeta {
 }
 
 export default function Rooms() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const [rooms, setRooms] = useState<Room[]>([])
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
@@ -97,7 +99,7 @@ export default function Rooms() {
       setDeleteConfirm(null)
     } catch (error) {
       console.error('Failed to delete room:', error)
-      alert('Failed to delete room')
+      alert(t('rooms.deleteFailed'))
     }
   }
 
@@ -137,20 +139,20 @@ export default function Rooms() {
   }
 
   if (initialLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <div className="text-center py-12">{t('common.loading')}</div>
   }
 
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Rooms</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('rooms.title')}</h1>
         {canManageRooms(user) && (
           <button
             onClick={handleCreate}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Room
+            {t('rooms.addRoom')}
           </button>
         )}
       </div>
@@ -158,44 +160,44 @@ export default function Rooms() {
       <div className="mb-6 bg-white shadow sm:rounded-lg p-6">
         <div className="flex items-center gap-4 mb-4">
           <Search className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-medium text-gray-900">Filters</h3>
+          <h3 className="text-lg font-medium text-gray-900">{t('common.filters')}</h3>
           {(filters.status || filters.room_type_id || filters.floor || filters.number) && (
             <button
               onClick={clearFilters}
               className="ml-auto text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
             >
               <X className="w-4 h-4" />
-              Clear filters
+              {t('common.clearFilters')}
             </button>
           )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
+              {t('rooms.status')}
             </label>
             <select
               value={filters.status}
               onChange={(e) => handleFilterChange('status', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             >
-              <option value="">All statuses</option>
-              <option value="available">Available</option>
-              <option value="occupied">Occupied</option>
-              <option value="maintenance">Maintenance</option>
-              <option value="reserved">Reserved</option>
+              <option value="">{t('rooms.allStatuses')}</option>
+              <option value="available">{t('rooms.statuses.available')}</option>
+              <option value="occupied">{t('rooms.statuses.occupied')}</option>
+              <option value="maintenance">{t('rooms.statuses.maintenance')}</option>
+              <option value="reserved">{t('rooms.statuses.reserved')}</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Room Type
+              {t('rooms.roomType')}
             </label>
             <select
               value={filters.room_type_id}
               onChange={(e) => handleFilterChange('room_type_id', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             >
-              <option value="">All types</option>
+              <option value="">{t('rooms.allTypes')}</option>
               {roomTypes.map(type => (
                 <option key={type.id} value={type.id}>{type.name}</option>
               ))}
@@ -203,25 +205,25 @@ export default function Rooms() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Floor
+              {t('rooms.floor')}
             </label>
             <input
               type="number"
               value={filters.floor}
               onChange={(e) => handleFilterChange('floor', e.target.value)}
-              placeholder="Filter by floor"
+              placeholder={t('rooms.filterByFloor')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Room Number
+              {t('rooms.roomNumber')}
             </label>
             <input
               type="text"
               value={filters.number}
               onChange={(e) => handleFilterChange('number', e.target.value)}
-              placeholder="Search by number"
+              placeholder={t('rooms.searchByNumber')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
@@ -238,22 +240,22 @@ export default function Rooms() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Room Number
+                {t('rooms.roomNumber')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Type
+                {t('rooms.type')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Floor
+                {t('rooms.floor')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                {t('rooms.status')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Price
+                {t('rooms.price')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
+                {t('common.actions')}
               </th>
             </tr>
           </thead>
@@ -295,7 +297,7 @@ export default function Rooms() {
                         <button
                           onClick={() => handleEdit(room)}
                           className="text-primary-600 hover:text-primary-900"
-                          title="Edit room"
+                          title={t('rooms.editRoom')}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
@@ -307,20 +309,20 @@ export default function Rooms() {
                               onClick={() => handleDelete(room.id)}
                               className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
                             >
-                              Confirm
+                              {t('common.confirm')}
                             </button>
                             <button
                               onClick={() => setDeleteConfirm(null)}
                               className="text-xs px-2 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
                             >
-                              Cancel
+                              {t('common.cancel')}
                             </button>
                           </div>
                         ) : (
                           <button
                             onClick={() => setDeleteConfirm(room.id)}
                             className="text-red-600 hover:text-red-900"
-                            title="Delete room"
+                            title={t('rooms.deleteRoom')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -335,32 +337,32 @@ export default function Rooms() {
                       <div className="bg-gray-50 border-t border-gray-200">
                         <div className="px-8 py-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-4">
-                            <h4 className="text-sm font-semibold text-gray-900 mb-3">Room Details</h4>
+                            <h4 className="text-sm font-semibold text-gray-900 mb-3">{t('rooms.roomDetails')}</h4>
                             
                             {room.capacity && (
                               <div>
-                                <span className="text-xs font-medium text-gray-500">Capacity:</span>
-                                <p className="text-sm text-gray-900 mt-1">{room.capacity} {room.capacity === 1 ? 'guest' : 'guests'}</p>
+                                <span className="text-xs font-medium text-gray-500">{t('rooms.capacity')}:</span>
+                                <p className="text-sm text-gray-900 mt-1">{room.capacity} {room.capacity === 1 ? t('public.guest') : t('public.guests')}</p>
                               </div>
                             )}
                             
                             {room.view && (
                               <div>
-                                <span className="text-xs font-medium text-gray-500">View:</span>
+                                <span className="text-xs font-medium text-gray-500">{t('rooms.view')}:</span>
                                 <p className="text-sm text-gray-900 mt-1">{room.view}</p>
                               </div>
                             )}
                             
                             {room.description && (
                               <div>
-                                <span className="text-xs font-medium text-gray-500">Description:</span>
+                                <span className="text-xs font-medium text-gray-500">{t('rooms.description')}:</span>
                                 <p className="text-sm text-gray-700 mt-1 leading-relaxed">{room.description}</p>
                               </div>
                             )}
                             
                             {room.amenities && (
                               <div>
-                                <span className="text-xs font-medium text-gray-500">Amenities:</span>
+                                <span className="text-xs font-medium text-gray-500">{t('rooms.amenities')}:</span>
                                 <p className="text-sm text-gray-700 mt-1">{room.amenities}</p>
                               </div>
                             )}
@@ -368,7 +370,7 @@ export default function Rooms() {
                           
                           {room.image_url && (
                             <div>
-                              <span className="text-xs font-medium text-gray-500 block mb-2">Room Image:</span>
+                              <span className="text-xs font-medium text-gray-500 block mb-2">{t('rooms.roomImage')}:</span>
                               <img 
                                 src={room.image_url} 
                                 alt={`Room ${room.number}`}
@@ -394,7 +396,7 @@ export default function Rooms() {
       {pagination && pagination.pages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-700">
-            Showing {pagination.from} to {pagination.to} of {pagination.count} rooms
+            {t('rooms.showing', { from: pagination.from, to: pagination.to, count: pagination.count })}
           </div>
           <div className="flex gap-2">
             <button
@@ -402,7 +404,7 @@ export default function Rooms() {
               disabled={!pagination.prev}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Previous
+              {t('common.previous')}
             </button>
             <div className="flex items-center gap-2">
               {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(page => (
@@ -424,7 +426,7 @@ export default function Rooms() {
               disabled={!pagination.next}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
+              {t('common.next')}
             </button>
           </div>
         </div>
@@ -433,7 +435,7 @@ export default function Rooms() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedRoom ? 'Edit Room' : 'Create Room'}
+        title={selectedRoom ? t('rooms.editRoom') : t('rooms.createRoom')}
       >
         <RoomForm
           room={selectedRoom}

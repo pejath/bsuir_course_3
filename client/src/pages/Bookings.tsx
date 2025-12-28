@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Search, X, Plus } from 'lucide-react'
 import api from '../lib/api'
 import type { Booking } from '../types'
@@ -18,6 +19,7 @@ interface PaginationMeta {
 }
 
 export default function Bookings() {
+  const { t } = useTranslation()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
@@ -108,57 +110,57 @@ export default function Bookings() {
   }
 
   if (initialLoading) {
-    return <div className="text-center py-12">Loading...</div>
+    return <div className="text-center py-12">{t('common.loading')}</div>
   }
 
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Bookings</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('bookings.title')}</h1>
         <button
           onClick={handleCreateBooking}
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Create Booking
+          {t('bookings.createBooking')}
         </button>
       </div>
 
       <div className="mb-6 bg-white shadow sm:rounded-lg p-6">
         <div className="flex items-center gap-4 mb-4">
           <Search className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-medium text-gray-900">Filters</h3>
+          <h3 className="text-lg font-medium text-gray-900">{t('common.filters')}</h3>
           {(filters.status || filters.check_in_from || filters.check_in_to || filters.check_out_from || filters.check_out_to) && (
             <button
               onClick={clearFilters}
               className="ml-auto text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
             >
               <X className="w-4 h-4" />
-              Clear filters
+              {t('common.clearFilters')}
             </button>
           )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
+              {t('bookings.status')}
             </label>
             <select
               value={filters.status}
               onChange={(e) => handleFilterChange('status', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             >
-              <option value="">All statuses</option>
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="checked_in">Checked In</option>
-              <option value="checked_out">Checked Out</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="">{t('bookings.allStatuses')}</option>
+              <option value="pending">{t('bookings.statuses.pending')}</option>
+              <option value="confirmed">{t('bookings.statuses.confirmed')}</option>
+              <option value="checked_in">{t('bookings.statuses.checkedIn')}</option>
+              <option value="checked_out">{t('bookings.statuses.checkedOut')}</option>
+              <option value="cancelled">{t('bookings.statuses.cancelled')}</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Check-in From
+              {t('bookings.checkInFrom')}
             </label>
             <input
               type="date"
@@ -169,7 +171,7 @@ export default function Bookings() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Check-in To
+              {t('bookings.checkInTo')}
             </label>
             <input
               type="date"
@@ -180,7 +182,7 @@ export default function Bookings() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Check-out From
+              {t('bookings.checkOutFrom')}
             </label>
             <input
               type="date"
@@ -191,7 +193,7 @@ export default function Bookings() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Check-out To
+              {t('bookings.checkOutTo')}
             </label>
             <input
               type="date"
@@ -213,25 +215,25 @@ export default function Bookings() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Guest
+                {t('bookings.guest')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Room
+                {t('bookings.room')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Check-in
+                {t('bookings.checkIn')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Check-out
+                {t('bookings.checkOut')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                {t('bookings.status')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total
+                {t('bookings.total')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
+                {t('common.actions')}
               </th>
             </tr>
           </thead>
@@ -263,7 +265,7 @@ export default function Bookings() {
                     onClick={() => handleEditBooking(booking)}
                     className="text-primary-600 hover:text-primary-900"
                   >
-                    Edit
+                    {t('common.edit')}
                   </button>
                 </td>
               </tr>
@@ -275,7 +277,7 @@ export default function Bookings() {
       {pagination && pagination.pages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-700">
-            Showing {pagination.from} to {pagination.to} of {pagination.count} bookings
+            {t('bookings.showing', { from: pagination.from, to: pagination.to, count: pagination.count })}
           </div>
           <div className="flex gap-2">
             <button
@@ -283,7 +285,7 @@ export default function Bookings() {
               disabled={!pagination.prev}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Previous
+              {t('common.previous')}
             </button>
             <div className="flex items-center gap-2">
               {Array.from({ length: Math.min(pagination.pages, 10) }, (_, i) => {
@@ -314,7 +316,7 @@ export default function Bookings() {
               disabled={!pagination.next}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
+              {t('common.next')}
             </button>
           </div>
         </div>
@@ -325,7 +327,7 @@ export default function Bookings() {
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-xl font-semibold text-gray-900">
-                {selectedBooking ? 'Edit Booking' : 'Create Booking'}
+                {selectedBooking ? t('bookings.editBooking') : t('bookings.createBooking')}
               </h2>
             </div>
             <div className="px-6 py-4">

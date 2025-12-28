@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../lib/api'
 import type { Room, RoomType } from '../types'
 
@@ -9,6 +10,7 @@ interface RoomFormProps {
 }
 
 export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
+  const { t } = useTranslation()
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
   const [formData, setFormData] = useState<{
     number: string
@@ -92,7 +94,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
 
       onSuccess()
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to save room')
+      setError(err.response?.data?.error || t('rooms.saveError'))
     } finally {
       setLoading(false)
     }
@@ -115,7 +117,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
 
       <div>
         <label htmlFor="number" className="block text-sm font-medium text-gray-700">
-          Room Number *
+          {t('rooms.roomNumber')} *
         </label>
         <input
           type="text"
@@ -130,7 +132,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
 
       <div>
         <label htmlFor="room_type_id" className="block text-sm font-medium text-gray-700">
-          Room Type *
+          {t('rooms.roomType')} *
         </label>
         <select
           id="room_type_id"
@@ -140,7 +142,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           onChange={handleChange}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
         >
-          <option value="">Select room type</option>
+          <option value="">{t('rooms.selectType')}</option>
           {roomTypes.map((type) => (
             <option key={type.id} value={type.id}>
               {type.name} - ${type.base_price}
@@ -151,7 +153,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
 
       <div>
         <label htmlFor="floor" className="block text-sm font-medium text-gray-700">
-          Floor *
+          {t('rooms.floor')} *
         </label>
         <input
           type="number"
@@ -166,7 +168,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
 
       <div>
         <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-          Status *
+          {t('rooms.status')} *
         </label>
         <select
           id="status"
@@ -176,16 +178,16 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           onChange={handleChange}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
         >
-          <option value="available">Available</option>
-          <option value="occupied">Occupied</option>
-          <option value="maintenance">Maintenance</option>
-          <option value="reserved">Reserved</option>
+          <option value="available">{t('rooms.statuses.available')}</option>
+          <option value="occupied">{t('rooms.statuses.occupied')}</option>
+          <option value="maintenance">{t('rooms.statuses.maintenance')}</option>
+          <option value="reserved">{t('rooms.statuses.reserved')}</option>
         </select>
       </div>
 
       <div>
         <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">
-          Capacity (guests)
+          {t('rooms.capacity')} ({t('public.guests')})
         </label>
         <input
           type="number"
@@ -194,14 +196,14 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           min="1"
           value={formData.capacity}
           onChange={handleChange}
-          placeholder="e.g., 2"
+          placeholder={t('rooms.capacityPlaceholder')}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
         />
       </div>
 
       <div>
         <label htmlFor="view" className="block text-sm font-medium text-gray-700">
-          View
+          {t('rooms.view')}
         </label>
         <input
           type="text"
@@ -209,14 +211,14 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           name="view"
           value={formData.view}
           onChange={handleChange}
-          placeholder="e.g., City, Garden, Sea"
+          placeholder={t('rooms.viewPlaceholder')}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
         />
       </div>
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-          Description
+          {t('rooms.description')}
         </label>
         <textarea
           id="description"
@@ -224,14 +226,14 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           rows={3}
           value={formData.description}
           onChange={handleChange}
-          placeholder="Detailed description of the room for guests"
+          placeholder={t('rooms.descriptionPlaceholder')}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
         />
       </div>
 
       <div>
         <label htmlFor="amenities" className="block text-sm font-medium text-gray-700">
-          Amenities
+          {t('rooms.amenities')}
         </label>
         <textarea
           id="amenities"
@@ -239,14 +241,14 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           rows={2}
           value={formData.amenities}
           onChange={handleChange}
-          placeholder="e.g., WiFi, TV, Air conditioning, Mini bar"
+          placeholder={t('rooms.amenitiesPlaceholder')}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
         />
       </div>
 
       <div>
         <label htmlFor="image_url" className="block text-sm font-medium text-gray-700">
-          Image URL
+          {t('rooms.imageUrl')}
         </label>
         <input
           type="url"
@@ -254,14 +256,14 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           name="image_url"
           value={formData.image_url}
           onChange={handleChange}
-          placeholder="https://example.com/room-image.jpg"
+          placeholder={t('rooms.imageUrlPlaceholder')}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
         />
       </div>
 
       <div>
         <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-          Internal Notes
+          {t('rooms.internalNotes')}
         </label>
         <textarea
           id="notes"
@@ -269,7 +271,7 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           rows={2}
           value={formData.notes}
           onChange={handleChange}
-          placeholder="Internal notes (not visible to guests)"
+          placeholder={t('rooms.internalNotesPlaceholder')}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
         />
       </div>
@@ -280,14 +282,14 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           onClick={onCancel}
           className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
-          Cancel
+          {t('common.cancel')}
         </button>
         <button
           type="submit"
           disabled={loading}
           className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50"
         >
-          {loading ? 'Saving...' : room ? 'Update Room' : 'Create Room'}
+          {loading ? t('common.saving') : (room ? t('rooms.updateRoom') : t('rooms.createRoom'))}
         </button>
       </div>
     </form>

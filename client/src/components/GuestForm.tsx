@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../lib/api'
 import type { Guest } from '../types'
 
@@ -9,6 +10,7 @@ interface GuestFormProps {
 }
 
 export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps) {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -55,7 +57,7 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
 
       onSuccess()
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to save guest')
+      setError(err.response?.data?.error || t('guests.saveError'))
     } finally {
       setLoading(false)
     }
@@ -79,7 +81,7 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
-            First Name *
+            {t('guests.firstName')} *
           </label>
           <input
             type="text"
@@ -94,7 +96,7 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
 
         <div>
           <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
-            Last Name *
+            {t('guests.lastName')} *
           </label>
           <input
             type="text"
@@ -110,7 +112,7 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email *
+          {t('guests.email')} *
         </label>
         <input
           type="email"
@@ -126,7 +128,7 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-            Phone
+            {t('guests.phone')}
           </label>
           <input
             type="tel"
@@ -140,7 +142,7 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
 
         <div>
           <label htmlFor="passport_number" className="block text-sm font-medium text-gray-700">
-            Passport Number
+            {t('guests.passportNumber')}
           </label>
           <input
             type="text"
@@ -156,7 +158,7 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700">
-            Date of Birth
+            {t('guests.dateOfBirth')}
           </label>
           <input
             type="date"
@@ -170,7 +172,7 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
 
         <div>
           <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-            Country
+            {t('guests.country')}
           </label>
           <input
             type="text"
@@ -185,7 +187,7 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
 
       <div>
         <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-          Notes
+          {t('guests.notes')}
         </label>
         <textarea
           id="notes"
@@ -203,14 +205,14 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
           onClick={onCancel}
           className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
-          Cancel
+          {t('common.cancel')}
         </button>
         <button
           type="submit"
           disabled={loading}
           className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50"
         >
-          {loading ? 'Saving...' : guest ? 'Update Guest' : 'Create Guest'}
+          {loading ? t('common.saving') : (guest ? t('guests.updateGuest') : t('guests.createGuest'))}
         </button>
       </div>
     </form>

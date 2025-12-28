@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../lib/api'
 
 interface ActivityData {
@@ -15,6 +16,7 @@ interface RoomActivityChartProps {
 }
 
 export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
+  const { t } = useTranslation()
   const [activityData, setActivityData] = useState<ActivityData | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -38,11 +40,11 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
   }, [roomId, selectedYear])
 
   if (loading) {
-    return <div className="text-center py-4 text-sm text-gray-500">Loading activity...</div>
+    return <div className="text-center py-4 text-sm text-gray-500">{t('roomActivity.loadingActivity')}</div>
   }
 
   if (!activityData) {
-    return <div className="text-center py-4 text-sm text-red-500">Failed to load activity data</div>
+    return <div className="text-center py-4 text-sm text-red-500">{t('roomActivity.loadError')}</div>
   }
 
   const startDate = new Date(activityData.start_date)
@@ -150,13 +152,13 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h4 className="text-sm font-semibold text-gray-900 mb-1">
-            Room {activityData.room_number} - Occupancy Activity
+            {t('roomActivity.roomActivity', { roomNumber: activityData.room_number })}
           </h4>
           <p className="text-xs text-gray-600">
-            <span className="font-medium text-green-600">{occupiedDays}</span> occupied, 
-            <span className="font-medium text-yellow-600 ml-1">{reservedDays}</span> reserved, 
-            <span className="font-medium text-gray-600 ml-1">{totalDays - occupiedDays - reservedDays}</span> available
-            <span className="ml-2 text-gray-700">({occupancyRate}% occupancy rate)</span>
+            <span className="font-medium text-green-600">{occupiedDays}</span> {t('roomActivity.occupied')}, 
+            <span className="font-medium text-yellow-600 ml-1">{reservedDays}</span> {t('roomActivity.reserved')}, 
+            <span className="font-medium text-gray-600 ml-1">{totalDays - occupiedDays - reservedDays}</span> {t('roomActivity.available')}
+            <span className="ml-2 text-gray-700">({occupancyRate}% {t('roomActivity.occupancyRate')})</span>
           </p>
         </div>
         <div>
@@ -191,13 +193,13 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
 
           <div className="flex gap-1">
             <div className="flex flex-col gap-1 text-xs text-gray-500 pr-2">
-              <div style={{ height: '12px' }}>Mon</div>
+              <div style={{ height: '12px' }}>{t('roomActivity.mon')}</div>
               <div style={{ height: '12px' }}></div>
-              <div style={{ height: '12px' }}>Wed</div>
+              <div style={{ height: '12px' }}>{t('roomActivity.wed')}</div>
               <div style={{ height: '12px' }}></div>
-              <div style={{ height: '12px' }}>Fri</div>
+              <div style={{ height: '12px' }}>{t('roomActivity.fri')}</div>
               <div style={{ height: '12px' }}></div>
-              <div style={{ height: '12px' }}>Sun</div>
+              <div style={{ height: '12px' }}>{t('roomActivity.sun')}</div>
             </div>
 
             <div className="flex gap-1">
@@ -216,22 +218,22 @@ export default function RoomActivityChart({ roomId }: RoomActivityChartProps) {
           </div>
 
           <div className="flex items-center gap-4 mt-4 text-xs text-gray-600">
-            <span className="font-medium">Legend:</span>
+            <span className="font-medium">{t('roomActivity.legend')}:</span>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-gray-100 border border-gray-200 rounded-sm" />
-              <span>Available</span>
+              <span>{t('rooms.statuses.available')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-yellow-400 border border-yellow-500 rounded-sm" />
-              <span>Reserved</span>
+              <span>{t('rooms.statuses.reserved')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-500 border border-green-600 rounded-sm" />
-              <span>Occupied</span>
+              <span>{t('rooms.statuses.occupied')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-orange-400 border border-orange-500 rounded-sm" />
-              <span>Maintenance</span>
+              <span>{t('rooms.statuses.maintenance')}</span>
             </div>
           </div>
         </div>

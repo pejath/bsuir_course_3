@@ -11,6 +11,14 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    host: true,
+    cors: true,
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '0.0.0.0',
+      'firefly-light-pegasus.ngrok-free.app'
+    ],
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
