@@ -14,8 +14,14 @@ class ApplicationController < ActionController::API
     token = request.headers['Authorization']&.split(' ')&.last
     return render json: { error: 'Unauthorized' }, status: :unauthorized unless token
 
-    @current_user = User.find_by(auth_token: token)
-    render json: { error: 'Unauthorized' }, status: :unauthorized unless @current_user
+    # Find auth token and ensure it's not expired
+    auth_token = AuthToken.active.by_token(token).first
+    return render json: { error: 'Unauthorized' }, status: :unauthorized unless auth_token
+
+    # Update last used timestamp
+    auth_token.update_column(:last_used_at, Time.current)
+    
+    @current_user = auth_token.user
   end
 
   def current_user

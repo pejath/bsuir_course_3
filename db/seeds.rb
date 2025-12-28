@@ -86,7 +86,8 @@ rooms_created = 0
       description: Faker::Lorem.paragraph(sentence_count: 3),
       amenities: "WiFi, TV, Air conditioning, #{['Mini bar', 'Safe', 'Coffee maker', 'Hairdryer'].sample(rand(2..4)).join(', ')}",
       view: views.sample,
-      image_url: "https://picsum.photos/800/600?random=#{room_number}"
+      image_url: "https://dummyimage.com/800x600/000/ffffff&text=#{room_number}"
+      # image_url: "https://picsum.photos/800/600?random=#{room_number}"
     )
     rooms_created += 1
   end

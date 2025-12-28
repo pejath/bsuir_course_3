@@ -6,10 +6,11 @@ class User < ApplicationRecord
 
   # Associations
   has_many :bookings, dependent: :nullify
+  has_many :auth_tokens, dependent: :destroy
 
   # Enums
   enum :role, { guest: 0, staff: 1, manager: 2, admin: 3 }
-
+  
   # Validations
   validates :first_name, presence: true
   validates :last_name, presence: true
@@ -17,19 +18,14 @@ class User < ApplicationRecord
 
   # Callbacks
   after_initialize :set_default_role, if: :new_record?
-  before_create :generate_auth_token
 
-  # Методы для auth token
-  def generate_auth_token
-    loop do
-      self.auth_token = SecureRandom.urlsafe_base64(32)
-      break unless User.exists?(auth_token: auth_token)
-    end
+  # Auth token methods for multiple sessions
+  def create_auth_token!(device_info: nil)
+    auth_tokens.create!(device_info: device_info)
   end
-
-  def regenerate_auth_token!
-    generate_auth_token
-    save!
+  
+  def find_auth_token(token)
+    auth_tokens.active.by_token(token).first
   end
 
   private

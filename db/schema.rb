@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_25_133401) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_28_152546) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "auth_tokens", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "device_info"
+    t.datetime "expires_at"
+    t.datetime "last_used_at"
+    t.string "token"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_auth_tokens_on_user_id"
+  end
 
   create_table "booking_services", force: :cascade do |t|
     t.bigint "booking_id", null: false
@@ -104,7 +115,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_133401) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "auth_token"
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -115,11 +125,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_133401) do
     t.string "reset_password_token"
     t.integer "role"
     t.datetime "updated_at", null: false
-    t.index ["auth_token"], name: "index_users_on_auth_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "auth_tokens", "users"
   add_foreign_key "booking_services", "bookings"
   add_foreign_key "booking_services", "services"
   add_foreign_key "bookings", "guests"

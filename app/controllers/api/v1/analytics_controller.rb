@@ -43,6 +43,106 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     }
   end
 
+  def export_pdf
+    start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
+    end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
+
+    # Get data
+    payments = Payment.where(status: :completed, payment_date: start_date..end_date)
+    total_revenue = payments.sum(:amount)
+    total_bookings = payments.joins(:booking).distinct.count
+    average_booking_value = total_bookings > 0 ? total_revenue / total_bookings : 0
+    
+    # Calculate occupancy rate
+    total_rooms = Room.count
+    occupied_rooms = Room.occupied.count
+    occupancy_rate = total_rooms > 0 ? (occupied_rooms.to_f / total_rooms * 100).round(2) : 0
+
+    # Generate PDF
+    pdf = Prawn::Document.new
+    
+    # Title
+    pdf.text "Analytics Report", size: 18, style: :bold
+    pdf.move_down 10
+    
+    # Period
+    pdf.text "Period: #{start_date} to #{end_date}", size: 12
+    pdf.move_down 20
+    
+    # Summary
+    pdf.text "Summary", size: 14, style: :bold
+    pdf.move_down 10
+    
+    pdf.text "Total Revenue: $#{total_revenue.round(2)}"
+    pdf.text "Total Bookings: #{total_bookings}"
+    pdf.text "Average Booking Value: $#{average_booking_value.round(2)}"
+    pdf.text "Occupancy Rate: #{occupancy_rate}%"
+    pdf.move_down 20
+    
+    # Payment methods table
+    pdf.text "Revenue by Payment Method", size: 14, style: :bold
+    pdf.move_down 10
+    
+    payment_data = [['Payment Method', 'Revenue']]
+    payments.group(:payment_method).sum(:amount).each do |method, amount|
+      payment_data << [method.humanize, "$#{amount.round(2)}"]
+    end
+    
+    pdf.table(payment_data, header: true, width: pdf.bounds.width) do
+      row(0).font_style = :bold
+      cells.padding = 8
+      cells.borders = [:top, :bottom]
+    end
+    
+    # Send PDF
+    send_data pdf.render,
+      filename: "analytics-#{start_date}-to-#{end_date}.pdf",
+      type: 'application/pdf',
+      disposition: 'inline'
+  end
+
+  def export_excel
+    start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
+    end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
+
+    # Get data
+    payments = Payment.where(status: :completed, payment_date: start_date..end_date)
+    total_revenue = payments.sum(:amount)
+    total_bookings = payments.joins(:booking).distinct.count
+    average_booking_value = total_bookings > 0 ? total_revenue / total_bookings : 0
+    
+    # Calculate occupancy rate
+    total_rooms = Room.count
+    occupied_rooms = Room.occupied.count
+    occupancy_rate = total_rooms > 0 ? (occupied_rooms.to_f / total_rooms * 100).round(2) : 0
+
+    # Create workbook
+    workbook = Axlsx::Package.new
+    
+    # Summary sheet
+    summary_sheet = workbook.workbook.add_worksheet(name: 'Summary')
+    summary_sheet.add_row ['Metric', 'Value']
+    summary_sheet.add_row ['Total Revenue', total_revenue]
+    summary_sheet.add_row ['Total Bookings', total_bookings]
+    summary_sheet.add_row ['Average Booking Value', average_booking_value]
+    summary_sheet.add_row ['Occupancy Rate (%)', occupancy_rate]
+    summary_sheet.add_row ['Period', "#{start_date} to #{end_date}"]
+    
+    # Payment methods sheet
+    payment_sheet = workbook.workbook.add_worksheet(name: 'By Payment Method')
+    payment_sheet.add_row ['Payment Method', 'Revenue']
+    
+    payments.group(:payment_method).sum(:amount).each do |method, amount|
+      payment_sheet.add_row [method.humanize, amount]
+    end
+    
+    # Send Excel file
+    send_data workbook.to_stream.read,
+      filename: "analytics-#{start_date}-to-#{end_date}.xlsx",
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      disposition: 'inline'
+  end
+
   def room_statistics
     render json: Room.group(:status).count
   end

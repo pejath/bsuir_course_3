@@ -27,6 +27,14 @@ gem "rack-cors"
 # Fake data generator for seeds
 gem "faker"
 
+# PDF generation
+gem "prawn"
+gem "prawn-table"
+
+# Excel generation
+gem "caxlsx"
+gem "spreadsheet_architect"
+
 # Parallel processing for seeds
 gem "parallel"
 

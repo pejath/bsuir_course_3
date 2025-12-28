@@ -17,6 +17,19 @@ class Api::V1::SessionsController < Devise::SessionsController
     render json: { error: 'Invalid email or password' }, status: :unauthorized
   end
 
+  def destroy
+    # Принудительно устанавливаем формат JSON
+    request.format = :json
+    
+    token = request.headers['Authorization']&.split(' ')&.last
+    if token
+      auth_token = AuthToken.find_by(token: token)
+      auth_token&.destroy
+    end
+    
+    render json: { message: 'Logged out successfully' }, status: :ok
+  end
+
   private
   
   def configure_sign_in_params
@@ -24,11 +37,11 @@ class Api::V1::SessionsController < Devise::SessionsController
   end
 
   def respond_with(resource, _opts = {})
-    # Генерируем новый токен при каждом логине
-    resource.regenerate_auth_token!
+    # Create new auth token for this login
+    auth_token = resource.create_auth_token!(device_info: request.user_agent)
     
     render json: {
-      token: resource.auth_token,
+      token: auth_token.token,
       user: {
         id: resource.id,
         email: resource.email,

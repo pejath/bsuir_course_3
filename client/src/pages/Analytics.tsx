@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { Download } from 'lucide-react'
 import api from '../lib/api'
 import type { DashboardStats, OccupancyRateStats, RoomStatistics, RevenueReport, RevenueTrendData, BookingsTrendData } from '../types'
 import { formatCurrency, formatStatus, formatPaymentMethod } from '../utils/formatters'
@@ -123,6 +124,44 @@ export default function Analytics() {
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
+  const exportToExcel = async () => {
+    try {
+      const response = await api.get(`/analytics/export_excel?start_date=${startDate}&end_date=${endDate}`, {
+        responseType: 'blob'
+      })
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `analytics-${startDate}-to-${endDate}.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Export failed:', error)
+    }
+  }
+
+  const exportToPDF = async () => {
+    try {
+      const response = await api.get(`/analytics/export_pdf?start_date=${startDate}&end_date=${endDate}`, {
+        responseType: 'blob'
+      })
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `analytics-${startDate}-to-${endDate}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Export failed:', error)
+    }
+  }
+
   if (loading) {
     return <div className="text-center py-12 text-gray-600 dark:text-gray-400">{t('common.loading')}</div>
   }
@@ -202,13 +241,46 @@ export default function Analytics() {
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('analytics.revenueReport')}</h2>
-            <button
-              onClick={fetchRevenue}
-              disabled={revenueLoading}
-              className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50"
-            >
-              {revenueLoading ? t('common.loading') : t('analytics.apply')}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={fetchRevenue}
+                disabled={revenueLoading}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+              >
+                {revenueLoading ? t('common.loading') : t('analytics.refresh')}
+              </button>
+              <div className="relative">
+                <button
+                  onClick={() => document.getElementById('export-dropdown')?.classList.toggle('hidden')}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  {t('analytics.export')}
+                </button>
+                <div id="export-dropdown" className="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        exportToExcel()
+                        document.getElementById('export-dropdown')?.classList.add('hidden')
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t('analytics.exportExcel')}
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportToPDF()
+                        document.getElementById('export-dropdown')?.classList.add('hidden')
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t('analytics.exportPDF')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
