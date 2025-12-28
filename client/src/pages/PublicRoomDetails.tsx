@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Users, MapPin, Eye, Package, Check } from 'lucide-react'
 import publicApi from '../lib/publicApi'
 import PublicBookingForm from '../components/PublicBookingForm'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 import type { Room } from '../types'
 
 export default function PublicRoomDetails() {
@@ -70,12 +71,15 @@ export default function PublicRoomDetails() {
               <ArrowLeft className="w-5 h-5" />
               <span>Вернуться к поиску</span>
             </button>
-            <a
-              href="/login"
-              className="text-sm font-medium text-primary-600 hover:text-primary-700"
-            >
-              Вход для персонала
-            </a>
+            <div className="flex items-center gap-4">
+              <LanguageSwitcher />
+              <a
+                href="/login"
+                className="text-sm font-medium text-primary-600 hover:text-primary-700"
+              >
+                {t('public.staffLogin')}
+              </a>
+            </div>
           </div>
         </div>
       </header>

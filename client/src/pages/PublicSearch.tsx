@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Search, Calendar, Users, MapPin, ChevronRight } from 'lucide-react'
 import publicApi from '../lib/publicApi'
 import type { Room, RoomType } from '../types'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 
 interface PaginationMeta {
   page: number
@@ -90,12 +91,15 @@ export default function PublicSearch() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-gray-900">{t('public.searchRooms')}</h1>
-            <a
-              href="/login"
-              className="text-sm font-medium text-primary-600 hover:text-primary-700"
-            >
-              {t('public.staffLogin')}
-            </a>
+            <div className="flex items-center gap-4">
+              <LanguageSwitcher />
+              <a
+                href="/login"
+                className="text-sm font-medium text-primary-600 hover:text-primary-700"
+              >
+                {t('public.staffLogin')}
+              </a>
+            </div>
           </div>
         </div>
       </header>

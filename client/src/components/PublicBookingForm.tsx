@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Calendar, Users, User, Mail, Phone, Globe, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { X, Users, Mail, Phone, Globe } from 'lucide-react'
 import publicApi from '../lib/publicApi'
 import type { Room } from '../types'
 
@@ -15,9 +15,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [unavailableDates, setUnavailableDates] = useState<string[]>([])
-  const [currentMonth, setCurrentMonth] = useState(new Date())
-  const [loadingAvailability, setLoadingAvailability] = useState(true)
+  const [unavailableDates] = useState<string[]>([])
   
   const [bookingData, setBookingData] = useState({
     check_in_date: '',
@@ -34,78 +32,8 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
     notes: ''
   })
 
-  useEffect(() => {
-    fetchAvailability(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
-  }, [currentMonth])
-
-  const fetchAvailability = async (year: number, month: number) => {
-    setLoadingAvailability(true)
-    try {
-      const response = await publicApi.get(`/public/rooms/${room.id}/availability`, {
-        params: { year, month }
-      })
-      setUnavailableDates(response.data.unavailable_dates)
-    } catch (err) {
-      console.error('Failed to fetch availability:', err)
-    } finally {
-      setLoadingAvailability(false)
-    }
-  }
-
   const isDateUnavailable = (dateString: string) => {
     return unavailableDates.includes(dateString)
-  }
-
-  const changeMonth = (direction: number) => {
-    const newMonth = new Date(currentMonth)
-    newMonth.setMonth(newMonth.getMonth() + direction)
-    setCurrentMonth(newMonth)
-  }
-
-  const getDaysInMonth = () => {
-    const year = currentMonth.getFullYear()
-    const month = currentMonth.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const daysInMonth = lastDay.getDate()
-    const startingDayOfWeek = firstDay.getDay()
-    
-    return { daysInMonth, startingDayOfWeek }
-  }
-
-  const renderCalendar = () => {
-    const { daysInMonth, startingDayOfWeek } = getDaysInMonth()
-    const days = []
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(<div key={`empty-${i}`} className="h-10" />)
-    }
-    
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
-      const dateString = date.toISOString().split('T')[0]
-      const isUnavailable = isDateUnavailable(dateString)
-      const isPast = date < today
-      const isDisabled = isPast || isUnavailable
-      
-      days.push(
-        <div
-          key={day}
-          className={`h-10 flex items-center justify-center text-sm rounded ${
-            isDisabled
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-green-50 text-green-700 hover:bg-green-100 cursor-pointer'
-          } ${isUnavailable ? 'line-through' : ''}`}
-          title={isUnavailable ? 'Занято' : isPast ? 'Прошедшая дата' : 'Доступно'}
-        >
-          {day}
-        </div>
-      )
-    }
-    
-    return days
   }
 
   const getMinDate = () => {
@@ -250,7 +178,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                   min={getMinDate()}
                   value={bookingData.check_in_date}
                   onChange={(e) => handleBookingChange('check_in_date', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
               
@@ -264,7 +192,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                   min={bookingData.check_in_date || getMinDate()}
                   value={bookingData.check_out_date}
                   onChange={(e) => handleBookingChange('check_out_date', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
@@ -281,7 +209,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 max={room.capacity || 10}
                 value={bookingData.number_of_guests}
                 onChange={(e) => handleBookingChange('number_of_guests', parseInt(e.target.value))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
@@ -301,7 +229,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
 
           <div className="space-y-4 pt-4 border-t border-gray-200">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <User className="w-5 h-5" />
+              <Users className="w-5 h-5" />
               {t('public.guestInformation')}
             </h3>
 
@@ -315,7 +243,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                   required
                   value={guestData.first_name}
                   onChange={(e) => handleGuestChange('first_name', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
               
@@ -328,7 +256,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                   required
                   value={guestData.last_name}
                   onChange={(e) => handleGuestChange('last_name', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
@@ -343,7 +271,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 required
                 value={guestData.email}
                 onChange={(e) => handleGuestChange('email', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {t('public.confirmationEmail')}
@@ -360,7 +288,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 required
                 value={guestData.phone}
                 onChange={(e) => handleGuestChange('phone', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
@@ -373,7 +301,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 type="text"
                 value={guestData.country}
                 onChange={(e) => handleGuestChange('country', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
@@ -385,7 +313,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 value={guestData.notes}
                 onChange={(e) => handleGuestChange('notes', e.target.value)}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder={t('public.specialRequests')}
               />
             </div>

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle, Calendar, Users, MapPin, Mail, Phone, User, ArrowLeft } from 'lucide-react'
 import publicApi from '../lib/publicApi'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 
 interface Booking {
   id: number
@@ -114,13 +115,16 @@ export default function BookingConfirmation() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Вернуться к поиску</span>
-          </button>
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Вернуться к поиску</span>
+            </button>
+            <LanguageSwitcher />
+          </div>
         </div>
       </header>
 

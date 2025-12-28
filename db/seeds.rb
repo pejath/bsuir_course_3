@@ -27,14 +27,6 @@ staff = User.find_or_create_by!(email: 'staff@hotel.com') do |user|
 end
 puts "✓ Staff created: #{staff.email}"
 
-guest_user = User.find_or_create_by!(email: 'guest@hotel.com') do |user|
-  user.password = '123456'
-  user.first_name = 'Guest'
-  user.last_name = 'User'
-  user.role = 0
-end
-puts "✓ Guest created: #{guest_user.email}"
-
 puts "\nCreating room types..."
 standard = RoomType.find_or_create_by!(name: 'Standard') do |rt|
   rt.description = 'Comfortable standard room with basic amenities'
@@ -124,7 +116,7 @@ puts "\nCreating guests..."
 require 'faker'
 
 guests = []
-400.times do |i|
+2000.times do |i|
   guest = Guest.create!(
     first_name: Faker::Name.first_name,
     last_name: Faker::Name.last_name,
@@ -143,7 +135,7 @@ puts "\nCreating bookings for 365 days with 80-90% occupancy..."
 require 'parallel'
 
 rooms = Room.all.to_a
-start_date = Date.today - 182.days
+start_date = Date.today - 365.days
 end_date = Date.today + 182.days
 
 puts "Using #{Parallel.processor_count} CPU cores for parallel processing..."
@@ -178,6 +170,13 @@ bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) d
         'checked_in'
       end
       
+      # Calculate realistic booking lead time (1-30 days before check-in)
+      lead_time = rand(1..30)
+      booking_created_at = check_in - lead_time.days
+      
+      # Ensure booking_created_at is not before our 6-month window
+      booking_created_at = [booking_created_at, start_date].min
+      
       booking = Booking.create!(
         room: room,
         guest: guest,
@@ -187,7 +186,7 @@ bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) d
         number_of_guests: num_guests,
         total_price: base_price,
         status: status,
-        created_at: check_in,
+        created_at: booking_created_at,
         notes: rand < 0.15 ? Faker::Lorem.sentence(word_count: rand(3..8)) : ''
       )
       
@@ -219,7 +218,10 @@ puts "\nCreating payments for bookings..."
 payment_methods = ['cash', 'card', 'bank_transfer']
 payments_created = 0
 
-Booking.where(status: [:confirmed, :checked_in, :checked_out]).find_each do |booking|
+# Use parallel processing for payment creation
+payments_created = Parallel.map(Booking.where(status: [:confirmed, :checked_in, :checked_out]), in_processes: Parallel.processor_count) do |booking|
+  ActiveRecord::Base.connection.reconnect!
+  
   payment_status = if booking.status == 'checked_out'
     'completed'
   elsif booking.status == 'checked_in'
@@ -229,11 +231,13 @@ Booking.where(status: [:confirmed, :checked_in, :checked_out]).find_each do |boo
   end
   
   payment_date = if payment_status == 'completed'
-    booking.check_in_date - rand(0..2).days
+    # Payment made at check-in date (when guest actually pays)
+    booking.check_in_date
   else
     nil
   end
   
+  # Create payment with correct historical timestamp
   Payment.create!(
     booking: booking,
     amount: booking.total_price,
@@ -241,10 +245,11 @@ Booking.where(status: [:confirmed, :checked_in, :checked_out]).find_each do |boo
     status: payment_status,
     payment_date: payment_date,
     transaction_id: payment_status == 'completed' ? "TXN-#{SecureRandom.hex(8).upcase}" : nil,
-    notes: ''
+    notes: '',
+    created_at: payment_date || booking.created_at
   )
-  payments_created += 1
-end
+  1
+end.sum
 
 puts "✓ Created #{payments_created} payments"
 

@@ -146,7 +146,12 @@
     "revenueReport": "Отчет о доходах",
     "roomStatusStatistics": "Статистика статусов номеров",
     "noData": "Нет данных",
-    "active": "Активные"
+    "active": "Активные",
+    "occupancyTrend": "Тренд занятости (за последние 6 месяцев)",
+    "averageLeadTime": "Среднее время до бронирования",
+    "days": "дней",
+    "topRoomTypes": "Лучшие типы номеров по доходу",
+    "guestDistribution": "Распределение гостей по странам"
   },
   "dashboard": {
     "title": "Панель управления",

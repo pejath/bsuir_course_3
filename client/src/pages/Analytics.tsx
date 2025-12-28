@@ -30,6 +30,10 @@ export default function Analytics() {
   const [revenueReport, setRevenueReport] = useState<RevenueReport | null>(null)
   const [revenueTrend, setRevenueTrend] = useState<RevenueTrendData[]>([])
   const [bookingsTrend, setBookingsTrend] = useState<BookingsTrendData | null>(null)
+  const [occupancyTrend, setOccupancyTrend] = useState<RevenueTrendData[]>([])
+  const [leadTimeStats, setLeadTimeStats] = useState<{ average_lead_time: number } | null>(null)
+  const [topRoomTypes, setTopRoomTypes] = useState<{ room_type: string; revenue: number; bookings: number }[]>([])
+  const [guestCountries, setGuestCountries] = useState<{ country: string; count: number }[]>([])
 
   const [startDate, setStartDate] = useState(formatDateForInput(defaultStart))
   const [endDate, setEndDate] = useState(formatDateForInput(defaultEnd))
@@ -42,13 +46,17 @@ export default function Analytics() {
     setError(null)
     setLoading(true)
     try {
-      const [dashboardRes, occupancyRes, roomStatsRes, revenueRes, revenueTrendRes, bookingsTrendRes] = await Promise.all([
+      const [dashboardRes, occupancyRes, roomStatsRes, revenueRes, revenueTrendRes, bookingsTrendRes, occupancyTrendRes, leadTimeRes, topRoomTypesRes, guestCountriesRes] = await Promise.all([
         api.get<DashboardStats>('/analytics/dashboard'),
         api.get<OccupancyRateStats>('/analytics/occupancy_rate'),
         api.get<RoomStatistics>('/analytics/room_statistics'),
         api.get<RevenueReport>('/analytics/revenue_report', { params: { start_date: startDate, end_date: endDate } }),
         api.get<RevenueTrendData[]>('/analytics/revenue_trend'),
         api.get<BookingsTrendData>('/analytics/bookings_trend'),
+        api.get<RevenueTrendData[]>('/analytics/occupancy_trend'),
+        api.get<{ average_lead_time: number }>('/analytics/lead_time_stats'),
+        api.get<{ room_type: string; revenue: number; bookings: number }[]>('/analytics/top_room_types'),
+        api.get<{ country: string; count: number }[]>('/analytics/guest_countries'),
       ])
       setDashboard(dashboardRes.data)
       setOccupancy(occupancyRes.data)
@@ -56,6 +64,10 @@ export default function Analytics() {
       setRevenueReport(revenueRes.data)
       setRevenueTrend(revenueTrendRes.data)
       setBookingsTrend(bookingsTrendRes.data)
+      setOccupancyTrend(occupancyTrendRes.data)
+      setLeadTimeStats(leadTimeRes.data)
+      setTopRoomTypes(topRoomTypesRes.data)
+      setGuestCountries(guestCountriesRes.data)
     } catch (e) {
       console.error('Failed to fetch analytics:', e)
       setError(t('analytics.loadError'))
@@ -244,6 +256,81 @@ export default function Analytics() {
               <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} name="Revenue" />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="mt-8 grid grid-cols-1 gap-6">
+        <div className="bg-white shadow rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('analytics.occupancyTrend')}</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={occupancyTrend}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value) => `${Number(value).toFixed(1)}%`} />
+              <Legend />
+              <Line type="monotone" dataKey="occupancy_rate" stroke="#10b981" strokeWidth={2} name="Occupancy Rate" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="bg-white shadow rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('analytics.averageLeadTime')}</h2>
+          <p className="text-3xl font-bold text-gray-900">{leadTimeStats?.average_lead_time ?? 0}</p>
+          <p className="text-sm text-gray-500 mt-1">{t('analytics.days')}</p>
+        </div>
+        
+        <div className="bg-white shadow rounded-lg p-6 lg:col-span-2">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('analytics.topRoomTypes')}</h2>
+          {topRoomTypes.length === 0 ? (
+            <div className="text-gray-500">{t('analytics.noData')}</div>
+          ) : (
+            <div className="space-y-3">
+              {topRoomTypes.map((roomType, index) => (
+                <div key={roomType.room_type} className="flex justify-between items-center">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-lg font-medium text-gray-900">#{index + 1}</span>
+                    <span className="text-sm text-gray-700">{roomType.room_type}</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900">{formatCurrency(roomType.revenue)}</p>
+                    <p className="text-xs text-gray-500">{roomType.bookings} {t('analytics.bookings')}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-8 grid grid-cols-1 gap-6">
+        <div className="bg-white shadow rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('analytics.guestDistribution')}</h2>
+          {guestCountries.length === 0 ? (
+            <div className="text-gray-500">{t('analytics.noData')}</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={guestCountries}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ country, percent }) => `${country} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="count"
+                >
+                  {guestCountries.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][index % 5]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 

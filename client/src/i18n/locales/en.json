@@ -147,7 +147,12 @@
     "revenueReport": "Revenue Report",
     "roomStatusStatistics": "Room Status Statistics",
     "noData": "No data",
-    "active": "Active"
+    "active": "Active",
+    "occupancyTrend": "Occupancy Trend (Last 6 Months)",
+    "averageLeadTime": "Average Booking Lead Time",
+    "days": "days",
+    "topRoomTypes": "Top Room Types by Revenue",
+    "guestDistribution": "Guest Distribution by Country"
   },
   "dashboard": {
     "title": "Dashboard",

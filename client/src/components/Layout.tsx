@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Home, Bed, Calendar, Users, BarChart3, LogOut } from 'lucide-react'
+import { Home, Bed, Calendar, Users, BarChart3, LogOut, Globe } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { canViewAnalytics, canManageGuests } from '../lib/roles'
 
@@ -9,9 +9,15 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const location = useLocation()
   const { user, logout } = useAuthStore()
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng)
+  }
+
+  const currentLanguage = i18n.language
 
   const allNavigation = [
     { name: t('navigation.dashboard'), href: '/admin/', icon: Home, show: canViewAnalytics(user) },
@@ -53,8 +59,17 @@ export default function Layout({ children }: LayoutProps) {
                 })}
               </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-sm text-gray-700 mr-4">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <button
+                  onClick={() => changeLanguage(currentLanguage === 'en' ? 'ru' : 'en')}
+                  className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <Globe className="w-4 h-4 mr-2" />
+                  {currentLanguage === 'en' ? 'EN' : 'RU'}
+                </button>
+              </div>
+              <span className="text-sm text-gray-700">
                 {user?.first_name} {user?.last_name} ({user?.role})
               </span>
               <button

@@ -52,6 +52,10 @@ Rails.application.routes.draw do
       get 'analytics/room_statistics', to: 'analytics#room_statistics'
       get 'analytics/revenue_trend', to: 'analytics#revenue_trend'
       get 'analytics/bookings_trend', to: 'analytics#bookings_trend'
+      get 'analytics/occupancy_trend', to: 'analytics#occupancy_trend'
+      get 'analytics/lead_time_stats', to: 'analytics#lead_time_stats'
+      get 'analytics/top_room_types', to: 'analytics#top_room_types'
+      get 'analytics/guest_countries', to: 'analytics#guest_countries'
     end
   end
 
