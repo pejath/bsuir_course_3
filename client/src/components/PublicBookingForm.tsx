@@ -178,7 +178,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                   min={getMinDate()}
                   value={bookingData.check_in_date}
                   onChange={(e) => handleBookingChange('check_in_date', e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
               
@@ -192,7 +192,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                   min={bookingData.check_in_date || getMinDate()}
                   value={bookingData.check_out_date}
                   onChange={(e) => handleBookingChange('check_out_date', e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
@@ -209,7 +209,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 max={room.capacity || 10}
                 value={bookingData.number_of_guests}
                 onChange={(e) => handleBookingChange('number_of_guests', parseInt(e.target.value))}
-                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
@@ -243,7 +243,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                   required
                   value={guestData.first_name}
                   onChange={(e) => handleGuestChange('first_name', e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
               
@@ -256,7 +256,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                   required
                   value={guestData.last_name}
                   onChange={(e) => handleGuestChange('last_name', e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
@@ -271,7 +271,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 required
                 value={guestData.email}
                 onChange={(e) => handleGuestChange('email', e.target.value)}
-                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {t('public.confirmationEmail')}
@@ -288,7 +288,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 required
                 value={guestData.phone}
                 onChange={(e) => handleGuestChange('phone', e.target.value)}
-                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
@@ -301,7 +301,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 type="text"
                 value={guestData.country}
                 onChange={(e) => handleGuestChange('country', e.target.value)}
-                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
@@ -313,7 +313,7 @@ export default function PublicBookingForm({ room, onClose }: PublicBookingFormPr
                 value={guestData.notes}
                 onChange={(e) => handleGuestChange('notes', e.target.value)}
                 rows={3}
-                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder={t('public.specialRequests')}
               />
             </div>
