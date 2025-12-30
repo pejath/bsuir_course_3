@@ -1,24 +1,66 @@
-# README
+# Hotel Analytics - Setup Instructions
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Backend Setup (Rails API)
 
-Things you may want to cover:
+1. Install dependencies:
+```bash
+bundle install
+```
 
-* Ruby version
+2. Setup database:
+```bash
+cp env.example .env
+# Edit .env with your PostgreSQL credentials
 
-* System dependencies
+# Create and migrate database
+rails db:create
+rails db:migrate
+```
 
-* Configuration
+3. Create initial admin user (Rails console):
+```bash
+rails c
+User.create!(
+  email: 'admin@hotel.com',
+  password: '123456',
+  first_name: 'Admin',
+  last_name: 'User',
+  role: 2
+)
+exit
+```
 
-* Database creation
+4. Start Rails server:
+```bash
+rails s
+```
 
-* Database initialization
+## Frontend Setup (React)
 
-* How to run the test suite
+1. Navigate to client directory:
+```bash
+cd client
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+2. Install dependencies:
+```bash
+npm install
+```
 
-* Deployment instructions
+3. Create environment file:
+```bash
+cp .env.example .env
+```
 
-* ...
+4. Start development server:
+```bash
+npm run dev
+```
+
+## Access the application
+
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3000
+- Login: admin@hotel.com / 123456
+
+
