@@ -8,7 +8,7 @@ class PaymentPolicy < ApplicationPolicy
   end
 
   def create?
-    true
+    user.staff? || user.manager? || user.admin?
   end
 
   def update?

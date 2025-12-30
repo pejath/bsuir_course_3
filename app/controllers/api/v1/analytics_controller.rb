@@ -1,4 +1,6 @@
 class Api::V1::AnalyticsController < Api::V1::BaseController
+  before_action :require_manager!
+  
   def dashboard
     upcoming_bookings = Booking.where(status: [:confirmed, :pending])
                                .where('check_in_date > ?', Date.today)

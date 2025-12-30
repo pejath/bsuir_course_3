@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, X } from 'lucide-react'
+import { Search, X, Eye, Edit, Trash2 } from 'lucide-react'
 import api from '../lib/api'
+import { useAuthStore } from '../store/authStore'
+import { canDeleteGuests } from '../lib/roles'
 import { useDebounce } from '../hooks/useDebounce'
+import Modal from '../components/Modal'
+import GuestForm from '../components/GuestForm'
 import type { Guest } from '../types'
 
 interface PaginationMeta {
@@ -18,11 +22,16 @@ interface PaginationMeta {
 
 export default function Guests() {
   const { t } = useTranslation()
+  const { user } = useAuthStore()
   const [guests, setGuests] = useState<Guest[]>([])
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
   const [pagination, setPagination] = useState<PaginationMeta | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
+  const [viewGuest, setViewGuest] = useState<Guest | null>(null)
   
   const [filters, setFilters] = useState({
     search: '',
@@ -65,6 +74,27 @@ export default function Guests() {
       country: ''
     })
     setCurrentPage(1)
+  }
+
+  const openViewModal = (guest: Guest) => {
+    setViewGuest(guest)
+  }
+
+  const openEditModal = (guest: Guest) => {
+    setSelectedGuest(guest)
+    setIsModalOpen(true)
+  }
+
+  const handleDelete = async () => {
+    if (!deleteConfirm) return
+    
+    try {
+      await api.delete(`/guests/${deleteConfirm}`)
+      setDeleteConfirm(null)
+      fetchGuests(currentPage)
+    } catch (error) {
+      console.error('Failed to delete guest:', error)
+    }
   }
 
   if (initialLoading) {
@@ -142,6 +172,9 @@ export default function Guests() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {t('guests.bookings')}
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {t('common.actions')}
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -161,6 +194,33 @@ export default function Guests() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {guest.bookings_count !== undefined ? guest.bookings_count : 'N/A'}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => openViewModal(guest)}
+                      className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
+                      title={t('common.view')}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => openEditModal(guest)}
+                      className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
+                      title={t('common.edit')}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    {canDeleteGuests(user) && (
+                      <button
+                        onClick={() => setDeleteConfirm(guest.id)}
+                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                        title={t('common.delete')}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -217,6 +277,106 @@ export default function Guests() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* View Guest Modal */}
+      {viewGuest && (
+        <Modal
+          isOpen={!!viewGuest}
+          onClose={() => setViewGuest(null)}
+          title={t('guests.guestDetails')}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('guests.name')}</label>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{viewGuest.first_name} {viewGuest.last_name}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('guests.email')}</label>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{viewGuest.email}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('guests.phone')}</label>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{viewGuest.phone}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('guests.passportNumber')}</label>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{viewGuest.passport_number}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('guests.dateOfBirth')}</label>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{viewGuest.date_of_birth}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('guests.country')}</label>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{viewGuest.country}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('guests.notes')}</label>
+              <p className="mt-1 text-sm text-gray-900 dark:text-white">{viewGuest.notes || '-'}</p>
+            </div>
+            <div className="flex justify-end pt-4">
+              <button
+                onClick={() => setViewGuest(null)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                {t('common.close')}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Edit Guest Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setSelectedGuest(null)
+        }}
+        title={selectedGuest ? t('guests.editGuest') : t('guests.newGuest')}
+      >
+        <GuestForm
+          guest={selectedGuest}
+          onSuccess={() => {
+            setIsModalOpen(false)
+            setSelectedGuest(null)
+            fetchGuests(currentPage)
+          }}
+          onCancel={() => {
+            setIsModalOpen(false)
+            setSelectedGuest(null)
+          }}
+        />
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <Modal
+          isOpen={!!deleteConfirm}
+          onClose={() => setDeleteConfirm(null)}
+          title={t('guests.deleteGuest')}
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {t('guests.deleteConfirmation')}
+            </p>
+            <div className="flex justify-end gap-3 pt-4">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+              >
+                {t('common.delete')}
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   )

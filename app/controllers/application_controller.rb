@@ -40,12 +40,16 @@ class ApplicationController < ActionController::API
       count: pagy.count,
       from: pagy.from,
       to: pagy.to,
-      prev: pagy.previous,
       next: pagy.next
     }
   end
 
   def fallback_index_html
     render file: Rails.public_path.join('index.html')
+  end
+
+  def require_manager!
+    return if current_user&.manager? || current_user&.admin?
+    render json: { error: 'Manager access required' }, status: :forbidden
   end
 end

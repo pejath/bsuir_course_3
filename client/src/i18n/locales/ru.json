@@ -325,7 +325,12 @@
     "dateOfBirth": "Дата рождения",
     "notes": "Примечания",
     "updateGuest": "Обновить гостя",
-    "createGuest": "Создать гостя"
+    "createGuest": "Создать гостя",
+    "editGuest": "Редактировать гостя",
+    "newGuest": "Новый гость",
+    "guestDetails": "Детали гостя",
+    "deleteGuest": "Удалить гостя",
+    "deleteConfirmation": "Вы уверены, что хотите удалить этого гостя?"
   },
   "roomActivity": {
     "loadingActivity": "Загрузка активности...",
@@ -409,6 +414,21 @@
     "viewDetails": "Подробнее",
     "aboutRoomType": "О типе номера",
     "search": "Поиск",
-    "bookNowAndConfirm": "Забронируйте этот номер сейчас и получите подтверждение по email."
+    "bookNowAndConfirm": "Забронируйте этот номер сейчас и получите подтверждение по email.",
+    "actions": "Действия",
+    "view": "Просмотр",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "cancel": "Отмена",
+    "close": "Закрыть",
+    "create": "Создать",
+    "update": "Обновить",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "loading": "Загрузка...",
+    "filters": "Фильтры",
+    "clearFilters": "Очистить фильтры",
+    "previous": "Предыдущий",
+    "next": "Следующий"
   }
 }

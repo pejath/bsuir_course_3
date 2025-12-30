@@ -17,7 +17,7 @@ export default defineConfig({
       'localhost',
       '127.0.0.1',
       '0.0.0.0',
-      'firefly-light-pegasus.ngrok-free.app'
+      'barry-unlogistical-trepidly.ngrok-free.dev'
     ],
     proxy: {
       '/api': {

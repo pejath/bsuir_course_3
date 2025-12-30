@@ -37,5 +37,5 @@ export const canDeleteGuests = (user: User | null): boolean => {
 }
 
 export const canViewAnalytics = (user: User | null): boolean => {
-  return isStaff(user)
+  return isManager(user)
 }
