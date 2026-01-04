@@ -65,6 +65,19 @@ export interface Booking {
   notes: string
   created_at: string
   updated_at: string
+  booking_services?: BookingService[]
+  services?: Service[]
+}
+
+export interface BookingService {
+  id: number
+  booking_id: number
+  service_id: number
+  service?: Service
+  quantity: number
+  price: number
+  created_at: string
+  updated_at: string
 }
 
 export interface Service {

@@ -56,6 +56,7 @@ Rails.application.routes.draw do
       get 'analytics/lead_time_stats', to: 'analytics#lead_time_stats'
       get 'analytics/top_room_types', to: 'analytics#top_room_types'
       get 'analytics/guest_countries', to: 'analytics#guest_countries'
+      get 'analytics/services_analytics', to: 'analytics#services_analytics'
       get 'analytics/export_pdf', to: 'analytics#export_pdf'
       get 'analytics/export_excel', to: 'analytics#export_excel'
     end

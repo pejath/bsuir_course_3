@@ -5,6 +5,7 @@ import { Download } from 'lucide-react'
 import api from '../lib/api'
 import type { DashboardStats, OccupancyRateStats, RoomStatistics, RevenueReport, RevenueTrendData, BookingsTrendData } from '../types'
 import { formatCurrency, formatStatus, formatPaymentMethod } from '../utils/formatters'
+import ServicesAnalytics from '../components/ServicesAnalytics'
 
 function formatDateForInput(d: Date) {
   return d.toISOString().slice(0, 10)
@@ -516,6 +517,12 @@ export default function Analytics() {
             </PieChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* Services Analytics Section */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('analytics.servicesAnalytics')}</h2>
+        <ServicesAnalytics />
       </div>
     </div>
   )

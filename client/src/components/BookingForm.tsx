@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../lib/api'
-import type { Booking, Room, Guest } from '../types'
+import type { Booking, Room, Guest, BookingService } from '../types'
+import BookingServices from './BookingServices'
 
 interface BookingFormProps {
   booking?: Booking | null
@@ -16,6 +17,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
   const [guestSearch, setGuestSearch] = useState('')
   const [guestSearchTimeout, setGuestSearchTimeout] = useState<number | null>(null)
   const [guestMode, setGuestMode] = useState<'existing' | 'new'>('existing')
+  const [bookingServices, setBookingServices] = useState<BookingService[]>([])
   const [formData, setFormData] = useState({
     room_id: '',
     guest_id: '',
@@ -43,6 +45,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
     if (booking) {
       // When editing, fetch the specific guest first to ensure it's in the list
       fetchGuest(booking.guest_id)
+      setBookingServices(booking.booking_services || [])
       setFormData({
         room_id: booking.room_id.toString(),
         guest_id: booking.guest_id.toString(),
@@ -54,6 +57,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
       })
     } else {
       fetchGuests('')
+      setBookingServices([])
     }
   }, [booking])
 
@@ -156,7 +160,14 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
           check_out_date: formData.check_out_date,
           number_of_guests: parseInt(formData.number_of_guests),
           status: formData.status,
-          notes: formData.notes
+          notes: formData.notes,
+          booking_services_attributes: bookingServices.filter(s => s.service_id > 0).map(s => ({
+            id: s.id || undefined,
+            service_id: s.service_id,
+            quantity: s.quantity,
+            price: s.price,
+            _destroy: false
+          }))
         }
       }
 
@@ -483,6 +494,12 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
           <option value="completed">{t('bookings.statuses.completed')}</option>
         </select>
       </div>
+
+      <BookingServices
+        bookingId={booking?.id}
+        selectedServices={bookingServices}
+        onChange={setBookingServices}
+      />
 
       <div>
         <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">

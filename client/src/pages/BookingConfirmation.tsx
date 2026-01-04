@@ -4,32 +4,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle, Calendar, Users, MapPin, Mail, Phone, User, ArrowLeft } from 'lucide-react'
 import publicApi from '../lib/publicApi'
 import ThemeSwitcher from '../components/ThemeSwitcher'
-
-interface Booking {
-  id: number
-  check_in_date: string
-  check_out_date: string
-  number_of_guests: number
-  total_price: number
-  status: string
-  notes?: string
-  room: {
-    id: number
-    number: string
-    floor: number
-    room_type: {
-      name: string
-      base_price: number
-    }
-  }
-  guest: {
-    first_name: string
-    last_name: string
-    email: string
-    phone: string
-    country?: string
-  }
-}
+import type { Booking, BookingService } from '../types'
 
 export default function BookingConfirmation() {
   const { t } = useTranslation()
@@ -112,6 +87,13 @@ export default function BookingConfirmation() {
   }
 
   const nights = calculateNights()
+  
+  const calculateTotalPrice = () => {
+    const servicesTotal = booking.booking_services?.reduce((sum: number, bs: BookingService) => {
+      return sum + (Number(bs.price) * bs.quantity)
+    }, 0) || 0
+    return Number(booking.total_price) + servicesTotal
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -145,7 +127,7 @@ export default function BookingConfirmation() {
           <div className="p-8 space-y-6">
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
               <p className="text-sm text-blue-800 dark:text-blue-200">
-                {t('bookingConfirmation.confirmationSent', { email: booking.guest.email })}. 
+                {t('bookingConfirmation.confirmationSent', { email: booking.guest?.email || '' })}. 
                 {t('bookingConfirmation.staffWillContact')}.
               </p>
             </div>
@@ -160,9 +142,9 @@ export default function BookingConfirmation() {
                     <div className="flex items-center gap-2">
                       <MapPin className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                       <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">{t('rooms.room')} {booking.room.number}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{booking.room.room_type.name}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-500">{t('rooms.floor')} {booking.room.floor}</p>
+                        <p className="font-semibold text-gray-900 dark:text-white">{t('rooms.room')} {booking.room?.number}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{booking.room?.room_type?.name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-500">{t('rooms.floor')} {booking.room?.floor}</p>
                       </div>
                     </div>
                   </div>
@@ -208,18 +190,18 @@ export default function BookingConfirmation() {
                       <div className="flex items-center gap-2">
                         <User className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <p className="text-gray-900 dark:text-white">
-                          {booking.guest.first_name} {booking.guest.last_name}
+                          {booking.guest?.first_name} {booking.guest?.last_name}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Mail className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-                      <p className="text-gray-900 dark:text-white">{booking.guest.email}</p>
+                      <p className="text-gray-900 dark:text-white">{booking.guest?.email}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Phone className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-                        <p className="text-gray-900 dark:text-white">{booking.guest.phone}</p>
+                        <p className="text-gray-900 dark:text-white">{booking.guest?.phone}</p>
                       </div>
-                      {booking.guest.country && (
+                      {booking.guest?.country && (
                         <div className="flex items-center gap-2">
                           <MapPin className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                           <p className="text-gray-900 dark:text-white">{booking.guest.country}</p>
@@ -241,12 +223,29 @@ export default function BookingConfirmation() {
             <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-600 dark:text-gray-400">${booking.room.room_type.base_price} × {nights} {nights === 1 ? t('public.night') : t('public.nights')}</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">${booking.room.room_type.base_price * nights}</span>
+                  <span className="text-gray-600 dark:text-gray-400">${booking.room?.room_type?.base_price || 0} × {nights} {nights === 1 ? t('public.night') : t('public.nights')}</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">${(booking.room?.room_type?.base_price || 0) * nights}</span>
                 </div>
-                <div className="flex justify-between items-center text-lg font-bold text-gray-900 dark:text-white">
+                
+                {booking.booking_services && booking.booking_services.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('bookings.services')}</h4>
+                    {booking.booking_services.map((bs: BookingService, index: number) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          {bs.service?.name} × {bs.quantity}
+                        </span>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          ${(Number(bs.price) * bs.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center text-lg font-bold text-gray-900 dark:text-white mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                   <span>{t('public.total')}</span>
-                  <span className="text-primary-600 dark:text-primary-400">${booking.total_price}</span>
+                  <span className="text-primary-600 dark:text-primary-400">${calculateTotalPrice().toFixed(2)}</span>
                 </div>
               </div>
             </div>

@@ -17,6 +17,7 @@
     "previous": "Previous",
     "yes": "Yes",
     "no": "No",
+    "price": "Price",
     "saving": "Saving...",
     "confirm": "Confirm",
     "close": "Close",
@@ -72,6 +73,7 @@
     "bookNow": "Book Now",
     "analytics": "Analytics",
     "hotelAnalytics": "Hotel Analytics",
+    "services": "Services",
     "logout": "Logout",
     "bookings": "Bookings",
     "rooms": "Rooms"
@@ -200,7 +202,17 @@
     "revenueReport": "Revenue Report",
     "roomStatusStatistics": "Room Status Statistics",
     "noData": "No data",
-    "occupancy": "Occupancy"
+    "occupancy": "Occupancy",
+    "servicesAnalytics": "Services Analytics",
+    "totalServicesRevenue": "Total Services Revenue",
+    "totalServices": "Total Services",
+    "activeServices": "Active Services",
+    "topServicesByRevenue": "Top Services by Revenue",
+    "servicesUsageDistribution": "Services Usage Distribution"
+  },
+  "tooltip": {
+    "revenue": "Revenue",
+    "service": "Service"
   },
   "rooms": {
     "title": "Rooms",
@@ -304,6 +316,12 @@
     "noGuestsFound": "No guests found",
     "selectGuest": "Select Guest",
     "notes": "Notes",
+    "services": "Services",
+    "addService": "Add Service",
+    "selectService": "Select Service",
+    "noServices": "No services",
+    "noServicesAdded": "No services added",
+    "servicesTotal": "Services Total",
     "updateBooking": "Update Booking",
     "guests": "Guests"
   },
@@ -436,5 +454,24 @@
     "clearFilters": "Clear Filters",
     "previous": "Previous",
     "next": "Next"
+  },
+  "services": {
+    "title": "Services",
+    "addService": "Add Service",
+    "editService": "Edit Service",
+    "newService": "New Service",
+    "name": "Name",
+    "description": "Description",
+    "price": "Price",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "searchPlaceholder": "Search by name or description...",
+    "noServices": "No services",
+    "noSearchResults": "No services found",
+    "confirmDelete": "Are you sure you want to delete this service?",
+    "saveError": "Failed to save service",
+    "deleteError": "Failed to delete service"
   }
 }

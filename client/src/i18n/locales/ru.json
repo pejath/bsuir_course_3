@@ -17,6 +17,7 @@
     "previous": "Предыдущий",
     "yes": "Да",
     "no": "Нет",
+    "price": "Цена",
     "saving": "Сохранение...",
     "confirm": "Подтвердить",
     "close": "Закрыть"
@@ -71,6 +72,7 @@
     "bookNow": "Забронировать сейчас",
     "analytics": "Аналитика",
     "hotelAnalytics": "Hotel Analytics",
+    "services": "Услуги",
     "logout": "Выйти",
     "bookings": "Брони",
     "rooms": "Номера"
@@ -199,7 +201,17 @@
     "revenueReport": "Отчет о доходах",
     "roomStatusStatistics": "Статистика статусов номеров",
     "noData": "Нет данных",
-    "occupancy": "Занятость"
+    "occupancy": "Занятость",
+    "servicesAnalytics": "Аналитика услуг",
+    "totalServicesRevenue": "Общий доход от услуг",
+    "totalServices": "Всего услуг",
+    "activeServices": "Активные услуги",
+    "topServicesByRevenue": "Топ услуг по доходу",
+    "servicesUsageDistribution": "Распределение использования услуг"
+  },
+  "tooltip": {
+    "revenue": "Доход",
+    "service": "Услуга"
   },
   "rooms": {
     "title": "Номера",
@@ -303,6 +315,12 @@
     "noGuestsFound": "Гости не найдены",
     "selectGuest": "Выберите гостя",
     "notes": "Примечания",
+    "services": "Услуги",
+    "addService": "Добавить услугу",
+    "selectService": "Выберите услугу",
+    "noServices": "Нет услуг",
+    "noServicesAdded": "Услуги не добавлены",
+    "servicesTotal": "Итого по услугам",
     "updateBooking": "Обновить бронирование",
     "guests": "Гости"
   },
@@ -339,7 +357,13 @@
   },
   "roomActivity": {
     "loadingActivity": "Загрузка активности...",
-    "loadError": "Не удалось загрузить данные об активности",
+    "loadError": "Не удалось загрузить данные",
+    "servicesAnalytics": "Аналитика услуг",
+    "totalServicesRevenue": "Общий доход от услуг",
+    "totalServices": "Всего услуг",
+    "activeServices": "Активные услуги",
+    "topServicesByRevenue": "Топ услуг по доходу",
+    "servicesUsageDistribution": "Распределение использования услуг",
     "legend": "Легенда",
     "roomActivity": "Номер {{roomNumber}} - Активность занятости",
     "occupied": "занято",
@@ -435,5 +459,24 @@
     "clearFilters": "Очистить фильтры",
     "previous": "Предыдущий",
     "next": "Следующий"
+  },
+  "services": {
+    "title": "Услуги",
+    "addService": "Добавить услугу",
+    "editService": "Редактировать услугу",
+    "newService": "Новая услуга",
+    "name": "Название",
+    "description": "Описание",
+    "price": "Цена",
+    "active": "Активна",
+    "inactive": "Неактивна",
+    "activate": "Активировать",
+    "deactivate": "Деактивировать",
+    "searchPlaceholder": "Поиск по названию или описанию...",
+    "noServices": "Нет услуг",
+    "noSearchResults": "Услуги не найдены",
+    "confirmDelete": "Вы уверены, что хотите удалить эту услугу?",
+    "saveError": "Не удалось сохранить услугу",
+    "deleteError": "Не удалось удалить услугу"
   }
 }

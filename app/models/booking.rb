@@ -7,6 +7,9 @@ class Booking < ApplicationRecord
   has_many :services, through: :booking_services
   has_many :payments, dependent: :destroy
 
+  # Nested attributes
+  accepts_nested_attributes_for :booking_services, allow_destroy: true
+
   # Enums
   enum :status, { pending: 0, confirmed: 1, checked_in: 2, checked_out: 3, cancelled: 4 }
 

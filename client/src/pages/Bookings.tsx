@@ -88,6 +88,13 @@ export default function Bookings() {
     }
   }
 
+  const calculateTotalPrice = (booking: Booking) => {
+    const servicesTotal = booking.booking_services?.reduce((sum, bs) => {
+      return sum + (Number(bs.price) * bs.quantity)
+    }, 0) || 0
+    return Number(booking.total_price) + servicesTotal
+  }
+
   const handleCreateBooking = () => {
     setSelectedBooking(null)
     setShowForm(true)
@@ -231,7 +238,7 @@ export default function Bookings() {
                 {t('bookings.status')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                {t('common.actions')}
+                {t('common.price')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {t('common.actions')}
@@ -259,7 +266,7 @@ export default function Bookings() {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  ${booking.total_price}
+                  ${calculateTotalPrice(booking).toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   <button

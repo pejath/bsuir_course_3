@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard'
 import Rooms from './pages/Rooms'
 import Bookings from './pages/Bookings'
 import Guests from './pages/Guests'
+import Services from './pages/Services'
 import Analytics from './pages/Analytics'
 import PublicSearch from './pages/PublicSearch'
 import PublicRoomDetails from './pages/PublicRoomDetails'
@@ -46,6 +47,7 @@ function App() {
                     <Route path="/rooms" element={<Rooms />} />
                     <Route path="/bookings" element={<Bookings />} />
                     <Route path="/guests" element={<Guests />} />
+                    <Route path="/services" element={<Services />} />
                     <Route path="/analytics" element={<Analytics />} />
                   </Routes>
                 </Layout>

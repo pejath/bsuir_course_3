@@ -4,7 +4,7 @@ class Api::V1::BookingsController < Api::V1::BaseController
 
   def index
     authorize Booking
-    bookings = Booking.includes(:guest, :user, room: :room_type)
+    bookings = Booking.includes(:guest, :user, :services, :booking_services, room: :room_type)
     
     bookings = bookings.where(status: params[:status]) if params[:status].present?
     bookings = bookings.where(room_id: params[:room_id]) if params[:room_id].present?
@@ -17,14 +17,19 @@ class Api::V1::BookingsController < Api::V1::BaseController
     bookings = bookings.order(check_in_date: :desc)
     pagy, @bookings = pagy(bookings, limit: params[:limit] || 50)
     render json: {
-      data: @bookings.as_json(include: { room: { include: :room_type }, guest: {}, user: {} }),
+      data: @bookings.as_json(include: { 
+        room: { include: :room_type }, 
+        guest: {}, 
+        user: {},
+        booking_services: { include: :service }
+      }),
       pagination: pagy_metadata(pagy)
     }
   end
 
   def show
     authorize @booking
-    render json: @booking, include: { room: { include: :room_type }, guest: {}, user: {}, services: {}, payments: {} }
+    render json: @booking, include: { room: { include: :room_type }, guest: {}, user: {}, booking_services: { include: :service }, payments: {} }
   end
 
   def create
@@ -33,7 +38,7 @@ class Api::V1::BookingsController < Api::V1::BaseController
     authorize @booking
 
     if @booking.save
-      render json: @booking, status: :created
+      render json: @booking, include: { booking_services: { include: :service } }, status: :created
     else
       render json: { errors: @booking.errors.full_messages }, status: :unprocessable_entity
     end
@@ -43,7 +48,7 @@ class Api::V1::BookingsController < Api::V1::BaseController
     authorize @booking
 
     if @booking.update(booking_params)
-      render json: @booking
+      render json: @booking, include: { booking_services: { include: :service } }
     else
       render json: { errors: @booking.errors.full_messages }, status: :unprocessable_entity
     end
@@ -72,10 +77,14 @@ class Api::V1::BookingsController < Api::V1::BaseController
   end
 
   def set_booking_with_details
-    @booking = Booking.includes(:guest, :user, :services, :payments, room: :room_type).find(params[:id])
+    @booking = Booking.includes(:guest, :user, :services, :payments, booking_services: :service, room: :room_type).find(params[:id])
   end
 
   def booking_params
-    params.require(:booking).permit(:room_id, :guest_id, :check_in_date, :check_out_date, :number_of_guests, :total_price, :status, :notes)
+    params.require(:booking).permit(
+      :room_id, :guest_id, :check_in_date, :check_out_date, 
+      :number_of_guests, :total_price, :status, :notes,
+      booking_services_attributes: [:id, :service_id, :quantity, :price, :_destroy]
+    )
   end
 end
