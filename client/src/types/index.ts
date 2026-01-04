@@ -116,6 +116,7 @@ export interface RevenueReport {
   total_revenue: number
   total_payments: number
   payment_methods: Record<string, number>
+  revpar: number
 }
 
 export interface RevenueTrendData {

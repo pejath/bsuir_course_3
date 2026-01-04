@@ -36,12 +36,19 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
 
     payments = Payment.where(status: :completed, payment_date: start_date..end_date)
     
+    # Calculate RevPAR
+    total_rooms = Room.count
+    days_in_period = (end_date - start_date + 1).to_i
+    total_revenue = payments.sum(:amount)
+    revpar = total_rooms > 0 && days_in_period > 0 ? total_revenue / total_rooms / days_in_period : 0
+    
     render json: {
       start_date: start_date,
       end_date: end_date,
-      total_revenue: payments.sum(:amount),
+      total_revenue: total_revenue,
       total_payments: payments.count,
-      payment_methods: payments.group(:payment_method).sum(:amount)
+      payment_methods: payments.group(:payment_method).sum(:amount),
+      revpar: revpar.round(2)
     }
   end
 
@@ -59,6 +66,10 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     total_rooms = Room.count
     occupied_rooms = Room.occupied.count
     occupancy_rate = total_rooms > 0 ? (occupied_rooms.to_f / total_rooms * 100).round(2) : 0
+    
+    # Calculate RevPAR
+    days_in_period = (end_date - start_date + 1).to_i
+    revpar = total_rooms > 0 && days_in_period > 0 ? total_revenue / total_rooms / days_in_period : 0
 
     # Generate PDF
     pdf = Prawn::Document.new
@@ -79,6 +90,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     pdf.text "Total Bookings: #{total_bookings}"
     pdf.text "Average Booking Value: $#{average_booking_value.round(2)}"
     pdf.text "Occupancy Rate: #{occupancy_rate}%"
+    pdf.text "RevPAR: $#{revpar.round(2)}"
     pdf.move_down 20
     
     # Payment methods table
@@ -94,6 +106,37 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
       row(0).font_style = :bold
       cells.padding = 8
       cells.borders = [:top, :bottom]
+    end
+    pdf.move_down 20
+    
+    # Raw bookings data
+    pdf.start_new_page
+    pdf.text "Raw Bookings Data", size: 14, style: :bold
+    pdf.move_down 10
+    pdf.text "Bookings within period (#{start_date} to #{end_date})", size: 10
+    pdf.move_down 10
+    
+    bookings_data = [['ID', 'Room', 'Guest', 'Check-in', 'Check-out', 'Status', 'Total Price']]
+    
+    Booking.where('check_in_date >= ? AND check_in_date <= ?', start_date, end_date)
+           .includes(:room, :guest)
+           .limit(50) # Limit to prevent PDF from being too large
+           .each do |booking|
+      bookings_data << [
+        booking.id,
+        booking.room&.number || 'N/A',
+        "#{booking.guest&.first_name} #{booking.guest&.last_name}",
+        booking.check_in_date,
+        booking.check_out_date,
+        booking.status,
+        "$#{booking.total_price.round(2)}"
+      ]
+    end
+    
+    pdf.table(bookings_data, header: true, width: pdf.bounds.width) do
+      row(0).font_style = :bold
+      cells.padding = 6
+      cells.size = 8
     end
     
     # Send PDF
@@ -117,6 +160,10 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     total_rooms = Room.count
     occupied_rooms = Room.occupied.count
     occupancy_rate = total_rooms > 0 ? (occupied_rooms.to_f / total_rooms * 100).round(2) : 0
+    
+    # Calculate RevPAR
+    days_in_period = (end_date - start_date + 1).to_i
+    revpar = total_rooms > 0 && days_in_period > 0 ? total_revenue / total_rooms / days_in_period : 0
 
     # Create workbook
     workbook = Axlsx::Package.new
@@ -128,6 +175,8 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     summary_sheet.add_row ['Total Bookings', total_bookings]
     summary_sheet.add_row ['Average Booking Value', average_booking_value]
     summary_sheet.add_row ['Occupancy Rate (%)', occupancy_rate]
+    summary_sheet.add_row ['RevPAR', revpar]
+    summary_sheet.add_row ['Total Rooms', total_rooms]
     summary_sheet.add_row ['Period', "#{start_date} to #{end_date}"]
     
     # Payment methods sheet
@@ -136,6 +185,70 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     
     payments.group(:payment_method).sum(:amount).each do |method, amount|
       payment_sheet.add_row [method.humanize, amount]
+    end
+    
+    # Raw bookings data sheet
+    bookings_sheet = workbook.workbook.add_worksheet(name: 'Bookings Raw Data')
+    bookings_sheet.add_row [
+      'Booking ID', 'Room Number', 'Room Type', 'Guest First Name', 'Guest Last Name',
+      'Guest Email', 'Guest Country', 'Check-in Date', 'Check-out Date', 'Number of Guests',
+      'Total Price', 'Status', 'Created At', 'Notes'
+    ]
+    
+    Booking.where('check_in_date >= ? AND check_in_date <= ?', start_date, end_date)
+           .includes(:guest, room: :room_type,)
+           .find_each do |booking|
+      bookings_sheet.add_row [
+        booking.id,
+        booking.room&.number || 'N/A',
+        booking.room&.room_type&.name || 'N/A',
+        booking.guest&.first_name || 'N/A',
+        booking.guest&.last_name || 'N/A',
+        booking.guest&.email || 'N/A',
+        booking.guest&.country || 'N/A',
+        booking.check_in_date,
+        booking.check_out_date,
+        booking.number_of_guests,
+        booking.total_price,
+        booking.status,
+        booking.created_at,
+        booking.notes || ''
+      ]
+    end
+    
+    # Raw payments data sheet
+    payments_sheet = workbook.workbook.add_worksheet(name: 'Payments Raw Data')
+    payments_sheet.add_row [
+      'Payment ID', 'Booking ID', 'Amount', 'Payment Method', 'Status',
+      'Payment Date', 'Transaction ID', 'Created At', 'Notes'
+    ]
+    
+    payments.includes(:booking).find_each do |payment|
+      payments_sheet.add_row [
+        payment.id,
+        payment.booking_id,
+        payment.amount,
+        payment.payment_method,
+        payment.status,
+        payment.payment_date,
+        payment.transaction_id || 'N/A',
+        payment.created_at,
+        payment.notes || ''
+      ]
+    end
+    
+    # Room statistics sheet
+    rooms_sheet = workbook.workbook.add_worksheet(name: 'Room Statistics')
+    rooms_sheet.add_row ['Room Number', 'Room Type', 'Status', 'Floor', 'Capacity']
+    
+    Room.includes(:room_type).find_each do |room|
+      rooms_sheet.add_row [
+        room.number,
+        room.room_type&.name || 'N/A',
+        room.status,
+        room.floor,
+        room.capacity || 'N/A'
+      ]
     end
     
     # Send Excel file

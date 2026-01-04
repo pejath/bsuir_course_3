@@ -116,6 +116,8 @@
     "last90Days": "Последние 90 дней",
     "customRange": "Произвольный период",
     "totalRevenue": "Общий доход",
+    "revpar": "RevPAR",
+    "perRoomPerDay": "в день на номер",
     "quickStats": "Быстрая статистика",
     "occupiedRooms": "Занятые номера",
     "upcomingBookings": "Предстоящие брони",

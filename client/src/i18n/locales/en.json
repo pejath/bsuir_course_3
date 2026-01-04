@@ -117,6 +117,8 @@
     "last90Days": "Last 90 Days",
     "customRange": "Custom Range",
     "totalRevenue": "Total Revenue",
+    "revpar": "RevPAR (Revenue Per Available Room)",
+    "perRoomPerDay": "per room per day",
     "quickStats": "Quick Stats",
     "occupiedRooms": "Occupied Rooms",
     "upcomingBookings": "Upcoming Bookings",

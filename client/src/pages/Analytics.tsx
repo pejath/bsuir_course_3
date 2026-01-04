@@ -219,6 +219,12 @@ export default function Analytics() {
           <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatCurrency(revenueReport?.total_revenue ?? 0)}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('analytics.payments')}: {revenueReport?.total_payments ?? 0}</p>
         </div>
+
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+          <p className="text-sm text-gray-500 dark:text-gray-400">{t('analytics.revpar')}</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatCurrency(revenueReport?.revpar ?? 0)}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('analytics.perRoomPerDay')}</p>
+        </div>
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -312,6 +318,14 @@ export default function Analytics() {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">{t('analytics.payments')}</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{revenueReport?.total_payments ?? 0}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 mb-6">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('analytics.revpar')}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(revenueReport?.revpar ?? 0)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('analytics.perRoomPerDay')}</p>
             </div>
           </div>
 
