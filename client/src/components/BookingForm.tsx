@@ -13,6 +13,8 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
   const { t } = useTranslation()
   const [rooms, setRooms] = useState<Room[]>([])
   const [guests, setGuests] = useState<Guest[]>([])
+  const [guestSearch, setGuestSearch] = useState('')
+  const [guestSearchTimeout, setGuestSearchTimeout] = useState<number | null>(null)
   const [guestMode, setGuestMode] = useState<'existing' | 'new'>('existing')
   const [formData, setFormData] = useState({
     room_id: '',
@@ -38,8 +40,9 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
 
   useEffect(() => {
     fetchRooms()
-    fetchGuests()
     if (booking) {
+      // When editing, fetch the specific guest first to ensure it's in the list
+      fetchGuest(booking.guest_id)
       setFormData({
         room_id: booking.room_id.toString(),
         guest_id: booking.guest_id.toString(),
@@ -49,6 +52,8 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
         status: booking.status,
         notes: booking.notes || ''
       })
+    } else {
+      fetchGuests('')
     }
   }, [booking])
 
@@ -57,6 +62,14 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
       fetchRooms(formData.check_in_date, formData.check_out_date)
     }
   }, [formData.check_in_date, formData.check_out_date])
+
+  useEffect(() => {
+    return () => {
+      if (guestSearchTimeout) {
+        clearTimeout(guestSearchTimeout)
+      }
+    }
+  }, [guestSearchTimeout])
 
   const fetchRooms = async (checkInDate?: string, checkOutDate?: string) => {
     try {
@@ -75,13 +88,33 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
     }
   }
 
-  const fetchGuests = async () => {
+  const fetchGuests = async (searchTerm: string = '') => {
     try {
-      const response = await api.get('/guests', { params: { limit: 1000 } })
+      const params: any = { limit: 100 }
+      if (searchTerm) {
+        params.search = searchTerm
+      }
+      const response = await api.get('/guests', { params })
       setGuests(response.data.data || response.data)
     } catch (err) {
       console.error('Failed to fetch guests:', err)
     }
+  }
+
+  const fetchGuest = async (guestId: number) => {
+    try {
+      const response = await api.get(`/guests/${guestId}`)
+      setGuests([response.data])
+    } catch (err) {
+      console.error('Failed to fetch guest:', err)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -141,18 +174,28 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
-
   const handleGuestChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setGuestData({
       ...guestData,
       [e.target.name]: e.target.value
     })
+  }
+
+  const handleGuestSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value
+    setGuestSearch(searchValue)
+    
+    // Clear previous timeout
+    if (guestSearchTimeout) {
+      clearTimeout(guestSearchTimeout)
+    }
+    
+    // Set new timeout
+    const timeoutId = setTimeout(() => {
+      fetchGuests(searchValue)
+    }, 300)
+    
+    setGuestSearchTimeout(timeoutId)
   }
 
   return (
@@ -189,24 +232,44 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
 
         {guestMode === 'existing' ? (
           <div>
-            <label htmlFor="guest_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t('bookings.selectGuest')} *
+            <label htmlFor="guest_search" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t('bookings.searchGuest')} *
             </label>
-            <select
-              id="guest_id"
-              name="guest_id"
-              required
-              value={formData.guest_id}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
-            >
-              <option value="">{t('bookings.selectGuest')}</option>
-              {guests.map((guest) => (
-                <option key={guest.id} value={guest.id}>
-                  {guest.first_name} {guest.last_name} ({guest.email})
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              id="guest_search"
+              value={guestSearch}
+              onChange={handleGuestSearch}
+              placeholder={t('bookings.searchGuestPlaceholder')}
+              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
+            />
+            {guests.length > 0 && (
+              <div className="mt-2">
+                <label htmlFor="guest_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('bookings.selectGuest')} *
+                </label>
+                <select
+                  id="guest_id"
+                  name="guest_id"
+                  required
+                  value={formData.guest_id}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
+                >
+                  <option value="">{t('bookings.selectGuest')}</option>
+                  {guests.map((guest) => (
+                    <option key={guest.id} value={guest.id}>
+                      {guest.first_name} {guest.last_name} ({guest.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {guestSearch && guests.length === 0 && (
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                {t('bookings.noGuestsFound')}
+              </p>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
