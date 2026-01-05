@@ -23,6 +23,7 @@ Rails.application.routes.draw do
         end
         resources :room_types, only: [:index, :show]
         resources :bookings, only: [:create, :show]
+        resources :services, only: [:index]
       end
 
       resources :rooms do

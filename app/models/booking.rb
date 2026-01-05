@@ -22,6 +22,7 @@ class Booking < ApplicationRecord
   validates :number_of_guests, presence: true, numericality: { only_integer: true, greater_than: 0 }
   validates :total_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validate :check_out_after_check_in
+  validate :no_overlapping_bookings
 
   # Scopes
   scope :active, -> { where(status: [:pending, :confirmed, :checked_in]) }
@@ -46,6 +47,21 @@ class Booking < ApplicationRecord
 
     if check_out_date <= check_in_date
       errors.add(:check_out_date, 'must be after check-in date')
+    end
+  end
+
+  def no_overlapping_bookings
+    return unless check_in_date && check_out_date && room
+    return if will_save_change_to_status? && status == 'cancelled'
+
+    # Check for overlapping bookings
+    overlapping = Booking.where(room: room)
+      .where.not(id: id) # Exclude current record
+      .where(status: [:pending, :confirmed, :checked_in]) # Only active bookings
+      .where('check_in_date < ? AND check_out_date > ?', check_out_date, check_in_date)
+
+    if overlapping.exists?
+      errors.add(:base, 'Room is already booked for selected dates')
     end
   end
 end

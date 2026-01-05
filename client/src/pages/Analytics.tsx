@@ -521,7 +521,7 @@ export default function Analytics() {
 
       {/* Services Analytics Section */}
       <div className="mt-12">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('analytics.servicesAnalytics')}</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('dashboard.servicesAnalytics')}</h2>
         <ServicesAnalytics />
       </div>
     </div>

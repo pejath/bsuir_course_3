@@ -9,6 +9,16 @@ class Api::V1::BookingsController < Api::V1::BaseController
     bookings = bookings.where(status: params[:status]) if params[:status].present?
     bookings = bookings.where(room_id: params[:room_id]) if params[:room_id].present?
     bookings = bookings.where(guest_id: params[:guest_id]) if params[:guest_id].present?
+    
+    if params[:guest_name].present?
+      bookings = bookings.joins(:guest).where(
+        "guests.first_name ILIKE ? OR guests.last_name ILIKE ? OR CONCAT(guests.first_name, ' ', guests.last_name) ILIKE ?",
+        "%#{params[:guest_name]}%",
+        "%#{params[:guest_name]}%",
+        "%#{params[:guest_name]}%"
+      )
+    end
+    
     bookings = bookings.where("check_in_date >= ?", params[:check_in_from]) if params[:check_in_from].present?
     bookings = bookings.where("check_in_date <= ?", params[:check_in_to]) if params[:check_in_to].present?
     bookings = bookings.where("check_out_date >= ?", params[:check_out_from]) if params[:check_out_from].present?

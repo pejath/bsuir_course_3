@@ -199,14 +199,14 @@ export default function Guests() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => openViewModal(guest)}
-                      className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
+                      className="text-indigo-600 dark:text-indigo-400 hover:text-primary-900 dark:hover:text-primary-300"
                       title={t('common.view')}
                     >
                       <Eye className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => openEditModal(guest)}
-                      className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
+                      className="text-primary-600 dark:text-primary-400 hover:text-indigo-900 dark:hover:text-indigo-300"
                       title={t('common.edit')}
                     >
                       <Edit className="w-4 h-4" />

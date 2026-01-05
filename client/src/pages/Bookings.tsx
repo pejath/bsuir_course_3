@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, X, Plus } from 'lucide-react'
+import { Search, X, Plus, Edit } from 'lucide-react'
 import api from '../lib/api'
 import type { Booking } from '../types'
 import { format } from 'date-fns'
@@ -30,6 +30,7 @@ export default function Bookings() {
   
   const [filters, setFilters] = useState({
     status: '',
+    guest_name: '',
     check_in_from: '',
     check_in_to: '',
     check_out_from: '',
@@ -45,6 +46,7 @@ export default function Bookings() {
     try {
       const params: any = { page, limit: 50 }
       if (filters.status) params.status = filters.status
+      if (filters.guest_name) params.guest_name = filters.guest_name
       if (filters.check_in_from) params.check_in_from = filters.check_in_from
       if (filters.check_in_to) params.check_in_to = filters.check_in_to
       if (filters.check_out_from) params.check_out_from = filters.check_out_from
@@ -69,6 +71,7 @@ export default function Bookings() {
   const clearFilters = () => {
     setFilters({
       status: '',
+      guest_name: '',
       check_in_from: '',
       check_in_to: '',
       check_out_from: '',
@@ -105,6 +108,19 @@ export default function Bookings() {
     setShowForm(true)
   }
 
+  const handleCancelBooking = async (booking: Booking) => {
+    if (!window.confirm(t('bookings.confirmCancel'))) {
+      return
+    }
+
+    try {
+      await api.patch(`/bookings/${booking.id}/cancel`)
+      fetchBookings(currentPage)
+    } catch (error) {
+      console.error('Failed to cancel booking:', error)
+    }
+  }
+
   const handleFormSuccess = () => {
     setShowForm(false)
     setSelectedBooking(null)
@@ -137,7 +153,7 @@ export default function Bookings() {
         <div className="flex items-center gap-4 mb-4">
           <Search className="w-5 h-5 text-gray-400 dark:text-gray-500" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">{t('common.filters')}</h3>
-          {(filters.status || filters.check_in_from || filters.check_in_to || filters.check_out_from || filters.check_out_to) && (
+          {(filters.status || filters.guest_name || filters.check_in_from || filters.check_in_to || filters.check_out_from || filters.check_out_to) && (
             <button
               onClick={clearFilters}
               className="ml-auto text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 flex items-center gap-1"
@@ -164,6 +180,18 @@ export default function Bookings() {
               <option value="checked_out">{t('bookings.statuses.checkedOut')}</option>
               <option value="cancelled">{t('bookings.statuses.cancelled')}</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('guests.guestName')}
+            </label>
+            <input
+              type="text"
+              value={filters.guest_name}
+              onChange={(e) => handleFilterChange('guest_name', e.target.value)}
+              placeholder={t('guests.searchByName')}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -271,10 +299,18 @@ export default function Bookings() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   <button
                     onClick={() => handleEditBooking(booking)}
-                    className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300"
+                    className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3"
                   >
-                    {t('common.edit')}
+   <Edit className="w-4 h-4" />
                   </button>
+                  {booking.status !== 'cancelled' && booking.status !== 'checked_out' && (
+                    <button
+                      onClick={() => handleCancelBooking(booking)}
+                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      {t('common.cancel')}
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

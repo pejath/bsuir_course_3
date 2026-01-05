@@ -25,7 +25,7 @@ class Api::V1::Public::BookingsController < ApplicationController
 
     if @booking.save
       render json: {
-        booking: @booking.as_json(include: { room: { include: :room_type }, guest: {} }),
+        booking: @booking.as_json(include: { room: { include: :room_type }, guest: {}, booking_services: { include: :service } }),
         message: 'Booking created successfully. We will contact you soon to confirm.'
       }, status: :created
     else
@@ -34,13 +34,13 @@ class Api::V1::Public::BookingsController < ApplicationController
   end
 
   def show
-    @booking = Booking.includes(:guest, room: :room_type).find_by(
+    @booking = Booking.includes(:guest, room: :room_type, booking_services: :service).find_by(
       id: params[:id],
       guest: { email: params[:email] }
     )
 
     if @booking
-      render json: @booking, include: { room: { include: :room_type }, guest: {} }
+      render json: @booking, include: { room: { include: :room_type }, guest: {}, booking_services: { include: :service } }
     else
       render json: { error: 'Booking not found' }, status: :not_found
     end
@@ -53,6 +53,13 @@ class Api::V1::Public::BookingsController < ApplicationController
   end
 
   def booking_params
-    params.require(:booking).permit(:room_id, :check_in_date, :check_out_date, :number_of_guests, :notes)
+    params.require(:booking).permit(
+      :room_id, 
+      :check_in_date, 
+      :check_out_date, 
+      :number_of_guests, 
+      :notes,
+      booking_services_attributes: [:service_id, :quantity]
+    )
   end
 end

@@ -35,33 +35,51 @@ class Api::V1::Public::RoomsController < ApplicationController
 
   def availability
     @room = Room.find(params[:id])
-    year = params[:year]&.to_i || Date.today.year
-    month = params[:month]&.to_i || Date.today.month
     
-    start_date = Date.new(year, month, 1)
-    end_date = start_date.end_of_month
-    
-    bookings = @room.bookings
-      .where(status: ['confirmed', 'checked_in', 'checked_out', 'pending'])
-      .where('check_out_date > ? AND check_in_date < ?', start_date, end_date + 1.day)
-    
-    unavailable_dates = []
-    bookings.each do |booking|
-      booking_start = [booking.check_in_date, start_date].max
-      booking_end = [booking.check_out_date, end_date].min
+    if params[:check_in_date].present? && params[:check_out_date].present?
+      # Check specific date range
+      check_in = Date.parse(params[:check_in_date])
+      check_out = Date.parse(params[:check_out_date])
       
-      (booking_start..booking_end).each do |date|
-        unavailable_dates << date.to_s unless unavailable_dates.include?(date.to_s)
+      overlapping = @room.bookings
+        .where(status: ['confirmed', 'checked_in', 'pending'])
+        .where('check_in_date < ? AND check_out_date > ?', check_out, check_in)
+      
+      render json: {
+        available: !overlapping.exists?,
+        check_in_date: check_in,
+        check_out_date: check_out
+      }
+    else
+      # Return monthly calendar availability
+      year = params[:year]&.to_i || Date.today.year
+      month = params[:month]&.to_i || Date.today.month
+      
+      start_date = Date.new(year, month, 1)
+      end_date = start_date.end_of_month
+      
+      bookings = @room.bookings
+        .where(status: ['confirmed', 'checked_in', 'checked_out', 'pending'])
+        .where('check_out_date > ? AND check_in_date < ?', start_date, end_date + 1.day)
+      
+      unavailable_dates = []
+      bookings.each do |booking|
+        booking_start = [booking.check_in_date, start_date].max
+        booking_end = [booking.check_out_date, end_date].min
+        
+        (booking_start..booking_end).each do |date|
+          unavailable_dates << date.to_s unless unavailable_dates.include?(date.to_s)
+        end
       end
+      
+      render json: {
+        room_id: @room.id,
+        year: year,
+        month: month,
+        start_date: start_date,
+        end_date: end_date,
+        unavailable_dates: unavailable_dates.sort
+      }
     end
-    
-    render json: {
-      room_id: @room.id,
-      year: year,
-      month: month,
-      start_date: start_date,
-      end_date: end_date,
-      unavailable_dates: unavailable_dates.sort
-    }
   end
 end

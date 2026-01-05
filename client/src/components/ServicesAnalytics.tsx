@@ -50,7 +50,7 @@ export default function ServicesAnalytics() {
   }
 
   if (!data) {
-    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">{t('analytics.loadError')}</div>
+    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">{t('dashboard.loadError')}</div>
   }
 
   return (
@@ -139,7 +139,7 @@ export default function ServicesAnalytics() {
         {/* Top Services by Revenue */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {t('analytics.topServicesByRevenue')}
+            {t('dashboard.topServicesByRevenue')}
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.top_services}>

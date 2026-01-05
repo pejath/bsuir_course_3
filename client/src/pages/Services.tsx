@@ -187,7 +187,7 @@ export default function Services() {
                         </button>
                         <button
                           onClick={() => handleEdit(service)}
-                          className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                          className="p-2 text-primary-600 dark:text-primary-400 hover:text-gray-900 dark:hover:text-white"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
