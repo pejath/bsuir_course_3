@@ -47,3 +47,7 @@ export const canViewAnalytics = (user: User | null): boolean => {
 export const canManageServices = (user: User | null): boolean => {
   return isManager(user)
 }
+
+export const canManageUsers = (user: User | null): boolean => {
+  return isAdmin(user)
+}

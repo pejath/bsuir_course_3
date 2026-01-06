@@ -1,10 +1,10 @@
 import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { canViewAnalytics, canManageGuests, canManageServices } from '../lib/roles'
+import { canViewAnalytics, canManageGuests, canManageServices, canManageUsers } from '../lib/roles'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
-  requiredPermission?: 'analytics' | 'guests' | 'services'
+  requiredPermission?: 'analytics' | 'guests' | 'services' | 'users'
 }
 
 export default function ProtectedRoute({ children, requiredPermission }: ProtectedRouteProps) {
@@ -27,6 +27,11 @@ export default function ProtectedRoute({ children, requiredPermission }: Protect
       break
     case 'services':
       if (!canManageServices(user)) {
+        return <Navigate to="/admin/" replace />
+      }
+      break
+    case 'users':
+      if (!canManageUsers(user)) {
         return <Navigate to="/admin/" replace />
       }
       break

@@ -13,6 +13,7 @@ import Bookings from './pages/Bookings'
 import Guests from './pages/Guests'
 import Services from './pages/Services'
 import Analytics from './pages/Analytics'
+import Users from './pages/Users'
 import PublicSearch from './pages/PublicSearch'
 import PublicRoomDetails from './pages/PublicRoomDetails'
 import BookingConfirmation from './pages/BookingConfirmation'
@@ -60,6 +61,11 @@ function App() {
                     <Route path="/analytics" element={
                       <ProtectedRoute requiredPermission="analytics">
                         <Analytics />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/users" element={
+                      <ProtectedRoute requiredPermission="users">
+                        <Users />
                       </ProtectedRoute>
                     } />
                   </Routes>

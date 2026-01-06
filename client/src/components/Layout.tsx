@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Home, Bed, Calendar, Users, BarChart3, LogOut, Menu, X, Briefcase } from 'lucide-react'
+import { Home, Bed, Calendar, Users, BarChart3, LogOut, Menu, X, Briefcase, UserCog } from 'lucide-react'
 import { useState } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { canViewAnalytics, canManageGuests, canManageServices } from '../lib/roles'
+import { canViewAnalytics, canManageGuests, canManageServices, canManageUsers } from '../lib/roles'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
 
@@ -24,6 +24,7 @@ export default function Layout({ children }: LayoutProps) {
     { name: t('navigation.guests'), href: '/admin/guests', icon: Users, show: canManageGuests(user) },
     { name: t('navigation.services'), href: '/admin/services', icon: Briefcase, show: canManageServices(user) },
     { name: t('navigation.analytics'), href: '/admin/analytics', icon: BarChart3, show: canViewAnalytics(user) },
+    { name: t('navigation.users'), href: '/admin/users', icon: UserCog, show: canManageUsers(user) },
   ]
   
   const navigation = allNavigation.filter(item => item.show)

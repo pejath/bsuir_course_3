@@ -46,6 +46,12 @@ Rails.application.routes.draw do
       
       resources :services
       resources :payments
+      resources :users do
+        member do
+          patch :toggle_active
+          patch :reset_password
+        end
+      end
 
       get 'analytics/dashboard', to: 'analytics#dashboard'
       get 'analytics/occupancy_rate', to: 'analytics#occupancy_rate'
