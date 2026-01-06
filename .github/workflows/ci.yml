@@ -5,9 +5,14 @@ on:
   push:
     branches: [ main ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -19,13 +24,14 @@ jobs:
           bundler-cache: true
 
       - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
+        run: bin/brakeman --no-pager --exit-on-warn
       
       - name: Scan for known security vulnerabilities in gems used
-        run: bin/bundler-audit
+        run: bin/bundler-audit --update
       
   scan_js:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -41,6 +47,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
     steps:
@@ -55,7 +62,7 @@ jobs:
       - name: Prepare RuboCop cache
         uses: actions/cache@v4
         env:
-          DEPENDENCIES_HASH: ${{ hashFiles('.ruby-version', '**/.rubocop.yml', '**/.rubocop_todo.yml', 'Gemfile.lock') }}
+          DEPENDENCIES_HASH: ${{ hashFiles('.ruby-version', '**/.rubocop.yml', '**/.rubocop_todo.yml', 'Gemfile.lock', '.github/workflows/ci.yml') }}
         with:
           path: ${{ env.RUBOCOP_CACHE_ROOT }}
           key: rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-${{ github.ref_name == github.event.repository.default_branch && github.run_id || 'default' }}
@@ -63,10 +70,11 @@ jobs:
             rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
 
       - name: Lint code for consistent style
-        run: bin/rubocop -f github
+        run: bin/rubocop -f github --parallel
 
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     # services:
     #  redis:
@@ -92,6 +100,7 @@ jobs:
 
   system-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     # services:
     #  redis:
@@ -108,6 +117,9 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Install Chromedriver
+        uses: nanasess/setup-chromedriver@v2
+
       - name: Run System Tests
         env:
           RAILS_ENV: test
@@ -122,3 +134,4 @@ jobs:
           name: screenshots
           path: ${{ github.workspace }}/tmp/screenshots
           if-no-files-found: ignore
+          retention-days: 5
