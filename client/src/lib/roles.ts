@@ -9,11 +9,11 @@ export const isManager = (user: User | null): boolean => user?.role === 'manager
 export const isStaff = (user: User | null): boolean => user?.role === 'staff' || isManager(user)
 
 export const isGuest = (user: User | null): boolean => {
-  return user?.role === 'guest'
+  return !user || user.role === 'staff'
 }
 
 export const canManageRooms = (user: User | null): boolean => {
-  return isStaff(user)
+  return isStaff(user) && !isAnalytics(user) || isAdmin(user)
 }
 
 export const canCreateRooms = (user: User | null): boolean => {
@@ -25,7 +25,7 @@ export const canManageGuests = (user: User | null): boolean => {
 }
 
 export const canManageBookings = (user: User | null): boolean => {
-  return isStaff(user)
+  return isStaff(user) && !isAnalytics(user) || isAdmin(user)
 }
 
 export const canDeleteRooms = (user: User | null): boolean => {

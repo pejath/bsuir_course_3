@@ -3,7 +3,7 @@ export interface User {
   email: string
   first_name: string
   last_name: string
-  role: 'guest' | 'staff' | 'manager' | 'admin' | 'analytics'
+  role: 'staff' | 'manager' | 'admin' | 'analytics'
 }
 
 export interface RoomType {

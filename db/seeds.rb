@@ -69,19 +69,36 @@ puts "\nCreating 256 rooms..."
 room_types = [standard, deluxe, suite]
 room_distribution = { standard => 0.60, deluxe => 0.30, suite => 0.10 }
 
-# Initialize Unsplash client
-require 'unsplash'
-unsplash = Unsplash::Client.new
+# Initialize HTTP client for Unsplash API
+require 'net/http'
+require 'json'
+require 'uri'
 
-# Fetch hotel photos from Unsplash (256 photos)
+# Fetch hotel photos from Unsplash API (256 photos)
 hotel_photos = []
 puts "Fetching 256 hotel photos from Unsplash..."
 begin
+  access_key = "4kuHytDcLGDG0oTVD5E-xWgunRLfw8EhGAmq-eGdNi0"
+  base_url = "https://api.unsplash.com"
+  
   # Get 30 photos per page (max allowed), need 9 pages to get 256 photos
   (1..9).each do |page|
-    photos = unsplash.search.photos("hotels", page: page, per_page: 30)
-    hotel_photos.concat(photos.map(&:urls).map { |url| url[:regular] })
-    print "."
+    uri = URI("#{base_url}/search/photos?query=hotels&page=#{page}&per_page=30&client_id=#{access_key}")
+    request = Net::HTTP::Get.new(uri)
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+    
+    if response.code == '200'
+      data = JSON.parse(response.body)
+      photos = data['results']
+      hotel_photos.concat(photos.map { |photo| photo['urls']['regular'] })
+      print "."
+    else
+      puts "\n⚠️  Error on page #{page}: #{response.code} - #{response.message}"
+    end
+    
     sleep(0.1) # Respect rate limits
   end
   puts "\n✓ Fetched #{hotel_photos.size} hotel photos"
@@ -90,6 +107,7 @@ rescue => e
   puts "Using fallback image URLs..."
   # Fallback to dummy images if Unsplash fails
   hotel_photos = (1..256).map { |i| "https://dummyimage.com/800x600/000/ffffff&text=Hotel#{i}" }
+  # hotel_photos = (1..256).map { |i| "https://picsum.photos/seed/hotel#{i}/800/600.jpg" }
 end
 
 rooms_created = 0

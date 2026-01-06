@@ -109,12 +109,6 @@ export default function UsersManagement() {
                     <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
                       {t('users.role', 'Role')}
                     </th>
-                    <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                      {t('users.status', 'Status')}
-                    </th>
-                    <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                      {t('users.lastLogin', 'Last Login')}
-                    </th>
                     <th className="relative py-3.5 pl-3 pr-4 sm:pr-6">
                       <span className="sr-only">{t('common.actions', 'Actions')}</span>
                     </th>
@@ -140,16 +134,6 @@ export default function UsersManagement() {
                           {user.role}
                         </span>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                          user.role !== 'guest' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                        }`}>
-                          {user.role !== 'guest' ? t('users.active', 'Active') : t('users.inactive', 'Inactive')}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                        {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : t('users.never', 'Never')}
-                      </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <div className="flex justify-end space-x-2">
                           <button
@@ -172,12 +156,6 @@ export default function UsersManagement() {
                           </button>
                           {user.role !== 'admin' && (
                             <>
-                              <button
-                                onClick={() => handleToggleActive(user)}
-                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                              >
-                                {user.role !== 'guest' ? <ShieldOff className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
-                              </button>
                               <button
                                 onClick={() => handleDelete(user)}
                                 className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
@@ -318,7 +296,6 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
                     onChange={(e) => setFormData({ ...formData, role: e.target.value as User['role'] })}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
                   >
-                    <option value="guest">{t('roles.guest', 'Guest')}</option>
                     <option value="staff">{t('roles.staff', 'Staff')}</option>
                     <option value="manager">{t('roles.manager', 'Manager')}</option>
                     <option value="analytics">{t('roles.analytics', 'Analytics')}</option>

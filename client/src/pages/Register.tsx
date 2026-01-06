@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/authStore'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import ThemeSwitcher from '../components/ThemeSwitcher'
+import { isAdmin, isAnalytics, isStaff } from '../lib/roles'
 
 export default function Register() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { register } = useAuthStore()
+  const { register, user } = useAuthStore()
   
   const [formData, setFormData] = useState({
     email: '',
@@ -37,7 +38,17 @@ export default function Register() {
     setLoading(true)
     try {
       await register(formData.email, formData.password, formData.firstName, formData.lastName)
-      navigate('/admin')
+      
+      // Redirect based on user role
+      if (user) {
+        if (isAdmin(user) || isAnalytics(user)) {
+          navigate('/admin/')
+        } else if (isStaff(user)) {
+          navigate('/admin/rooms')
+        } else {
+          navigate('/admin/')
+        }
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || t('register.registrationFailed'))
     } finally {

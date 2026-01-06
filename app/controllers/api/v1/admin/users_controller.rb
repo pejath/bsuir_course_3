@@ -1,5 +1,6 @@
-class Api::V1::UsersController < Api::V1::BaseController
+class Api::V1::Admin::UsersController < Api::V1::BaseController
   before_action :authenticate_user_from_token!
+  before_action :require_admin!
   after_action :verify_authorized, except: :index
   after_action :verify_policy_scoped, only: :index
 
@@ -78,5 +79,10 @@ class Api::V1::UsersController < Api::V1::BaseController
 
   def password_params
     params.require(:user).permit(:password)
+  end
+
+  def require_admin!
+    return if current_user&.admin?
+    render json: { error: 'Admin access required' }, status: :forbidden
   end
 end

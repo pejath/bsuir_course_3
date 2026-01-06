@@ -1,7 +1,6 @@
 class Api::V1::AnalyticsController < Api::V1::BaseController
   before_action :authenticate_user_from_token!
-  after_action :verify_authorized, except: :index
-  after_action :verify_policy_scoped, only: :index
+  after_action :verify_authorized
   
   def dashboard
     authorize :analytics, :dashboard?

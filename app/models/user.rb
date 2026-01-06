@@ -9,7 +9,7 @@ class User < ApplicationRecord
   has_many :auth_tokens, dependent: :destroy
 
   # Enums
-  enum :role, { guest: 0, staff: 1, manager: 2, admin: 3, analytics: 4 }
+  enum :role, { staff: 1, manager: 2, admin: 3, analytics: 4 }
   
   # Validations
   validates :first_name, presence: true
@@ -31,6 +31,6 @@ class User < ApplicationRecord
   private
 
   def set_default_role
-    self.role ||= :guest
+    self.role ||= :staff
   end
 end

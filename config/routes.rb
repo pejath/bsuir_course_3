@@ -46,6 +46,16 @@ Rails.application.routes.draw do
       
       resources :services
       resources :payments
+      
+      namespace :admin do
+        resources :users do
+          member do
+            patch :toggle_active
+            patch :reset_password
+          end
+        end
+      end
+
       resources :users do
         member do
           patch :toggle_active
