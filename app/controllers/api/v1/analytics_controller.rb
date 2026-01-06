@@ -1,7 +1,10 @@
 class Api::V1::AnalyticsController < Api::V1::BaseController
-  before_action :require_manager!
+  before_action :authenticate_user_from_token!
+  after_action :verify_authorized, except: :index
+  after_action :verify_policy_scoped, only: :index
   
   def dashboard
+    authorize :analytics, :dashboard?
     total_rooms = Room.count
     occupied_rooms = Room.occupied.count
     available_rooms = total_rooms - occupied_rooms
@@ -29,6 +32,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def occupancy_rate
+    authorize :analytics, :occupancy_rate?
     total_rooms = Room.count
     occupied_rooms = Room.occupied.count
     rate = total_rooms.zero? ? 0 : (occupied_rooms.to_f / total_rooms * 100).round(2)
@@ -41,6 +45,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def revenue_report
+    authorize :analytics, :revenue_report?
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
 
@@ -71,6 +76,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def export_pdf
+    authorize :analytics, :export_pdf?
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
 
@@ -202,6 +208,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def export_excel
+    authorize :analytics, :export_excel?
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
 
@@ -344,10 +351,12 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def room_statistics
+    authorize :analytics, :room_statistics?
     render json: Room.group(:status).count
   end
 
   def revenue_trend
+    authorize :analytics, :revenue_trend?
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : 6.months.ago.beginning_of_month
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
 
@@ -362,6 +371,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def bookings_trend
+    authorize :analytics, :bookings_trend?
     bookings_by_status = Booking.group(:status).count
     
     # Show bookings by check-in date for the last 6 months
@@ -394,6 +404,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def occupancy_trend
+    authorize :analytics, :occupancy_trend?
     # Look at the last 6 months including historical data
     end_date = Date.today.end_of_month
     start_date = end_date - 5.months
@@ -445,6 +456,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def lead_time_stats
+    authorize :analytics, :lead_time_stats?
     # Calculate average lead time using SQL instead of loading all records
     average_lead_time = Booking
       .where.not(check_in_date: nil)
@@ -460,6 +472,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def top_room_types
+    authorize :analytics, :top_room_types?
     # Calculate revenue and bookings by room type with proper joins
     room_type_stats = Booking.joins(room: :room_type)
       .joins(:payments)
@@ -483,6 +496,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def guest_countries
+    authorize :analytics, :guest_countries?
     # Count guests by country
     country_stats = Guest
       .where.not(country: [nil, ''])
@@ -502,6 +516,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
   end
 
   def services_analytics
+    authorize :analytics, :services_analytics?
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : 6.months.ago.beginning_of_month
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
 

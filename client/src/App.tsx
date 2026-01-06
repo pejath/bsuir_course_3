@@ -4,6 +4,7 @@ import { useAuthStore } from './store/authStore'
 import { ThemeProvider } from './contexts/ThemeContext'
 import api from './lib/api'
 import Layout from './components/Layout'
+import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -46,9 +47,21 @@ function App() {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/rooms" element={<Rooms />} />
                     <Route path="/bookings" element={<Bookings />} />
-                    <Route path="/guests" element={<Guests />} />
-                    <Route path="/services" element={<Services />} />
-                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/guests" element={
+                      <ProtectedRoute requiredPermission="guests">
+                        <Guests />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/services" element={
+                      <ProtectedRoute requiredPermission="services">
+                        <Services />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/analytics" element={
+                      <ProtectedRoute requiredPermission="analytics">
+                        <Analytics />
+                      </ProtectedRoute>
+                    } />
                   </Routes>
                 </Layout>
               ) : (

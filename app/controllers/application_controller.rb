@@ -52,4 +52,9 @@ class ApplicationController < ActionController::API
     return if current_user&.manager? || current_user&.admin?
     render json: { error: 'Manager access required' }, status: :forbidden
   end
+
+  def require_analytics!
+    return if current_user&.analytics? || current_user&.admin?
+    render json: { error: 'Analytics access required' }, status: :forbidden
+  end
 end
