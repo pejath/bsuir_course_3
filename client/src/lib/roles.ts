@@ -1,20 +1,12 @@
 import type { User } from '../types'
 
-export const isAdmin = (user: User | null): boolean => {
-  return user?.role === 'admin'
-}
+export const isAdmin = (user: User | null): boolean => user?.role === 'admin'
 
-export const isAnalytics = (user: User | null): boolean => {
-  return user?.role === 'analytics' || isAdmin(user)
-}
+export const isAnalytics = (user: User | null): boolean => user?.role === 'analytics' || isAdmin(user)
 
-export const isManager = (user: User | null): boolean => {
-  return user?.role === 'manager' || isAdmin(user)
-}
+export const isManager = (user: User | null): boolean => user?.role === 'manager' || isAdmin(user)
 
-export const isStaff = (user: User | null): boolean => {
-  return user?.role === 'staff' || isManager(user)
-}
+export const isStaff = (user: User | null): boolean => user?.role === 'staff' || isManager(user)
 
 export const isGuest = (user: User | null): boolean => {
   return user?.role === 'guest'
