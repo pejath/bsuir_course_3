@@ -27,6 +27,14 @@ staff = User.find_or_create_by!(email: 'staff@hotel.com') do |user|
 end
 puts "✓ Staff created: #{staff.email}"
 
+analytics = User.find_or_create_by!(email: 'analytics@hotel.com') do |user|
+  user.password = '123456'
+  user.first_name = 'Analytics'
+  user.last_name = 'User'
+  user.role = 4
+end
+puts "✓ Analytics created: #{analytics.email}"
+
 puts "\nCreating room types..."
 standard = RoomType.find_or_create_by!(name: 'Standard') do |rt|
   rt.description = 'Comfortable standard room with basic amenities'
@@ -61,6 +69,29 @@ puts "\nCreating 256 rooms..."
 room_types = [standard, deluxe, suite]
 room_distribution = { standard => 0.60, deluxe => 0.30, suite => 0.10 }
 
+# Initialize Unsplash client
+require 'unsplash'
+unsplash = Unsplash::Client.new
+
+# Fetch hotel photos from Unsplash (256 photos)
+hotel_photos = []
+puts "Fetching 256 hotel photos from Unsplash..."
+begin
+  # Get 30 photos per page (max allowed), need 9 pages to get 256 photos
+  (1..9).each do |page|
+    photos = unsplash.search.photos("hotels", page: page, per_page: 30)
+    hotel_photos.concat(photos.map(&:urls).map { |url| url[:regular] })
+    print "."
+    sleep(0.1) # Respect rate limits
+  end
+  puts "\n✓ Fetched #{hotel_photos.size} hotel photos"
+rescue => e
+  puts "\n⚠️  Error fetching photos from Unsplash: #{e.message}"
+  puts "Using fallback image URLs..."
+  # Fallback to dummy images if Unsplash fails
+  hotel_photos = (1..256).map { |i| "https://dummyimage.com/800x600/000/ffffff&text=Hotel#{i}" }
+end
+
 rooms_created = 0
 (1..16).each do |floor|
   (1..16).each do |room_num|
@@ -77,6 +108,9 @@ rooms_created = 0
     
     views = ['City', 'Garden', 'Sea', 'Mountain', 'Pool', 'Courtyard']
     
+    # Use a photo from Unsplash or fallback
+    image_url = hotel_photos[rooms_created] || "https://dummyimage.com/800x600/000/ffffff&text=#{room_number}"
+    
     Room.create!(
       number: room_number,
       room_type: room_type,
@@ -86,7 +120,7 @@ rooms_created = 0
       description: Faker::Lorem.paragraph(sentence_count: 3),
       amenities: "WiFi, TV, Air conditioning, #{['Mini bar', 'Safe', 'Coffee maker', 'Hairdryer'].sample(rand(2..4)).join(', ')}",
       view: views.sample,
-      image_url: "https://dummyimage.com/800x600/000/ffffff&text=#{room_number}"
+      image_url: image_url
       # image_url: "https://picsum.photos/800/600?random=#{room_number}"
     )
     rooms_created += 1

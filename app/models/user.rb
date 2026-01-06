@@ -9,7 +9,7 @@ class User < ApplicationRecord
   has_many :auth_tokens, dependent: :destroy
 
   # Enums
-  enum :role, { guest: 0, staff: 1, manager: 2, admin: 3 }
+  enum :role, { guest: 0, staff: 1, manager: 2, admin: 3, analytics: 4 }
   
   # Validations
   validates :first_name, presence: true
