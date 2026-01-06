@@ -5,8 +5,8 @@ Rails.application.routes.draw do
              path: 'api/v1/users',
              controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations' },
              defaults: { format: :json },
-             skip: [:sessions, :registrations]
-  
+             skip: [ :sessions, :registrations ]
+
   devise_scope :user do
     post 'api/v1/users/sign_in', to: 'api/v1/sessions#create'
     delete 'api/v1/users/sign_out', to: 'api/v1/sessions#destroy'
@@ -16,14 +16,14 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       namespace :public do
-        resources :rooms, only: [:index, :show] do
+        resources :rooms, only: [ :index, :show ] do
           member do
             get :availability
           end
         end
-        resources :room_types, only: [:index, :show]
-        resources :bookings, only: [:create, :show]
-        resources :services, only: [:index]
+        resources :room_types, only: [ :index, :show ]
+        resources :bookings, only: [ :create, :show ]
+        resources :services, only: [ :index ]
       end
 
       resources :rooms do
@@ -34,18 +34,34 @@ Rails.application.routes.draw do
           get :activity
         end
       end
-      
+
       resources :room_types
       resources :guests
-      
+
       resources :bookings do
         member do
           patch :cancel
         end
       end
-      
+
       resources :services
       resources :payments
+
+      namespace :admin do
+        resources :users do
+          member do
+            patch :toggle_active
+            patch :reset_password
+          end
+        end
+      end
+
+      resources :users do
+        member do
+          patch :toggle_active
+          patch :reset_password
+        end
+      end
 
       get 'analytics/dashboard', to: 'analytics#dashboard'
       get 'analytics/occupancy_rate', to: 'analytics#occupancy_rate'

@@ -41,7 +41,7 @@ RSpec.describe Booking, type: :model do
         booking1 = create(:booking, check_in_date: 1.day.from_now, check_out_date: 3.days.from_now)
         booking2 = create(:booking, check_in_date: 5.days.from_now, check_out_date: 7.days.from_now)
         booking3 = create(:booking, check_in_date: 10.days.from_now, check_out_date: 12.days.from_now)
-        
+
         bookings = Booking.for_date_range(2.days.from_now.to_date, 6.days.from_now.to_date)
         expect(bookings).to include(booking1, booking2)
         expect(bookings).not_to include(booking3)
@@ -84,7 +84,6 @@ RSpec.describe Booking, type: :model do
         create(:payment, booking: booking, amount: 200, status: :completed)
         create(:payment, booking: booking, amount: 50, status: :pending)
         create(:payment, booking: booking, amount: 100, status: :completed)
-
       end
     end
   end

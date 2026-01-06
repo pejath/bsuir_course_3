@@ -4,6 +4,8 @@ import { useAuthStore } from './store/authStore'
 import { ThemeProvider } from './contexts/ThemeContext'
 import api from './lib/api'
 import Layout from './components/Layout'
+import ProtectedRoute from './components/ProtectedRoute'
+import RoleBasedRedirect from './components/RoleBasedRedirect'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -12,6 +14,7 @@ import Bookings from './pages/Bookings'
 import Guests from './pages/Guests'
 import Services from './pages/Services'
 import Analytics from './pages/Analytics'
+import Users from './pages/Users'
 import PublicSearch from './pages/PublicSearch'
 import PublicRoomDetails from './pages/PublicRoomDetails'
 import BookingConfirmation from './pages/BookingConfirmation'
@@ -41,16 +44,43 @@ function App() {
             path="/admin/*"
             element={
               isAuthenticated ? (
-                <Layout>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/rooms" element={<Rooms />} />
-                    <Route path="/bookings" element={<Bookings />} />
-                    <Route path="/guests" element={<Guests />} />
-                    <Route path="/services" element={<Services />} />
-                    <Route path="/analytics" element={<Analytics />} />
-                  </Routes>
-                </Layout>
+                <RoleBasedRedirect>
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/rooms" element={
+                        <ProtectedRoute requiredPermission="rooms">
+                          <Rooms />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/bookings" element={
+                        <ProtectedRoute requiredPermission="bookings">
+                          <Bookings />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/guests" element={
+                        <ProtectedRoute requiredPermission="guests">
+                          <Guests />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/services" element={
+                        <ProtectedRoute requiredPermission="services">
+                          <Services />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/analytics" element={
+                        <ProtectedRoute requiredPermission="analytics">
+                          <Analytics />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/users" element={
+                        <ProtectedRoute requiredPermission="users">
+                          <Users />
+                        </ProtectedRoute>
+                      } />
+                    </Routes>
+                  </Layout>
+                </RoleBasedRedirect>
               ) : (
                 <Navigate to="/login" replace />
               )

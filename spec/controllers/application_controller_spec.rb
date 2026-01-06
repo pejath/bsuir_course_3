@@ -69,7 +69,7 @@ RSpec.describe ApplicationController, type: :controller do
       it 'returns pagy metadata' do
         pagy = double(:pagy, page: 2, limit: 10, pages: 10, count: 100, from: 11, to: 20, prev: 1, next: 3)
         metadata = controller.send(:pagy_metadata, pagy)
-        
+
         expect(metadata[:page]).to eq(2)
         expect(metadata[:limit]).to eq(pagy.limit)
         expect(metadata[:pages]).to eq(pagy.pages)

@@ -22,6 +22,12 @@
     "confirm": "Подтвердить",
     "close": "Закрыть"
   },
+  "roles": {
+    "staff": "Сотрудник",
+    "manager": "Менеджер",
+    "admin": "Администратор",
+    "analytics": "Аналитик"
+  },
   "bookingConfirmation": {
     "emailParamMissing": "Отсутствует параметр email",
     "bookingNotFound": "Бронирование не найдено",
@@ -75,7 +81,9 @@
     "services": "Услуги",
     "logout": "Выйти",
     "bookings": "Брони",
-    "rooms": "Номера"
+    "rooms": "Номера",
+    "users": "Пользователи",
+    "more": "Ещё"
   },
   "login": {
     "title": "Войдите в ваш аккаунт",
@@ -87,6 +95,27 @@
     "serverError": "Ошибка сервера. Попробуйте еще раз.",
     "dontHaveAccount": "Создать аккаунт",
     "creatingAccount": "Создание аккаунта..."
+  },
+  "users": {
+    "title": "Управление пользователями",
+    "description": "Управление учетными записями и правами доступа",
+    "addUser": "Добавить пользователя",
+    "name": "Имя",
+    "email": "Email",
+    "role": "Роль",
+    "editUser": "Редактировать пользователя",
+    "createUser": "Создать пользователя",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "password": "Пароль",
+    "create": "Создать",
+    "resetPassword": "Сбросить пароль",
+    "newPassword": "Новый пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "reset": "Сбросить",
+    "passwordsNotMatch": "Пароли не совпадают",
+    "passwordResetSuccess": "Пароль успешно сброшен",
+    "confirmDelete": "Вы уверены, что хотите удалить этого пользователя?"
   },
   "register": {
     "title": "Создайте ваш аккаунт",

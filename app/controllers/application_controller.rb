@@ -20,7 +20,7 @@ class ApplicationController < ActionController::API
 
     # Update last used timestamp
     auth_token.update_column(:last_used_at, Time.current)
-    
+
     @current_user = auth_token.user
   end
 
@@ -51,5 +51,10 @@ class ApplicationController < ActionController::API
   def require_manager!
     return if current_user&.manager? || current_user&.admin?
     render json: { error: 'Manager access required' }, status: :forbidden
+  end
+
+  def require_analytics!
+    return if current_user&.analytics? || current_user&.admin?
+    render json: { error: 'Analytics access required' }, status: :forbidden
   end
 end

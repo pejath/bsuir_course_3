@@ -5,15 +5,15 @@ FactoryBot.define do
     email { Faker::Internet.email }
     password { "password123" }
     role { :guest }
-    
+
     trait :admin do
       role { :admin }
     end
-    
+
     trait :manager do
       role { :manager }
     end
-    
+
     trait :staff do
       role { :staff }
     end

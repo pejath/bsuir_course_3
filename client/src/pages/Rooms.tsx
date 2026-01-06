@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Plus, Edit, Trash2, Search, X, ChevronDown, ChevronRight } from 'lucide-react'
 import api from '../lib/api'
 import { useAuthStore } from '../store/authStore'
-import { canManageRooms, canDeleteRooms } from '../lib/roles'
+import { canManageRooms, canDeleteRooms, canCreateRooms } from '../lib/roles'
 import { useDebounce } from '../hooks/useDebounce'
 import Modal from '../components/Modal'
 import RoomForm from '../components/RoomForm'
@@ -110,7 +110,7 @@ export default function Rooms() {
   }
 
   const handleFilterChange = (field: string, value: string) => {
-    setFilters(prev => ({ ...prev, [field]: value }))
+    setFilters((prev: typeof filters) => ({ ...prev, [field]: value }))
     setCurrentPage(1)
   }
 
@@ -146,7 +146,7 @@ export default function Rooms() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('rooms.title')}</h1>
-        {canManageRooms(user) && (
+        {canCreateRooms(user) && (
           <button
             onClick={handleCreate}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"

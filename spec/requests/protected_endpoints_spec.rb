@@ -20,7 +20,7 @@ RSpec.describe 'Protected Endpoints', type: :request do
   describe 'POST /api/v1/bookings' do
     let(:room) { create(:room) }
     let(:guest) { create(:guest) }
-    
+
     it 'requires authentication' do
       post '/api/v1/bookings', params: {
         room_id: room.id,
@@ -40,7 +40,7 @@ RSpec.describe 'Protected Endpoints', type: :request do
         check_out_date: 3.days.from_now,
         number_of_guests: 2
       })
-      
+
       # Check if we got HTML error page instead of JSON
       if response.content_type.include?('text/html')
         puts "Got HTML response instead of JSON"

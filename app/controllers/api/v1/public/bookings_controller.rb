@@ -54,12 +54,12 @@ class Api::V1::Public::BookingsController < ApplicationController
 
   def booking_params
     params.require(:booking).permit(
-      :room_id, 
-      :check_in_date, 
-      :check_out_date, 
-      :number_of_guests, 
+      :room_id,
+      :check_in_date,
+      :check_out_date,
+      :number_of_guests,
       :notes,
-      booking_services_attributes: [:service_id, :quantity]
+      booking_services_attributes: [ :service_id, :quantity ]
     )
   end
 end

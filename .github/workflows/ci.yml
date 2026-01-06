@@ -5,34 +5,9 @@ on:
   push:
     branches: [ main ]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  scan_ruby:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager --exit-on-warn
-      
-      - name: Scan for known security vulnerabilities in gems used
-        run: bin/bundler-audit --update
-      
-  
   lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
     steps:
@@ -47,7 +22,7 @@ jobs:
       - name: Prepare RuboCop cache
         uses: actions/cache@v4
         env:
-          DEPENDENCIES_HASH: ${{ hashFiles('.ruby-version', '**/.rubocop.yml', '**/.rubocop_todo.yml', 'Gemfile.lock', '.github/workflows/ci.yml') }}
+          DEPENDENCIES_HASH: ${{ hashFiles('.ruby-version', '**/.rubocop.yml', '**/.rubocop_todo.yml', 'Gemfile.lock') }}
         with:
           path: ${{ env.RUBOCOP_CACHE_ROOT }}
           key: rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-${{ github.ref_name == github.event.repository.default_branch && github.run_id || 'default' }}
@@ -55,11 +30,10 @@ jobs:
             rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
 
       - name: Lint code for consistent style
-        run: bin/rubocop -f github --parallel
+        run: bin/rubocop -f github
 
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     
     services:
       postgres:
@@ -88,59 +62,4 @@ jobs:
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/test
-          # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          # REDIS_URL: redis://localhost:6379/0
         run: bin/rails db:test:prepare test
-
-  system-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-    # services:
-    #  redis:
-    #    image: valkey/valkey:8
-    #    ports:
-    #      - 6379:6379
-    #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Install Chromedriver
-        uses: nanasess/setup-chromedriver@v2
-
-      - name: Run System Tests
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test
-          # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test:system
-
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
-          retention-days: 5

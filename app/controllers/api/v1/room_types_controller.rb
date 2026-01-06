@@ -1,5 +1,5 @@
 class Api::V1::RoomTypesController < Api::V1::BaseController
-  before_action :set_room_type, only: [:show, :update, :destroy]
+  before_action :set_room_type, only: [ :show, :update, :destroy ]
 
   def index
     @room_types = RoomType.all

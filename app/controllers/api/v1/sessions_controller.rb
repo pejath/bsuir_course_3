@@ -1,14 +1,14 @@
 class Api::V1::SessionsController < Devise::SessionsController
   skip_before_action :verify_authenticity_token, raise: false
-  skip_before_action :authenticate_user_from_token!, only: [:create]
+  skip_before_action :authenticate_user_from_token!, only: [ :create ]
   respond_to :json
-  
-  before_action :configure_sign_in_params, only: [:create]
+
+  before_action :configure_sign_in_params, only: [ :create ]
 
   def create
     # Принудительно устанавливаем формат JSON
     request.format = :json
-    
+
     self.resource = warden.authenticate!(auth_options)
     sign_in(resource_name, resource)
     yield resource if block_given?
@@ -20,26 +20,26 @@ class Api::V1::SessionsController < Devise::SessionsController
   def destroy
     # Принудительно устанавливаем формат JSON
     request.format = :json
-    
+
     token = request.headers['Authorization']&.split(' ')&.last
     if token
       auth_token = AuthToken.find_by(token: token)
       auth_token&.destroy
     end
-    
+
     render json: { message: 'Logged out successfully' }, status: :ok
   end
 
   private
-  
+
   def configure_sign_in_params
-    devise_parameter_sanitizer.permit(:sign_in, keys: [:email, :password])
+    devise_parameter_sanitizer.permit(:sign_in, keys: [ :email, :password ])
   end
 
   def respond_with(resource, _opts = {})
     # Create new auth token for this login
     auth_token = resource.create_auth_token!(device_info: request.user_agent)
-    
+
     render json: {
       token: auth_token.token,
       user: {

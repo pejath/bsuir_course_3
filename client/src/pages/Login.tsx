@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/authStore'
 import { Hotel } from 'lucide-react'
-import LanguageSwitcher from '../components/LanguageSwitcher'
-import ThemeSwitcher from '../components/ThemeSwitcher'
+import { isAdmin, isAnalytics, isStaff } from '../lib/roles'
 
 export default function Login() {
   const { t } = useTranslation()
@@ -12,7 +11,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login } = useAuthStore()
+  const { login, user } = useAuthStore()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +21,17 @@ export default function Login() {
 
     try {
       await login(email, password)
-      navigate('/admin')
+      
+      // Redirect based on user role
+      if (user) {
+        if (isAdmin(user) || isAnalytics(user)) {
+          navigate('/admin/')
+        } else if (isStaff(user)) {
+          navigate('/admin/rooms')
+        } else {
+          navigate('/admin/')
+        }
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || t('login.loginFailed'))
     } finally {

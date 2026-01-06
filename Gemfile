@@ -38,6 +38,12 @@ gem "spreadsheet_architect"
 # Parallel processing for seeds
 gem "parallel"
 
+# Unsplash API for images
+gem "unsplash"
+
+# API serializers
+gem "ransack"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
@@ -75,7 +81,7 @@ end
 
 group :development do
   # Rails console improvements
-  
+
   # N+1 queries detection
   gem "bullet"
 end

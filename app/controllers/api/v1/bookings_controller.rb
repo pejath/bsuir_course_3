@@ -1,15 +1,15 @@
 class Api::V1::BookingsController < Api::V1::BaseController
-  before_action :set_booking, only: [:update, :destroy, :cancel]
-  before_action :set_booking_with_details, only: [:show]
+  before_action :set_booking, only: [ :update, :destroy, :cancel ]
+  before_action :set_booking_with_details, only: [ :show ]
 
   def index
     authorize Booking
     bookings = Booking.includes(:guest, :user, :services, :booking_services, room: :room_type)
-    
+
     bookings = bookings.where(status: params[:status]) if params[:status].present?
     bookings = bookings.where(room_id: params[:room_id]) if params[:room_id].present?
     bookings = bookings.where(guest_id: params[:guest_id]) if params[:guest_id].present?
-    
+
     if params[:guest_name].present?
       bookings = bookings.joins(:guest).where(
         "guests.first_name ILIKE ? OR guests.last_name ILIKE ? OR CONCAT(guests.first_name, ' ', guests.last_name) ILIKE ?",
@@ -18,18 +18,18 @@ class Api::V1::BookingsController < Api::V1::BaseController
         "%#{params[:guest_name]}%"
       )
     end
-    
+
     bookings = bookings.where("check_in_date >= ?", params[:check_in_from]) if params[:check_in_from].present?
     bookings = bookings.where("check_in_date <= ?", params[:check_in_to]) if params[:check_in_to].present?
     bookings = bookings.where("check_out_date >= ?", params[:check_out_from]) if params[:check_out_from].present?
     bookings = bookings.where("check_out_date <= ?", params[:check_out_to]) if params[:check_out_to].present?
-    
+
     bookings = bookings.order(check_in_date: :desc)
     pagy, @bookings = pagy(bookings, limit: params[:limit] || 50)
     render json: {
-      data: @bookings.as_json(include: { 
-        room: { include: :room_type }, 
-        guest: {}, 
+      data: @bookings.as_json(include: {
+        room: { include: :room_type },
+        guest: {},
         user: {},
         booking_services: { include: :service }
       }),
@@ -72,7 +72,7 @@ class Api::V1::BookingsController < Api::V1::BaseController
 
   def cancel
     authorize @booking, :cancel?
-    
+
     if @booking.update(status: :cancelled)
       render json: @booking
     else
@@ -92,9 +92,9 @@ class Api::V1::BookingsController < Api::V1::BaseController
 
   def booking_params
     params.require(:booking).permit(
-      :room_id, :guest_id, :check_in_date, :check_out_date, 
+      :room_id, :guest_id, :check_in_date, :check_out_date,
       :number_of_guests, :total_price, :status, :notes,
-      booking_services_attributes: [:id, :service_id, :quantity, :price, :_destroy]
+      booking_services_attributes: [ :id, :service_id, :quantity, :price, :_destroy ]
     )
   end
 end

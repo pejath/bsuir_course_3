@@ -39,7 +39,7 @@ RSpec.describe AuthToken, type: :model do
 
     describe '.by_token' do
       it 'finds token by token string' do
-        expect(AuthToken.by_token(active_token.token)).to eq([active_token])
+        expect(AuthToken.by_token(active_token.token)).to eq([ active_token ])
       end
     end
   end

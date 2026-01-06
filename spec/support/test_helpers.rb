@@ -13,7 +13,7 @@ module TestHelpers
   def authenticated_request(user, method, path, params: {})
     token = user.create_auth_token!(device_info: 'Test Device')
     headers = { 'Authorization' => "Bearer #{token.token}" }
-    
+
     case method.downcase
     when 'get'
       get path, headers: headers, params: params
@@ -26,7 +26,7 @@ module TestHelpers
     when 'delete'
       delete path, headers: headers, params: params
     end
-    
+
     token
   end
 
