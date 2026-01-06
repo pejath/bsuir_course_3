@@ -24,6 +24,10 @@ export const canManageRooms = (user: User | null): boolean => {
   return isStaff(user)
 }
 
+export const canCreateRooms = (user: User | null): boolean => {
+  return isManager(user) || isAdmin(user)
+}
+
 export const canManageGuests = (user: User | null): boolean => {
   return isStaff(user)
 }
