@@ -1,5 +1,5 @@
 class Api::V1::ServicesController < Api::V1::BaseController
-  before_action :set_service, only: [:show, :update, :destroy]
+  before_action :set_service, only: [ :show, :update, :destroy ]
 
   def index
     @services = Service.all

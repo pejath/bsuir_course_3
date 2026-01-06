@@ -1,5 +1,5 @@
 class Api::V1::PaymentsController < Api::V1::BaseController
-  before_action :set_payment, only: [:show, :update, :destroy]
+  before_action :set_payment, only: [ :show, :update, :destroy ]
 
   def index
     @payments = Payment.includes(:booking).all

@@ -28,7 +28,7 @@ RSpec.describe Guest, type: :model do
       it 'returns only active bookings' do
         active_booking = create(:booking, guest: guest, status: :confirmed)
         inactive_booking = create(:booking, guest: guest, status: :cancelled)
-        
+
         expect(guest.bookings.active).to include(active_booking)
         expect(guest.bookings.active).not_to include(inactive_booking)
       end
@@ -38,11 +38,11 @@ RSpec.describe Guest, type: :model do
       it 'calculates total amount spent on completed payments' do
         booking1 = create(:booking, guest: guest)
         booking2 = create(:booking, guest: guest)
-        
+
         create(:payment, booking: booking1, amount: 100, status: :completed)
         create(:payment, booking: booking2, amount: 150, status: :completed)
         create(:payment, booking: booking1, amount: 50, status: :pending)
-        
+
         total_completed = guest.bookings.joins(:payments)
                               .where(payments: { status: :completed })
                               .sum('payments.amount')
@@ -59,7 +59,7 @@ RSpec.describe Guest, type: :model do
     describe '.recent' do
       it 'returns recent guests ordered by creation date' do
         recent_guests = Guest.order(created_at: :desc).limit(2)
-        expect(recent_guests).to eq([guest3, guest2])
+        expect(recent_guests).to eq([ guest3, guest2 ])
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe Guest, type: :model do
         create(:guest, country: 'USA')
         create(:guest, country: 'USA')
         create(:guest, country: 'UK')
-        
+
         result = Guest.group(:country).count
         expect(result['USA']).to eq(2)
         expect(result['UK']).to eq(1)

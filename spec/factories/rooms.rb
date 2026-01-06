@@ -9,15 +9,15 @@ FactoryBot.define do
     amenities { Faker::Lorem.words(number: 4).join(', ') }
     view { Faker::Lorem.word.capitalize }
     image_url { Faker::Internet.url(host: 'dummyimage.com', path: "/800x600/000/ffffff") }
-    
+
     trait :occupied do
       status { :occupied }
     end
-    
+
     trait :maintenance do
       status { :maintenance }
     end
-    
+
     trait :reserved do
       status { :reserved }
     end

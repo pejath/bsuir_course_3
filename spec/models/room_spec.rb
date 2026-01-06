@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Room, type: :model do
   subject { build(:room) }
-  
+
   describe 'Associations' do
     it { should belong_to(:room_type) }
     it { should have_many(:bookings).dependent(:restrict_with_error) }
@@ -43,7 +43,7 @@ RSpec.describe Room, type: :model do
       it 'returns rooms on specified floor' do
         room_floor_1 = create(:room, floor: 1)
         room_floor_2 = create(:room, floor: 2)
-        
+
         expect(Room.on_floor(1)).to include(room_floor_1)
         expect(Room.on_floor(1)).not_to include(room_floor_2)
       end

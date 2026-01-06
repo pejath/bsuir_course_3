@@ -1,10 +1,10 @@
 class Api::V1::GuestsController < Api::V1::BaseController
-  before_action :set_guest, only: [:show, :update, :destroy]
+  before_action :set_guest, only: [ :show, :update, :destroy ]
 
   def index
     authorize Guest
     guests = Guest.all
-    
+
     if params[:search].present?
       search_term = "%#{params[:search]}%"
       guests = guests.where(
@@ -12,9 +12,9 @@ class Api::V1::GuestsController < Api::V1::BaseController
         search_term, search_term, search_term, search_term, search_term
       )
     end
-    
+
     guests = guests.where(country: params[:country]) if params[:country].present?
-    
+
     guests = guests.order(created_at: :desc)
     pagy, @guests = pagy(guests, limit: params[:limit] || 50)
     render json: {

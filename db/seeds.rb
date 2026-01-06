@@ -66,7 +66,7 @@ Guest.delete_all
 Room.delete_all
 
 puts "\nCreating 256 rooms..."
-room_types = [standard, deluxe, suite]
+room_types = [ standard, deluxe, suite ]
 room_distribution = { standard => 0.60, deluxe => 0.30, suite => 0.10 }
 
 # Initialize HTTP client for Unsplash API
@@ -80,7 +80,7 @@ puts "Fetching 256 hotel photos from Unsplash..."
 begin
   access_key = "4kuHytDcLGDG0oTVD5E-xWgunRLfw8EhGAmq-eGdNi0"
   base_url = "https://api.unsplash.com"
-  
+
   # Get 30 photos per page (max allowed), need 9 pages to get 256 photos
   (1..9).each do |page|
     uri = URI("#{base_url}/search/photos?query=hotels&page=#{page}&per_page=30&client_id=#{access_key}")
@@ -89,7 +89,7 @@ begin
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
       http.request(request)
     end
-    
+
     if response.code == '200'
       data = JSON.parse(response.body)
       photos = data['results']
@@ -98,7 +98,7 @@ begin
     else
       puts "\n⚠️  Error on page #{page}: #{response.code} - #{response.message}"
     end
-    
+
     sleep(0.1) # Respect rate limits
   end
   puts "\n✓ Fetched #{hotel_photos.size} hotel photos"
@@ -114,7 +114,7 @@ rooms_created = 0
 (1..16).each do |floor|
   (1..16).each do |room_num|
     room_number = "#{floor}#{room_num.to_s.rjust(2, '0')}"
-    
+
     rand_val = rand
     room_type = if rand_val < 0.60
       standard
@@ -123,12 +123,12 @@ rooms_created = 0
     else
       suite
     end
-    
-    views = ['City', 'Garden', 'Sea', 'Mountain', 'Pool', 'Courtyard']
-    
+
+    views = [ 'City', 'Garden', 'Sea', 'Mountain', 'Pool', 'Courtyard' ]
+
     # Use a photo from Unsplash or fallback
     image_url = hotel_photos[rooms_created] || "https://dummyimage.com/800x600/000/ffffff&text=#{room_number}"
-    
+
     Room.create!(
       number: room_number,
       room_type: room_type,
@@ -136,7 +136,7 @@ rooms_created = 0
       status: 0,
       capacity: room_type.capacity,
       description: Faker::Lorem.paragraph(sentence_count: 3),
-      amenities: "WiFi, TV, Air conditioning, #{['Mini bar', 'Safe', 'Coffee maker', 'Hairdryer'].sample(rand(2..4)).join(', ')}",
+      amenities: "WiFi, TV, Air conditioning, #{[ 'Mini bar', 'Safe', 'Coffee maker', 'Hairdryer' ].sample(rand(2..4)).join(', ')}",
       view: views.sample,
       image_url: image_url
       # image_url: "https://picsum.photos/800/600?random=#{room_number}"
@@ -195,24 +195,24 @@ puts "Using #{Parallel.processor_count} CPU cores for parallel processing..."
 
 bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) do |room|
   ActiveRecord::Base.connection.reconnect!
-  
+
   room_bookings = 0
   current_date = start_date
-  
+
   while current_date < end_date
     if rand < 0.75
       stay_duration = rand(1..7)
       check_in = current_date
       check_out = check_in + stay_duration.days
-      
+
       break if check_out > end_date
-      
+
       guest = guests.sample
       num_guests = rand(1..room.room_type.capacity)
-      
+
       nights = (check_out - check_in).to_i
       base_price = room.room_type.base_price * nights
-      
+
       status = if check_in > Date.today + 30.days
         'pending'
       elsif check_in > Date.today
@@ -222,14 +222,14 @@ bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) d
       else
         'checked_in'
       end
-      
+
       # Calculate realistic booking lead time (1-30 days before check-in)
       lead_time = rand(1..30)
       booking_created_at = check_in - lead_time.days
-      
+
       # Ensure booking_created_at is not before our 6-month window
-      booking_created_at = [booking_created_at, start_date].min
-      
+      booking_created_at = [ booking_created_at, start_date ].min
+
       booking = Booking.create!(
         room: room,
         guest: guest,
@@ -242,39 +242,39 @@ bookings_created = Parallel.map(rooms, in_processes: Parallel.processor_count) d
         created_at: booking_created_at,
         notes: rand < 0.15 ? Faker::Lorem.sentence(word_count: rand(3..8)) : ''
       )
-      
+
       if rand < 0.4
         booking_services = services.sample(rand(1..3))
         booking_services.each do |service|
           quantity = rand(1..nights)
           booking.booking_services.create!(
-            service: service, 
+            service: service,
             quantity: quantity,
             price: service.price * quantity
           )
         end
       end
-      
+
       room_bookings += 1
       current_date = check_out + rand(1..5).days
     else
       current_date += rand(2..7).days
     end
   end
-  
+
   room_bookings
 end.sum
 
 puts "✓ Created #{bookings_created} bookings"
 
 puts "\nCreating payments for bookings..."
-payment_methods = ['cash', 'card', 'bank_transfer']
+payment_methods = [ 'cash', 'card', 'bank_transfer' ]
 payments_created = 0
 
 # Use parallel processing for payment creation
-payments_created = Parallel.map(Booking.where(status: [:confirmed, :checked_in, :checked_out]), in_processes: Parallel.processor_count) do |booking|
+payments_created = Parallel.map(Booking.where(status: [ :confirmed, :checked_in, :checked_out ]), in_processes: Parallel.processor_count) do |booking|
   ActiveRecord::Base.connection.reconnect!
-  
+
   payment_status = if booking.status == 'checked_out'
     'completed'
   elsif booking.status == 'checked_in'
@@ -282,14 +282,14 @@ payments_created = Parallel.map(Booking.where(status: [:confirmed, :checked_in, 
   else
     rand < 0.7 ? 'completed' : 'pending'
   end
-  
+
   payment_date = if payment_status == 'completed'
     # Payment made at check-in date (when guest actually pays)
     booking.check_in_date
   else
     nil
   end
-  
+
   # Create payment with correct historical timestamp
   Payment.create!(
     booking: booking,
@@ -309,12 +309,12 @@ puts "✓ Created #{payments_created} payments"
 puts "\nUpdating room statuses based on current bookings..."
 Room.find_each do |room|
   today = Date.today
-  
+
   current_booking = room.bookings
     .where('check_in_date <= ? AND check_out_date >= ?', today, today)
-    .where(status: ['confirmed', 'checked_in', 'checked_out'])
+    .where(status: [ 'confirmed', 'checked_in', 'checked_out' ])
     .first
-  
+
   if current_booking
     if current_booking.status == 'checked_in'
       room.update!(status: :occupied)
@@ -328,10 +328,10 @@ Room.find_each do |room|
   else
     upcoming_booking = room.bookings
       .where('check_in_date > ?', today)
-      .where(status: ['confirmed', 'pending'])
+      .where(status: [ 'confirmed', 'pending' ])
       .order(:check_in_date)
       .first
-    
+
     if upcoming_booking && upcoming_booking.check_in_date <= today + 7.days
       room.update!(status: :reserved)
     else

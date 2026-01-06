@@ -25,7 +25,7 @@ class Booking < ApplicationRecord
   validate :no_overlapping_bookings
 
   # Scopes
-  scope :active, -> { where(status: [:pending, :confirmed, :checked_in]) }
+  scope :active, -> { where(status: [ :pending, :confirmed, :checked_in ]) }
   scope :for_date_range, ->(start_date, end_date) {
     where('check_in_date <= ? AND check_out_date >= ?', end_date, start_date)
   }
@@ -57,7 +57,7 @@ class Booking < ApplicationRecord
     # Check for overlapping bookings
     overlapping = Booking.where(room: room)
       .where.not(id: id) # Exclude current record
-      .where(status: [:pending, :confirmed, :checked_in]) # Only active bookings
+      .where(status: [ :pending, :confirmed, :checked_in ]) # Only active bookings
       .where('check_in_date < ? AND check_out_date > ?', check_out_date, check_in_date)
 
     if overlapping.exists?

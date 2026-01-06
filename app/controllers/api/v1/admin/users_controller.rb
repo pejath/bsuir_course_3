@@ -23,7 +23,7 @@ class Api::V1::Admin::UsersController < Api::V1::BaseController
   def update
     @user = User.find(params[:id])
     authorize @user
-    
+
     if @user.update(user_params)
       render json: @user, status: :ok
     else
@@ -34,7 +34,7 @@ class Api::V1::Admin::UsersController < Api::V1::BaseController
   def destroy
     @user = User.find(params[:id])
     authorize @user
-    
+
     if @user.destroy
       head :no_content
     else
@@ -45,7 +45,7 @@ class Api::V1::Admin::UsersController < Api::V1::BaseController
   def toggle_active
     @user = User.find(params[:id])
     authorize @user
-    
+
     # Toggle between staff (active) and guest (inactive) roles
     if @user.staff?
       @user.update!(role: :guest)
@@ -54,14 +54,14 @@ class Api::V1::Admin::UsersController < Api::V1::BaseController
     else
       @user.update!(role: :staff)
     end
-    
+
     render json: @user, status: :ok
   end
 
   def reset_password
     @user = User.find(params[:id])
     authorize @user
-    
+
     if @user.update(password_params)
       # Revoke all existing tokens to force re-login
       @user.auth_tokens.update_all(expires_at: Time.current)

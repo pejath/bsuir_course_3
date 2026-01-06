@@ -20,7 +20,7 @@ class ApplicationController < ActionController::API
 
     # Update last used timestamp
     auth_token.update_column(:last_used_at, Time.current)
-    
+
     @current_user = auth_token.user
   end
 

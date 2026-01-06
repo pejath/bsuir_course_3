@@ -81,7 +81,7 @@ end
 
 group :development do
   # Rails console improvements
-  
+
   # N+1 queries detection
   gem "bullet"
 end
