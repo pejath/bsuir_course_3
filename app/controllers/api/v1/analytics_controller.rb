@@ -12,7 +12,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
                                .where('check_in_date > ?', Date.today)
                                .count
 
-    # Calculate total revenue including services
+    # total revenue
     payments_revenue = Payment.where(status: :completed).sum(:amount)
     services_revenue = BookingService.joins(:booking)
       .sum('booking_services.price * booking_services.quantity')
@@ -51,15 +51,15 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     payments = Payment.where(status: :completed, payment_date: start_date..end_date)
     payments_revenue = payments.sum(:amount)
 
-    # Get services revenue
+    # services revenue
     booking_services = BookingService.joins(:booking, :service)
       .where('bookings.check_in_date >= ? AND bookings.check_in_date <= ?', start_date, end_date)
     services_revenue = booking_services.sum('booking_services.price * booking_services.quantity')
 
-    # Total revenue includes payments and services
+    # total revenue
     total_revenue = payments_revenue + services_revenue
 
-    # Calculate RevPAR
+    # RevPAR
     total_rooms = Room.count
     days_in_period = (end_date - start_date + 1).to_i
     revpar = total_rooms > 0 && days_in_period > 0 ? total_revenue / total_rooms / days_in_period : 0
@@ -79,41 +79,36 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
 
-    # Get data
     payments = Payment.where(status: :completed, payment_date: start_date..end_date)
     payments_revenue = payments.sum(:amount)
 
-    # Get services revenue
+    # services revenue
     booking_services = BookingService.joins(:booking, :service)
       .where('bookings.check_in_date >= ? AND bookings.check_in_date <= ?', start_date, end_date)
     services_revenue = booking_services.sum('booking_services.price * booking_services.quantity')
 
-    # Total revenue includes payments and services
+    # Total revenue
     total_revenue = payments_revenue + services_revenue
     total_bookings = payments.joins(:booking).distinct.count
     average_booking_value = total_bookings > 0 ? total_revenue / total_bookings : 0
 
-    # Calculate occupancy rate
+    # Occupancy rate
     total_rooms = Room.count
     occupied_rooms = Room.occupied.count
     occupancy_rate = total_rooms > 0 ? (occupied_rooms.to_f / total_rooms * 100).round(2) : 0
 
-    # Calculate RevPAR
+    # RevPAR
     days_in_period = (end_date - start_date + 1).to_i
     revpar = total_rooms > 0 && days_in_period > 0 ? total_revenue / total_rooms / days_in_period : 0
 
-    # Generate PDF
     pdf = Prawn::Document.new
 
-    # Title
     pdf.text "Analytics Report", size: 18, style: :bold
     pdf.move_down 10
 
-    # Period
     pdf.text "Period: #{start_date} to #{end_date}", size: 12
     pdf.move_down 20
 
-    # Summary
     pdf.text "Summary", size: 14, style: :bold
     pdf.move_down 10
 
@@ -126,7 +121,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     pdf.text "Services Revenue %: #{total_revenue > 0 ? (services_revenue.to_f / total_revenue * 100).round(2) : 0}%"
     pdf.move_down 20
 
-    # Payment methods table
     pdf.text "Revenue by Payment Method", size: 14, style: :bold
     pdf.move_down 10
 
@@ -142,7 +136,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     end
     pdf.move_down 20
 
-    # Services table
     pdf.text "Services Revenue", size: 14, style: :bold
     pdf.move_down 10
 
@@ -169,7 +162,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     end
     pdf.move_down 20
 
-    # Raw bookings data
     pdf.start_new_page
     pdf.text "Raw Bookings Data", size: 14, style: :bold
     pdf.move_down 10
@@ -180,7 +172,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
 
     Booking.where('check_in_date >= ? AND check_in_date <= ?', start_date, end_date)
            .includes(:room, :guest)
-           .limit(50) # Limit to prevent PDF from being too large
+           .limit(100)
            .each do |booking|
       bookings_data << [
         booking.id,
@@ -199,7 +191,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
       cells.size = 8
     end
 
-    # Send PDF
     send_data pdf.render,
       filename: "analytics-#{start_date}-to-#{end_date}.pdf",
       type: 'application/pdf',
@@ -211,33 +202,29 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
 
-    # Get data
     payments = Payment.where(status: :completed, payment_date: start_date..end_date)
     payments_revenue = payments.sum(:amount)
 
-    # Get services data
     booking_services = BookingService.joins(:booking, :service)
       .where('bookings.check_in_date >= ? AND bookings.check_in_date <= ?', start_date, end_date)
     services_revenue = booking_services.sum('booking_services.price * booking_services.quantity')
 
-    # Total revenue includes payments and services
+    # Total revenue
     total_revenue = payments_revenue + services_revenue
     total_bookings = payments.joins(:booking).distinct.count
     average_booking_value = total_bookings > 0 ? total_revenue / total_bookings : 0
 
-    # Calculate occupancy rate
+    # Occupancy rate
     total_rooms = Room.count
     occupied_rooms = Room.occupied.count
     occupancy_rate = total_rooms > 0 ? (occupied_rooms.to_f / total_rooms * 100).round(2) : 0
 
-    # Calculate RevPAR
+    # RevPAR
     days_in_period = (end_date - start_date + 1).to_i
     revpar = total_rooms > 0 && days_in_period > 0 ? total_revenue / total_rooms / days_in_period : 0
 
-    # Create workbook
     workbook = Axlsx::Package.new
 
-    # Summary sheet
     summary_sheet = workbook.workbook.add_worksheet(name: 'Summary')
     summary_sheet.add_row [ 'Metric', 'Value' ]
     summary_sheet.add_row [ 'Total Revenue', total_revenue ]
@@ -250,7 +237,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     summary_sheet.add_row [ 'Services Revenue (%)', total_revenue > 0 ? (services_revenue.to_f / total_revenue * 100).round(2) : 0 ]
     summary_sheet.add_row [ 'Period', "#{start_date} to #{end_date}" ]
 
-    # Payment methods sheet
     payment_sheet = workbook.workbook.add_worksheet(name: 'By Payment Method')
     payment_sheet.add_row [ 'Payment Method', 'Revenue' ]
 
@@ -258,7 +244,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
       payment_sheet.add_row [ method.humanize, amount ]
     end
 
-    # Raw bookings data sheet
     bookings_sheet = workbook.workbook.add_worksheet(name: 'Bookings Raw Data')
     bookings_sheet.add_row [
       'Booking ID', 'Room Number', 'Room Type', 'Guest First Name', 'Guest Last Name',
@@ -287,7 +272,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
       ]
     end
 
-    # Raw payments data sheet
     payments_sheet = workbook.workbook.add_worksheet(name: 'Payments Raw Data')
     payments_sheet.add_row [
       'Payment ID', 'Booking ID', 'Amount', 'Payment Method', 'Status',
@@ -308,7 +292,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
       ]
     end
 
-    # Room statistics sheet
     rooms_sheet = workbook.workbook.add_worksheet(name: 'Room Statistics')
     rooms_sheet.add_row [ 'Room Number', 'Room Type', 'Status', 'Floor', 'Capacity' ]
 
@@ -322,7 +305,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
       ]
     end
 
-    # Services sheet
     services_sheet = workbook.workbook.add_worksheet(name: 'Services')
     services_sheet.add_row [ 'Service Name', 'Quantity', 'Total Revenue', 'Average Price' ]
 
@@ -342,7 +324,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
       ]
     end
 
-    # Send Excel file
     send_data workbook.to_stream.read,
       filename: "analytics-#{start_date}-to-#{end_date}.xlsx",
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -373,7 +354,6 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     authorize :analytics, :bookings_trend?
     bookings_by_status = Booking.group(:status).count
 
-    # Show bookings by check-in date for the last 6 months
     end_date = Date.today.end_of_month
     start_date = end_date - 5.months
 
@@ -404,11 +384,9 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
 
   def occupancy_trend
     authorize :analytics, :occupancy_trend?
-    # Look at the last 6 months including historical data
     end_date = Date.today.end_of_month
     start_date = end_date - 5.months
 
-    # Calculate occupancy rate for each month
     monthly_data = []
     current_month = start_date
 
@@ -417,20 +395,19 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
       month_end = current_month.end_of_month
       days_in_month = (month_end - month_start + 1).to_i
 
-      # Calculate total available room-nights
+      # total available room-nights
       total_rooms = Room.count
       total_room_nights = total_rooms * days_in_month
 
-      # Calculate actual occupied room-nights
+      # actual occupied room-nights
       occupied_room_nights = 0
 
-      # Look for bookings that overlap with this month
       bookings = Booking
         .where(status: [ :confirmed, :checked_in, :checked_out ])
         .where('check_in_date <= ? AND check_out_date >= ?', month_end, month_start)
 
       bookings.each do |booking|
-        # Calculate nights within this month
+        # nights within this month
         next if booking.check_in_date.nil? || booking.check_out_date.nil?
 
         booking_start = [ booking.check_in_date, month_start.to_date ].max
@@ -456,13 +433,12 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
 
   def lead_time_stats
     authorize :analytics, :lead_time_stats?
-    # Calculate average lead time using SQL instead of loading all records
+    # average lead time using SQL instead of loading all records
     average_lead_time = Booking
       .where.not(check_in_date: nil)
       .where('created_at <= check_in_date')
       .average('DATE(check_in_date) - DATE(created_at)')
 
-    # Convert to days and round to 1 decimal place
     average_lead_time = average_lead_time ? average_lead_time.round(1) : 0
 
     render json: {
@@ -472,10 +448,9 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
 
   def top_room_types
     authorize :analytics, :top_room_types?
-    # Calculate revenue and bookings by room type with proper joins
     room_type_stats = Booking.joins(room: :room_type)
       .joins(:payments)
-      .where('payments.status = ?', 1)  # Use integer for completed status
+      .where('payments.status = ?', 1)
       .group('room_types.name')
       .select(
         'room_types.name as room_type',
@@ -489,14 +464,13 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
         revenue: stat.total_revenue.to_f,
         bookings: stat.total_bookings
       }
-    end.sort_by { |r| -r[:revenue] }.first(10) # Top 10 room types
+    end.sort_by { |r| -r[:revenue] }
 
     render json: result
   end
 
   def guest_countries
     authorize :analytics, :guest_countries?
-    # Count guests by country
     country_stats = Guest
       .where.not(country: [ nil, '' ])
       .group(:country)
@@ -519,7 +493,7 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
     start_date = params[:start_date] ? Date.parse(params[:start_date]) : 6.months.ago.beginning_of_month
     end_date = params[:end_date] ? Date.parse(params[:end_date]) : Date.today.end_of_month
 
-    # Get services revenue
+    # services revenue
     booking_services = BookingService.joins(:booking, :service)
       .where('bookings.check_in_date >= ? AND bookings.check_in_date <= ?', start_date, end_date)
 
@@ -531,13 +505,13 @@ class Api::V1::AnalyticsController < Api::V1::BaseController
       .group('services.name')
       .sum('booking_services.quantity')
 
-    # Top services by revenue
+    # top services by revenue
     top_services = services_revenue
       .sort_by { |_, revenue| -revenue }
       .first(10)
       .map { |name, revenue| { name: name, revenue: revenue } }
 
-    # Services usage distribution
+    # services usage distribution
     usage_distribution = services_usage.map do |name, quantity|
       {
         name: name,
