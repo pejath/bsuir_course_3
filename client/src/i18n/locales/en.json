@@ -317,6 +317,7 @@
     },
     "guest": "Guest",
     "room": "Room",
+    "roomNumber": "Room Number",
     "checkIn": "Check-in",
     "checkOut": "Check-out",
     "total": "Total",
