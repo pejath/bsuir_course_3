@@ -5,6 +5,8 @@ import api from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { canManageRooms, canDeleteRooms, canCreateRooms } from '../lib/roles'
 import { useDebounce } from '../hooks/useDebounce'
+import { useToast } from '../hooks/useToast'
+import Toast from '../components/Toast'
 import Modal from '../components/Modal'
 import RoomForm from '../components/RoomForm'
 import RoomActivityChart from '../components/RoomActivityChart'
@@ -24,6 +26,7 @@ interface PaginationMeta {
 export default function Rooms() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
+  const toast = useToast()
   const [rooms, setRooms] = useState<Room[]>([])
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
   const [loading, setLoading] = useState(false)
@@ -58,6 +61,7 @@ export default function Rooms() {
       setRoomTypes(response.data)
     } catch (error) {
       console.error('Failed to fetch room types:', error)
+      toast.error(t('rooms.error.fetchTypes'))
     }
   }
 
@@ -75,6 +79,7 @@ export default function Rooms() {
       setPagination(response.data.pagination)
     } catch (error) {
       console.error('Failed to fetch rooms:', error)
+      toast.error(t('rooms.error.fetch'))
     } finally {
       setLoading(false)
       setInitialLoading(false)
@@ -96,9 +101,10 @@ export default function Rooms() {
       await api.delete(`/rooms/${id}`)
       fetchRooms(currentPage)
       setDeleteConfirm(null)
+      toast.success(t('rooms.deleted'))
     } catch (error) {
       console.error('Failed to delete room:', error)
-      alert(t('rooms.deleteFailed'))
+      toast.error(t('rooms.error.delete'))
     }
   }
 
@@ -455,6 +461,16 @@ export default function Rooms() {
           onCancel={() => setIsModalOpen(false)}
         />
       </Modal>
+
+      {/* Toast Notifications */}
+      {toast.toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => toast.removeToast(toast.id)}
+        />
+      ))}
     </div>
   )
 }
