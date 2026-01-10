@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, X, Plus, Edit } from 'lucide-react'
+import { Edit, Plus, Search, X } from 'lucide-react'
+import { format } from 'date-fns'
 import api from '../lib/api'
 import type { Booking } from '../types'
-import { format } from 'date-fns'
+import { useToast } from '../hooks/useToast'
 import BookingForm from '../components/BookingForm'
 import { formatStatus } from '../utils/formatters'
 
@@ -20,6 +21,7 @@ interface PaginationMeta {
 
 export default function Bookings() {
   const { t } = useTranslation()
+  const toast = useToast()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
@@ -59,6 +61,7 @@ export default function Bookings() {
       setPagination(response.data.pagination)
     } catch (error) {
       console.error('Failed to fetch bookings:', error)
+      toast.error(t('bookings.error.fetch'))
     } finally {
       setLoading(false)
       setInitialLoading(false)
@@ -119,8 +122,10 @@ export default function Bookings() {
     try {
       await api.patch(`/bookings/${booking.id}/cancel`)
       fetchBookings(currentPage)
+      toast.success(t('bookings.cancelled'))
     } catch (error) {
       console.error('Failed to cancel booking:', error)
+      toast.error(t('bookings.error.cancel'))
     }
   }
 
