@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Edit, Trash2, Key, Shield, ShieldOff, Plus } from 'lucide-react'
+import { Edit, Trash2, Key, Plus } from 'lucide-react'
 import api from '../lib/api'
 import type { User } from '../types'
+import { useToast } from '../hooks/useToast'
+import Toast from '../components/Toast'
 
 interface UserWithDetails extends User {
   created_at: string
@@ -12,6 +14,7 @@ interface UserWithDetails extends User {
 
 export default function UsersManagement() {
   const { t } = useTranslation()
+  const toast = useToast()
   const [users, setUsers] = useState<UserWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -24,11 +27,13 @@ export default function UsersManagement() {
   }, [])
 
   const fetchUsers = async () => {
+    setLoading(true)
     try {
       const response = await api.get('/admin/users')
       setUsers(response.data)
     } catch (error) {
       console.error('Failed to fetch users:', error)
+      toast.error(t('users.error.fetch'))
     } finally {
       setLoading(false)
     }
@@ -38,8 +43,10 @@ export default function UsersManagement() {
     try {
       await api.patch(`/admin/users/${user.id}/toggle_active`)
       fetchUsers()
+      toast.success(t('users.updated'))
     } catch (error) {
       console.error('Failed to toggle user status:', error)
+      toast.error(t('users.error.toggleStatus'))
     }
   }
 
@@ -49,19 +56,22 @@ export default function UsersManagement() {
         user: { password: newPassword }
       })
       setShowPasswordModal(false)
-      alert(t('users.passwordResetSuccess', 'Password reset successfully'))
+      toast.success(t('users.passwordResetSuccess'))
     } catch (error) {
       console.error('Failed to reset password:', error)
+      toast.error(t('users.error.resetPassword'))
     }
   }
 
   const handleDelete = async (user: UserWithDetails) => {
-    if (window.confirm(t('users.confirmDelete', 'Are you sure you want to delete this user?'))) {
+    if (window.confirm(t('users.confirmDelete'))) {
       try {
         await api.delete(`/admin/users/${user.id}`)
         fetchUsers()
+        toast.success(t('users.deleted'))
       } catch (error) {
         console.error('Failed to delete user:', error)
+        toast.error(t('users.error.delete'))
       }
     }
   }
@@ -204,6 +214,16 @@ export default function UsersManagement() {
           onReset={handleResetPassword}
         />
       )}
+
+      {/* Toast Notifications */}
+      {toast.toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => toast.removeToast(toast.id)}
+        />
+      ))}
     </div>
   )
 }
@@ -217,6 +237,7 @@ interface UserModalProps {
 
 function UserModal({ user, onClose, onSave }: UserModalProps) {
   const { t } = useTranslation()
+  const toast = useToast()
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -230,12 +251,16 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
     try {
       if (user) {
         await api.patch(`/admin/users/${user.id}`, { user: formData })
+        onSave()
+        toast.success(t('users.updated'))
       } else {
         await api.post('/admin/users', { user: formData })
+        onSave()
+        toast.success(t('users.created'))
       }
-      onSave()
     } catch (error) {
       console.error('Failed to save user:', error)
+      toast.error(user ? t('users.error.update') : t('users.error.create'))
     }
   }
 
@@ -253,7 +278,7 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
               <div className="mt-4 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t('users.firstName', 'First Name')}
+                    {t('users.firstName', 'First Name')} *
                   </label>
                   <input
                     type="text"
@@ -265,7 +290,7 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t('users.lastName', 'Last Name')}
+                    {t('users.lastName', 'Last Name')} *
                   </label>
                   <input
                     type="text"
@@ -277,7 +302,7 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t('users.email', 'Email')}
+                    {t('users.email', 'Email')} *
                   </label>
                   <input
                     type="email"
@@ -305,7 +330,7 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
                 {!user && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('users.password', 'Password')}
+                      {t('users.password', 'Password')} *
                     </label>
                     <input
                       type="password"
@@ -349,13 +374,14 @@ interface PasswordModalProps {
 
 function PasswordModal({ user, onClose, onReset }: PasswordModalProps) {
   const { t } = useTranslation()
+  const toast = useToast()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (password !== confirmPassword) {
-      alert(t('users.passwordsNotMatch', 'Passwords do not match'))
+      toast.error(t('register.passwordsDoNotMatch'))
       return
     }
     onReset(user, password)
@@ -375,7 +401,7 @@ function PasswordModal({ user, onClose, onReset }: PasswordModalProps) {
               <div className="mt-4 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t('users.newPassword', 'New Password')}
+                    {t('users.newPassword', 'New Password')} *
                   </label>
                   <input
                     type="password"
@@ -387,7 +413,7 @@ function PasswordModal({ user, onClose, onReset }: PasswordModalProps) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t('users.confirmPassword', 'Confirm Password')}
+                    {t('users.confirmPassword', 'Confirm Password')} *
                   </label>
                   <input
                     type="password"
