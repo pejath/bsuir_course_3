@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../lib/api'
 import type { Booking, Room, Guest, BookingService } from '../types'
+import { useToast } from '../hooks/useToast'
 import BookingServices from './BookingServices'
 
 interface BookingFormProps {
@@ -12,6 +13,7 @@ interface BookingFormProps {
 
 export default function BookingForm({ booking, onSuccess, onCancel }: BookingFormProps) {
   const { t } = useTranslation()
+  const toast = useToast()
   const [rooms, setRooms] = useState<Room[]>([])
   const [guests, setGuests] = useState<Guest[]>([])
   const [guestSearch, setGuestSearch] = useState('')
@@ -96,6 +98,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
       setRooms(roomsList)
     } catch (err) {
       console.error('Failed to fetch rooms:', err)
+      toast.error(t('bookings.error.fetchRooms'))
     }
   }
 
@@ -109,6 +112,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
       setGuests(response.data.data || response.data)
     } catch (err) {
       console.error('Failed to fetch guests:', err)
+      toast.error(t('bookings.error.fetchGuests'))
     }
   }
 
@@ -118,6 +122,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
       setGuests([response.data])
     } catch (err) {
       console.error('Failed to fetch guest:', err)
+      toast.error(t('bookings.error.fetchGuests'))
     }
   }
 
@@ -180,13 +185,16 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
 
       if (booking) {
         await api.put(`/bookings/${booking.id}`, data)
+        toast.success(t('bookings.updated'))
       } else {
         await api.post('/bookings', data)
+        toast.success(t('bookings.created'))
       }
 
       onSuccess()
     } catch (err: any) {
       setError(err.response?.data?.error || t('bookings.saveError'))
+      toast.error(booking ? t('bookings.error.update') : t('bookings.error.create'))
     } finally {
       setLoading(false)
     }
