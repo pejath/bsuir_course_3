@@ -116,7 +116,18 @@
     "reset": "Reset",
     "passwordsNotMatch": "Passwords do not match",
     "passwordResetSuccess": "Password reset successfully",
-    "confirmDelete": "Are you sure you want to delete this user?"
+    "confirmDelete": "Are you sure you want to delete this user?",
+    "created": "User created successfully",
+    "updated": "User updated successfully",
+    "deleted": "User deleted successfully",
+    "error": {
+      "create": "Failed to create user",
+      "update": "Failed to update user",
+      "delete": "Failed to delete user",
+      "resetPassword": "Failed to reset password",
+      "toggleStatus": "Failed to toggle user status",
+      "fetch": "Failed to fetch users"
+    }
   },
   "register": {
     "title": "Create your account",
@@ -300,7 +311,17 @@
     "type": "Type",
     "addRoom": "Add Room",
     "deleteRoom": "Delete Room",
-    "roomDetails": "Room Details"
+    "roomDetails": "Room Details",
+    "created": "Room created successfully",
+    "updated": "Room updated successfully",
+    "deleted": "Room deleted successfully",
+    "error": {
+      "create": "Failed to create room",
+      "update": "Failed to update room",
+      "delete": "Failed to delete room",
+      "fetch": "Failed to fetch rooms",
+      "fetchTypes": "Failed to fetch room types"
+    }
   },
   "bookings": {
     "title": "Bookings",
@@ -328,33 +349,19 @@
     "checkInTo": "Check-in To",
     "checkOutFrom": "Check-out From",
     "checkOutTo": "Check-out To",
-    "searchPlaceholder": "Search bookings...",
-    "selectRoom": "Select Room",
-    "roomOption": "Room {{number}} - {{roomType}} (${{price}})",
-    "showing": "Showing {{from}} to {{to}} of {{count}} bookings",
-    "editBooking": "Edit Booking",
-    "confirmCancel": "Are you sure you want to cancel this booking?",
-    "noBookings": "No bookings",
-    "noSearchResults": "No bookings found",
-    "getStarted": "No bookings yet",
-    "tryDifferentFilters": "Try adjusting your filters",
-    "confirmDelete": "Are you sure you want to delete this booking?",
-    "saveError": "Failed to save booking",
-    "existingGuest": "Existing Guest",
-    "newGuest": "New Guest",
-    "searchGuest": "Search Guest",
-    "searchGuestPlaceholder": "Enter name, email, phone or passport",
-    "noGuestsFound": "No guests found",
-    "selectGuest": "Select Guest",
-    "notes": "Notes",
-    "services": "Services",
-    "addService": "Add Service",
-    "selectService": "Select Service",
-    "noServices": "No services",
-    "noServicesAdded": "No services added",
-    "servicesTotal": "Services Total",
-    "updateBooking": "Update Booking",
-    "guests": "Guests"
+    "created": "Booking created successfully",
+    "updated": "Booking updated successfully",
+    "deleted": "Booking deleted successfully",
+    "cancelled": "Booking cancelled successfully",
+    "error": {
+      "create": "Failed to create booking",
+      "update": "Failed to update booking",
+      "delete": "Failed to delete booking",
+      "cancel": "Failed to cancel booking",
+      "fetch": "Failed to fetch bookings",
+      "fetchRooms": "Failed to fetch rooms",
+      "fetchGuests": "Failed to fetch guests"
+    }
   },
   "guests": {
     "title": "Guests",
