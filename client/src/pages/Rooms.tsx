@@ -8,7 +8,6 @@ import { useDebounce } from '../hooks/useDebounce'
 import Modal from '../components/Modal'
 import RoomForm from '../components/RoomForm'
 import RoomActivityChart from '../components/RoomActivityChart'
-import { formatStatus } from '../utils/formatters'
 import type { Room, RoomType } from '../types'
 
 interface PaginationMeta {
@@ -286,7 +285,7 @@ export default function Rooms() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(room.status)}`}>
-                      {formatStatus(room.status)}
+                      {t(`rooms.statuses.${room.status}`)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
