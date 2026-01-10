@@ -10,6 +10,10 @@ class Api::V1::BookingsController < Api::V1::BaseController
     bookings = bookings.where(room_id: params[:room_id]) if params[:room_id].present?
     bookings = bookings.where(guest_id: params[:guest_id]) if params[:guest_id].present?
 
+    if params[:room_number].present?
+      bookings = bookings.joins(:room).where("rooms.number ILIKE ?", "%#{params[:room_number]}%")
+    end
+
     if params[:guest_name].present?
       bookings = bookings.joins(:guest).where(
         "guests.first_name ILIKE ? OR guests.last_name ILIKE ? OR CONCAT(guests.first_name, ' ', guests.last_name) ILIKE ?",

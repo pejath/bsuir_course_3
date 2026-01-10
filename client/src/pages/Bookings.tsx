@@ -31,6 +31,7 @@ export default function Bookings() {
   const [filters, setFilters] = useState({
     status: '',
     guest_name: '',
+    room_number: '',
     check_in_from: '',
     check_in_to: '',
     check_out_from: '',
@@ -47,6 +48,7 @@ export default function Bookings() {
       const params: any = { page, limit: 50 }
       if (filters.status) params.status = filters.status
       if (filters.guest_name) params.guest_name = filters.guest_name
+      if (filters.room_number) params.room_number = filters.room_number
       if (filters.check_in_from) params.check_in_from = filters.check_in_from
       if (filters.check_in_to) params.check_in_to = filters.check_in_to
       if (filters.check_out_from) params.check_out_from = filters.check_out_from
@@ -72,6 +74,7 @@ export default function Bookings() {
     setFilters({
       status: '',
       guest_name: '',
+      room_number: '',
       check_in_from: '',
       check_in_to: '',
       check_out_from: '',
@@ -153,7 +156,7 @@ export default function Bookings() {
         <div className="flex items-center gap-4 mb-4">
           <Search className="w-5 h-5 text-gray-400 dark:text-gray-500" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">{t('common.filters')}</h3>
-          {(filters.status || filters.guest_name || filters.check_in_from || filters.check_in_to || filters.check_out_from || filters.check_out_to) && (
+          {(filters.status || filters.guest_name || filters.room_number || filters.check_in_from || filters.check_in_to || filters.check_out_from || filters.check_out_to) && (
             <button
               onClick={clearFilters}
               className="ml-auto text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 flex items-center gap-1"
@@ -163,7 +166,7 @@ export default function Bookings() {
             </button>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {t('bookings.status')}
@@ -190,6 +193,18 @@ export default function Bookings() {
               value={filters.guest_name}
               onChange={(e) => handleFilterChange('guest_name', e.target.value)}
               placeholder={t('guests.searchByName')}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('bookings.roomNumber')}
+            </label>
+            <input
+              type="text"
+              value={filters.room_number}
+              onChange={(e) => handleFilterChange('room_number', e.target.value)}
+              placeholder={t('bookings.roomNumber')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
@@ -290,7 +305,7 @@ export default function Bookings() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(booking.status)}`}>
-                    {formatStatus(booking.status)}
+                    {t(`bookings.statuses.${booking.status}`)}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
