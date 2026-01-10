@@ -86,7 +86,14 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
         }
       }
       const response = await api.get('/rooms', { params })
-      setRooms(response.data.data || response.data)
+      let roomsList = response.data.data || response.data
+      
+      // При редактировании убедимся, что текущая комната есть в списке
+      if (booking && booking.room && !roomsList.find((r: Room) => r.id === booking.room?.id)) {
+        roomsList = [booking.room, ...roomsList]
+      }
+      
+      setRooms(roomsList)
     } catch (err) {
       console.error('Failed to fetch rooms:', err)
     }
