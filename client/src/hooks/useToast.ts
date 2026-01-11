@@ -1,12 +1,22 @@
 import { useState, useCallback } from 'react'
 
-interface Toast {
+export interface Toast {
   id: string
   message: string
   type?: 'success' | 'error' | 'warning' | 'info'
 }
 
-export function useToast() {
+export interface ToastContext {
+  toasts: Toast[]
+  addToast: (message: string, type?: 'success' | 'error' | 'warning' | 'info') => void
+  removeToast: (id: string) => void
+  success: (message: string) => void
+  error: (message: string) => void
+  warning: (message: string) => void
+  info: (message: string) => void
+}
+
+export function useToast(): ToastContext {
   const [toasts, setToasts] = useState<Toast[]>([])
 
   const addToast = useCallback((message: string, type?: 'success' | 'error' | 'warning' | 'info') => {

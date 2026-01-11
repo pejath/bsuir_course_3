@@ -31,7 +31,7 @@ export default function Toast({ message, type = 'info', onClose, duration = 5000
   }
 
   return (
-    <div className={`fixed top-4 right-4 z-50 flex items-center p-4 rounded-lg shadow-lg ${getStyles()} min-w-[300px] max-w-md`}>
+    <div className={`fixed top-4 right-4 z-[9999] flex items-center p-4 rounded-lg shadow-lg ${getStyles()} min-w-[300px] max-w-md`}>
       <span className="flex-1">{message}</span>
       <button
         onClick={onClose}

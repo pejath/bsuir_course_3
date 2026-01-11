@@ -269,7 +269,9 @@
       "available": "Доступен",
       "occupied": "Занят",
       "maintenance": "Обслуживание",
-      "reserved": "Зарезервирован"
+      "reserved": "Зарезервирован",
+      "checked_in": "Заселен",
+      "checked_out": "Выселен"
     },
     "capacity": "Вместимость",
     "price": "Цена",
@@ -330,8 +332,10 @@
     "statuses": {
       "pending": "Ожидает",
       "confirmed": "Подтверждено",
-      "checkedIn": "Заселился",
-      "checkedOut": "Выселился",
+      "checked_in": "Заселен",
+      "checked_out": "Выселен",
+      "checkedIn": "Заселен",
+      "checkedOut": "Выселен",
       "cancelled": "Отменено",
       "completed": "Завершено"
     },

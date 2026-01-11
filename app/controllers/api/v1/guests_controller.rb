@@ -8,8 +8,8 @@ class Api::V1::GuestsController < Api::V1::BaseController
     if params[:search].present?
       search_term = "%#{params[:search]}%"
       guests = guests.where(
-        "first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ? OR phone ILIKE ? OR passport_number ILIKE ?",
-        search_term, search_term, search_term, search_term, search_term
+        "first_name ILIKE ? OR last_name ILIKE ? OR CONCAT(first_name, ' ', last_name) ILIKE ? OR email ILIKE ? OR phone ILIKE ? OR passport_number ILIKE ?",
+        search_term, search_term, search_term, search_term, search_term, search_term
       )
     end
 
@@ -33,9 +33,37 @@ class Api::V1::GuestsController < Api::V1::BaseController
     authorize @guest
 
     if @guest.save
-      render json: @guest, status: :created
+      render json: { 
+        success: true,
+        message: I18n.t('guests.create.success'),
+        data: @guest
+      }, status: :created
     else
-      render json: { errors: @guest.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = @guest.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.guest.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.guest.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      render json: { 
+        success: false,
+        message: I18n.t('guests.create.failed'),
+        errors: translated_errors
+      }, status: :unprocessable_entity
     end
   end
 
@@ -43,16 +71,78 @@ class Api::V1::GuestsController < Api::V1::BaseController
     authorize @guest
 
     if @guest.update(guest_params)
-      render json: @guest
+      render json: { 
+        success: true,
+        message: I18n.t('guests.update.success'),
+        data: @guest
+      }
     else
-      render json: { errors: @guest.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = @guest.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.guest.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.guest.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      render json: { 
+        success: false,
+        message: I18n.t('guests.update.failed'),
+        errors: translated_errors
+      }, status: :unprocessable_entity
     end
   end
 
   def destroy
     authorize @guest
-    @guest.destroy
-    head :no_content
+
+    if @guest.destroy
+      render json: { 
+        success: true,
+        message: I18n.t('guests.destroy.success'),
+        guest_id: @guest.id,
+        guest_name: "#{@guest.first_name} #{@guest.last_name}"
+      }
+    else
+      # Translate each error properly
+      translated_errors = @guest.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.guest.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.guest.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      render json: { 
+        success: false,
+        message: I18n.t('guests.destroy.failed'),
+        errors: translated_errors
+      }, status: :unprocessable_entity
+    end
   end
 
   private

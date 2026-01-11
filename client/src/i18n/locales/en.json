@@ -331,6 +331,8 @@
     "statuses": {
       "pending": "Pending",
       "confirmed": "Confirmed",
+      "checked_in": "Checked In",
+      "checked_out": "Checked Out",
       "checkedIn": "Checked In",
       "checkedOut": "Checked Out",
       "cancelled": "Cancelled",

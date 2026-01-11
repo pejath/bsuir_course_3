@@ -1,0 +1,212 @@
+ru:
+  hello: "Привет мир"
+  rooms:
+    create:
+      success: "Номер успешно создан"
+      failed: "Не удалось создать номер"
+    update:
+      success: "Номер успешно обновлен"
+      failed: "Не удалось обновить номер"
+    destroy:
+      success: "Номер успешно удален"
+      failed: "Не удалось удалить номер"
+  guests:
+    create:
+      success: "Гость успешно создан"
+      failed: "Не удалось создать гостя"
+    update:
+      success: "Гость успешно обновлен"
+      failed: "Не удалось обновить гостя"
+    destroy:
+      success: "Гость успешно удален"
+      failed: "Не удалось удалить гостя"
+  users:
+    create:
+      success: "Пользователь успешно создан"
+      failed: "Не удалось создать пользователя"
+    update:
+      success: "Пользователь успешно обновлен"
+      failed: "Не удалось обновить пользователя"
+    destroy:
+      success: "Пользователь успешно удален"
+      failed: "Не удалось удалить пользователя"
+  bookings:
+    create:
+      success: "Бронирование успешно создано"
+      failed: "Не удалось создать бронирование"
+    update:
+      success: "Бронирование успешно обновлено"
+      failed: "Не удалось обновить бронирование"
+    destroy:
+      success: "Бронирование успешно удалено"
+      failed: "Не удалось удалить бронирование"
+  services:
+    create:
+      success: "Услуга успешно создана"
+      failed: "Не удалось создать услугу"
+    update:
+      success: "Услуга успешно обновлена"
+      failed: "Не удалось обновить услугу"
+    destroy:
+      success: "Услуга успешно удалена"
+      failed: "Не удалось удалить услугу"
+  activerecord:
+    attributes:
+      booking:
+        total_price: "Общая цена"
+        check_in_date: "Дата заезда"
+        check_out_date: "Дата выезда"
+        room_id: "Номер"
+        guest_id: "Гость"
+        number_of_guests: "Количество гостей"
+        status: "Статус"
+        notes: "Примечания"
+      room:
+        number: "Номер комнаты"
+        capacity: "Вместимость"
+        room_type_id: "Тип номера"
+        floor: "Этаж"
+        status: "Статус"
+        notes: "Примечания"
+        description: "Описание"
+        amenities: "Удобства"
+        view: "Вид"
+        image_url: "URL изображения"
+      guest:
+        first_name: "Имя"
+        last_name: "Фамилия"
+        email: "Email"
+        phone: "Телефон"
+        passport_number: "Номер паспорта"
+        date_of_birth: "Дата рождения"
+        country: "Страна"
+        notes: "Примечания"
+      service:
+        name: "Название"
+        description: "Описание"
+        price: "Цена"
+        active: "Активна"
+    errors:
+      models:
+        room:
+          attributes:
+            number:
+              taken: "Номер комнаты уже занят"
+            capacity:
+              greater_than: "Вместимость должна быть больше 0"
+              blank: "Не указана вместимость"
+          base:
+            restrict_with_error: "Нельзя удалить номер с существующими бронированиями"
+            cannot_delete_record_because_dependent_bookings_exist: "Нельзя удалить номер с существующими бронированиями"
+            restrict_dependent_destroy:
+              has_many: "Нельзя удалить номер с существующими бронированиями"
+          messages:
+            restrict_with_error: "Нельзя удалить номер с существующими бронированиями"
+            cannot_delete_record_because_dependent_bookings_exist: "Нельзя удалить номер с существующими бронированиями"
+            restrict_dependent_destroy:
+              has_many: "Нельзя удалить номер с существующими бронированиями"
+        booking:
+          attributes:
+            total_price:
+              not_a_number: "Общая цена должна быть числом"
+              blank: "Общая цена не может быть пустой"
+              greater_than: "Общая цена должна быть больше 0"
+            check_in_date:
+              blank: "Дата заезда не может быть пустой"
+            check_out_date:
+              blank: "Дата выезда не может быть пустой"
+              after_check_in_date: "Дата выезда должна быть позже даты заезда"
+            room_id:
+              blank: "Номер не может быть пустым"
+            guest_id:
+              blank: "Гость не может быть пустым"
+            number_of_guests:
+              blank: "Количество гостей не может быть пустым"
+              greater_than: "Количество гостей должно быть больше 0"
+          base:
+            restrict_with_error: "Нельзя удалить бронирование"
+            check_out_date_after_check_in: "Дата выезда должна быть позже даты заезда"
+          messages:
+            restrict_with_error: "Нельзя удалить бронирование"
+            check_out_date_after_check_in: "Дата выезда должна быть позже даты заезда"
+        booking_service:
+          attributes:
+            service:
+              required: "Услуга должна быть выбрана"
+            quantity:
+              blank: "Количество не может быть пустым"
+              greater_than: "Количество должно быть больше 0"
+          messages:
+            required: "Обязательное поле"
+        guest:
+          attributes:
+            first_name:
+              blank: "Имя не может быть пустым"
+            last_name:
+              blank: "Фамилия не может быть пустой"
+            phone:
+              blank: "Телефон не может быть пустым"
+            passport_number:
+              blank: "Номер паспорта не может быть пустым"
+            date_of_birth:
+              blank: "Дата рождения не может быть пустой"
+              in_future: "Дата рождения не может быть в будущем"
+            email:
+              invalid: "Неверный формат email"
+              taken: "Email уже используется"
+          base:
+            restrict_with_error: "Нельзя удалить гостя с существующими бронированиями"
+            cannot_delete_record_because_dependent_bookings_exist: "Нельзя удалить гостя с существующими бронированиями"
+            restrict_dependent_destroy:
+              has_many: "Нельзя удалить гостя с существующими бронированиями"
+            cannot_delete_guest_with_active_bookings: "Нельзя удалить гостя с активными бронированиями"
+          messages:
+            restrict_with_error: "Нельзя удалить гостя с существующими бронированиями"
+            cannot_delete_record_because_dependent_bookings_exist: "Нельзя удалить гостя с существующими бронированиями"
+            restrict_dependent_destroy:
+              has_many: "Нельзя удалить гостя с существующими бронированиями"
+            cannot_delete_guest_with_active_bookings: "Нельзя удалить гостя с активными бронированиями"
+        user:
+          attributes:
+            email:
+              blank: "Email не может быть пустым"
+              invalid: "Неверный формат email"
+              taken: "Email уже используется"
+            first_name:
+              blank: "Имя не может быть пустым"
+            last_name:
+              blank: "Фамилия не может быть пустой"
+            password:
+              blank: "Пароль не может быть пустым"
+              too_short: "Пароль слишком короткий"
+          base:
+            restrict_with_error: "Нельзя удалить пользователя"
+          messages:
+            restrict_with_error: "Нельзя удалить пользователя"
+        service:
+          attributes:
+            name:
+              blank: "Название не может быть пустым"
+            price:
+              blank: "Цена не может быть пустой"
+              greater_than: "Цена должна быть больше 0"
+          base:
+            restrict_with_error: "Нельзя удалить услугу с существующими бронированиями"
+            cannot_delete_record_because_dependent_bookings_exist: "Нельзя удалить услугу с существующими бронированиями"
+            restrict_dependent_destroy:
+              has_many: "Нельзя удалить услугу с существующими бронированиями"
+          messages:
+            restrict_with_error: "Нельзя удалить услугу с существующими бронированиями"
+            cannot_delete_record_because_dependent_bookings_exist: "Нельзя удалить услугу с существующими бронированиями"
+            restrict_dependent_destroy:
+              has_many: "Нельзя удалить услугу с существующими бронированиями"
+      messages:
+        record_invalid: "Валидация не пройдена: %{errors}"
+        restrict_dependent_destroy:
+          has_many: "Нельзя удалить запись, так как присутствуют связанные записи"
+        taken: "уже занято"
+        blank: "не может быть пустым"
+        greater_than: "должно быть больше %{count}"
+        invalid: "неверный формат"
+        not_a_number: "должно быть числом"
+        required: "обязательное поле"

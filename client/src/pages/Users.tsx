@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Edit, Trash2, Key, Plus } from 'lucide-react'
 import api from '../lib/api'
 import type { User } from '../types'
-import { useToast } from '../hooks/useToast'
+import { useToast, type ToastContext } from '../hooks/useToast'
 import Toast from '../components/Toast'
 
 interface UserWithDetails extends User {
@@ -14,7 +14,7 @@ interface UserWithDetails extends User {
 
 export default function UsersManagement() {
   const { t } = useTranslation()
-  const toast = useToast()
+  const toast = useToast() as ToastContext
   const [users, setUsers] = useState<UserWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -36,17 +36,6 @@ export default function UsersManagement() {
       toast.error(t('users.error.fetch'))
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleToggleActive = async (user: UserWithDetails) => {
-    try {
-      await api.patch(`/admin/users/${user.id}/toggle_active`)
-      fetchUsers()
-      toast.success(t('users.updated'))
-    } catch (error) {
-      console.error('Failed to toggle user status:', error)
-      toast.error(t('users.error.toggleStatus'))
     }
   }
 
@@ -216,12 +205,12 @@ export default function UsersManagement() {
       )}
 
       {/* Toast Notifications */}
-      {toast.toasts.map((toast) => (
+      {toast.toasts.map((toastItem) => (
         <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => toast.removeToast(toast.id)}
+          key={toastItem.id}
+          message={toastItem.message}
+          type={toastItem.type}
+          onClose={() => toast.removeToast(toastItem.id)}
         />
       ))}
     </div>
@@ -237,7 +226,8 @@ interface UserModalProps {
 
 function UserModal({ user, onClose, onSave }: UserModalProps) {
   const { t } = useTranslation()
-  const toast = useToast()
+  const toast = useToast() as ToastContext
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -245,6 +235,22 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
     role: user?.role || 'staff',
     password: ''
   })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    // Clear field error when user starts typing
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[e.target.name]
+        return newErrors
+      })
+    }
+    
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -258,9 +264,23 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
         onSave()
         toast.success(t('users.created'))
       }
-    } catch (error) {
-      console.error('Failed to save user:', error)
-      toast.error(user ? t('users.error.update') : t('users.error.create'))
+    } catch (err: any) {
+      const response = err.response?.data
+      if (response?.field_errors) {
+        // Set field errors for highlighting
+        setFieldErrors(response.field_errors)
+      }
+      
+      if (response?.errors && Array.isArray(response.errors)) {
+        // Show all errors as toast notifications
+        response.errors.forEach((error: string) => {
+          toast.error(error)
+        })
+      } else if (response?.message) {
+        toast.error(response.message)
+      } else {
+        toast.error(user ? t('users.error.update') : t('users.error.create'))
+      }
     }
   }
 
@@ -282,11 +302,22 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
                   </label>
                   <input
                     type="text"
+                    id="first_name"
+                    name="first_name"
                     required
                     value={formData.first_name}
-                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                    onChange={handleChange}
+                    className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+                      fieldErrors.first_name
+                        ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+                    }`}
                   />
+                  {fieldErrors.first_name && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {fieldErrors.first_name[0]}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -294,32 +325,60 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
                   </label>
                   <input
                     type="text"
+                    id="last_name"
+                    name="last_name"
                     required
                     value={formData.last_name}
-                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                    onChange={handleChange}
+                    className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+                      fieldErrors.last_name
+                        ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+                    }`}
                   />
+                  {fieldErrors.last_name && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {fieldErrors.last_name[0]}
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t('users.email', 'Email')} *
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('users.email')} *
                   </label>
                   <input
                     type="email"
+                    id="email"
+                    name="email"
                     required
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                    onChange={handleChange}
+                    className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+                      fieldErrors.email
+                        ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+                    }`}
                   />
+                  {fieldErrors.email && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {fieldErrors.email[0]}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {t('users.role', 'Role')}
                   </label>
                   <select
+                    id="role"
+                    name="role"
                     value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value as User['role'] })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                    onChange={handleChange}
+                    className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+                      fieldErrors.role
+                        ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+                    }`}
                   >
                     <option value="staff">{t('roles.staff', 'Staff')}</option>
                     <option value="manager">{t('roles.manager', 'Manager')}</option>
@@ -334,11 +393,21 @@ function UserModal({ user, onClose, onSave }: UserModalProps) {
                     </label>
                     <input
                       type="password"
-                      required
+                      id="password"
+                      name="password"
                       value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+                      onChange={handleChange}
+                      className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+                        fieldErrors.password
+                          ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+                      }`}
                     />
+                    {fieldErrors.password && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {fieldErrors.password[0]}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -374,7 +443,7 @@ interface PasswordModalProps {
 
 function PasswordModal({ user, onClose, onReset }: PasswordModalProps) {
   const { t } = useTranslation()
-  const toast = useToast()
+  const toast = useToast() as ToastContext
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 

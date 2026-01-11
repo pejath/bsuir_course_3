@@ -1,10 +1,14 @@
 import axios from 'axios'
+import i18n from '../i18n'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
+  params: {
+    locale: i18n.language
+  }
 })
 
 // Добавляем токен в каждый запрос
@@ -14,6 +18,11 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    // Добавляем locale к каждому запросу
+    if (!config.params) {
+      config.params = {}
+    }
+    config.params.locale = i18n.language
     return config
   },
   (error) => Promise.reject(error)

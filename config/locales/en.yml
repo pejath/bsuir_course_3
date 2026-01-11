@@ -29,3 +29,213 @@
 
 en:
   hello: "Hello world"
+  rooms:
+    create:
+      success: "Room created successfully"
+      failed: "Failed to create room"
+    update:
+      success: "Room updated successfully"
+      failed: "Failed to update room"
+    destroy:
+      success: "Room deleted successfully"
+      failed: "Failed to delete room"
+  guests:
+    create:
+      success: "Guest created successfully"
+      failed: "Failed to create guest"
+    update:
+      success: "Guest updated successfully"
+      failed: "Failed to update guest"
+    destroy:
+      success: "Guest deleted successfully"
+      failed: "Failed to delete guest"
+  users:
+    create:
+      success: "User created successfully"
+      failed: "Failed to create user"
+    update:
+      success: "User updated successfully"
+      failed: "Failed to update user"
+    destroy:
+      success: "User deleted successfully"
+      failed: "Failed to delete user"
+  bookings:
+    create:
+      success: "Booking created successfully"
+      failed: "Failed to create booking"
+    update:
+      success: "Booking updated successfully"
+      failed: "Failed to update booking"
+    destroy:
+      success: "Booking deleted successfully"
+      failed: "Failed to delete booking"
+  services:
+    create:
+      success: "Service created successfully"
+      failed: "Failed to create service"
+    update:
+      success: "Service updated successfully"
+      failed: "Failed to update service"
+    destroy:
+      success: "Service deleted successfully"
+      failed: "Failed to delete service"
+  activerecord:
+    attributes:
+      booking:
+        total_price: "Total price"
+        check_in_date: "Check-in date"
+        check_out_date: "Check-out date"
+        room_id: "Room"
+        guest_id: "Guest"
+        number_of_guests: "Number of guests"
+        status: "Status"
+        notes: "Notes"
+      room:
+        number: "Room number"
+        capacity: "Capacity"
+        room_type_id: "Room type"
+        floor: "Floor"
+        status: "Status"
+        notes: "Notes"
+        description: "Description"
+        amenities: "Amenities"
+        view: "View"
+        image_url: "Image URL"
+      guest:
+        first_name: "First name"
+        last_name: "Last name"
+        email: "Email"
+        phone: "Phone"
+        passport_number: "Passport number"
+        date_of_birth: "Date of birth"
+        country: "Country"
+        notes: "Notes"
+      service:
+        name: "Name"
+        description: "Description"
+        price: "Price"
+        active: "Active"
+    errors:
+      models:
+        room:
+          attributes:
+            number:
+              taken: "Number already taken"
+            capacity:
+              greater_than: "Capacity must be greater than 0"
+              blank: "Capacity cannot be blank"
+          base:
+            restrict_with_error: "Cannot delete room with existing bookings"
+            cannot_delete_record_because_dependent_bookings_exist: "Cannot delete room with existing bookings"
+            restrict_dependent_destroy:
+              has_many: "Cannot delete room with existing bookings"
+          messages:
+            restrict_with_error: "Cannot delete room with existing bookings"
+            cannot_delete_record_because_dependent_bookings_exist: "Cannot delete room with existing bookings"
+            restrict_dependent_destroy:
+              has_many: "Cannot delete room with existing bookings"
+        booking:
+          attributes:
+            total_price:
+              not_a_number: "Total price must be a number"
+              blank: "Total price cannot be blank"
+              greater_than: "Total price must be greater than 0"
+            check_in_date:
+              blank: "Check-in date cannot be blank"
+            check_out_date:
+              blank: "Check-out date cannot be blank"
+              after_check_in_date: "Check out date must be after check-in date"
+            room_id:
+              blank: "Room cannot be blank"
+            guest_id:
+              blank: "Guest cannot be blank"
+            number_of_guests:
+              blank: "Number of guests cannot be blank"
+              greater_than: "Number of guests must be greater than 0"
+          base:
+            restrict_with_error: "Cannot delete booking"
+            check_out_date_after_check_in: "Check out date must be after check-in date"
+          messages:
+            restrict_with_error: "Cannot delete booking"
+            check_out_date_after_check_in: "Check out date must be after check-in date"
+        booking_service:
+          attributes:
+            service:
+              required: "Service must be selected"
+            quantity:
+              blank: "Quantity cannot be blank"
+              greater_than: "Quantity must be greater than 0"
+          messages:
+            required: "Required field"
+        guest:
+          attributes:
+            first_name:
+              blank: "First name cannot be blank"
+            last_name:
+              blank: "Last name cannot be blank"
+            phone:
+              blank: "Phone cannot be blank"
+            passport_number:
+              blank: "Passport number cannot be blank"
+            date_of_birth:
+              blank: "Date of birth cannot be blank"
+              in_future: "Date of birth cannot be in the future"
+            email:
+              invalid: "Invalid email format"
+              taken: "Email has already been taken"
+          base:
+            restrict_with_error: "Cannot delete guest with existing bookings"
+            cannot_delete_record_because_dependent_bookings_exist: "Cannot delete guest with existing bookings"
+            restrict_dependent_destroy:
+              has_many: "Cannot delete guest with existing bookings"
+            cannot delete guest with active bookings: "Cannot delete guest with active bookings"
+          messages:
+            restrict_with_error: "Cannot delete guest with existing bookings"
+            cannot_delete_record_because_dependent_bookings_exist: "Cannot delete guest with existing bookings"
+            restrict_dependent_destroy:
+              has_many: "Cannot delete guest with existing bookings"
+            cannot_delete_guest_with_active_bookings: "Cannot delete guest with active bookings"
+        user:
+          attributes:
+            email:
+              blank: "Email cannot be blank"
+              invalid: "Invalid email format"
+              taken: "Email has already been taken"
+            first_name:
+              blank: "First name cannot be blank"
+            last_name:
+              blank: "Last name cannot be blank"
+            password:
+              blank: "Password cannot be blank"
+              too_short: "Password is too short"
+          base:
+            restrict_with_error: "Cannot delete user"
+          messages:
+            restrict_with_error: "Cannot delete user"
+        service:
+          attributes:
+            name:
+              blank: "Name cannot be blank"
+            price:
+              blank: "Price cannot be blank"
+              greater_than: "Price must be greater than 0"
+          base:
+            restrict_with_error: "Cannot delete service with existing bookings"
+            cannot_delete_record_because_dependent_bookings_exist: "Cannot delete service with existing bookings"
+            restrict_dependent_destroy:
+              has_many: "Cannot delete service with existing bookings"
+          messages:
+            restrict_with_error: "Cannot delete service with existing bookings"
+            cannot_delete_record_because_dependent_bookings_exist: "Cannot delete service with existing bookings"
+            restrict_dependent_destroy:
+              has_many: "Cannot delete service with existing bookings"
+      messages:
+        record_invalid: "Validation failed: %{errors}"
+        restrict_dependent_destroy:
+          has_many: "Cannot delete record because dependent records exist"
+        taken: "has already been taken"
+        blank: "cannot be blank"
+        greater_than: "must be greater than %{count}"
+        invalid: "is invalid"
+        not_a_number: "is not a number"
+        required: "is required"

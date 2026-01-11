@@ -53,7 +53,7 @@ export interface Booking {
   id: number
   room_id: number
   room?: Room
-  guest_id: number
+  guest_id?: number
   guest?: Guest
   user_id: number
   user?: User
@@ -63,6 +63,8 @@ export interface Booking {
   total_price: number
   status: 'pending' | 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled' | 'completed'
   notes: string
+  guest_first_name?: string
+  guest_last_name?: string
   created_at: string
   updated_at: string
   booking_services?: BookingService[]
@@ -78,6 +80,7 @@ export interface BookingService {
   price: number
   created_at: string
   updated_at: string
+  _destroy?: boolean
 }
 
 export interface Service {

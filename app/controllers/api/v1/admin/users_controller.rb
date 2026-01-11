@@ -14,9 +14,43 @@ class Api::V1::Admin::UsersController < Api::V1::BaseController
     authorize User
     user = User.new(user_params)
     if user.save
-      render json: user, status: :created
+      render json: { 
+        success: true,
+        message: I18n.t('users.create.success'),
+        data: user
+      }, status: :created
     else
-      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = user.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.user.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.user.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      # Also return field errors for highlighting
+      field_errors = user.errors.messages.transform_values do |messages|
+        messages.map { |msg| I18n.t("activerecord.errors.models.user.attributes.#{msg.downcase.gsub(' ', '_')}", default: msg) }
+      end
+      
+      render json: { 
+        success: false,
+        message: I18n.t('users.create.failed'),
+        errors: translated_errors,
+        field_errors: field_errors
+      }, status: :unprocessable_entity
     end
   end
 
@@ -25,9 +59,37 @@ class Api::V1::Admin::UsersController < Api::V1::BaseController
     authorize @user
 
     if @user.update(user_params)
-      render json: @user, status: :ok
+      render json: { 
+        success: true,
+        message: I18n.t('users.update.success'),
+        data: @user
+      }, status: :ok
     else
-      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = @user.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.user.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.user.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      render json: { 
+        success: false,
+        message: I18n.t('users.update.failed'),
+        errors: translated_errors
+      }, status: :unprocessable_entity
     end
   end
 

@@ -190,7 +190,7 @@ export default function BookingConfirmation() {
                       <div className="flex items-center gap-2">
                         <User className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <p className="text-gray-900 dark:text-white">
-                          {booking.guest?.first_name} {booking.guest?.last_name}
+                          {booking.guest ? `${booking.guest.first_name} ${booking.guest.last_name}` : 'Гость удален'}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -204,7 +204,7 @@ export default function BookingConfirmation() {
                       {booking.guest?.country && (
                         <div className="flex items-center gap-2">
                           <MapPin className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-                          <p className="text-gray-900 dark:text-white">{booking.guest.country}</p>
+                          <p className="text-gray-900 dark:text-white">{booking.guest?.country}</p>
                         </div>
                       )}
                     </div>

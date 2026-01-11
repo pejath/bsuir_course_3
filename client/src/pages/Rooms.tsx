@@ -33,7 +33,6 @@ export default function Rooms() {
   const [initialLoading, setInitialLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
   const [pagination, setPagination] = useState<PaginationMeta | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [expandedRoomId, setExpandedRoomId] = useState<number | null>(null)
@@ -97,14 +96,31 @@ export default function Rooms() {
   }
 
   const handleDelete = async (id: number) => {
+    if (!window.confirm(t('rooms.confirmDelete'))) {
+      return
+    }
+
     try {
-      await api.delete(`/rooms/${id}`)
+      const response = await api.delete(`/rooms/${id}`)
       fetchRooms(currentPage)
-      setDeleteConfirm(null)
-      toast.success(t('rooms.deleted'))
-    } catch (error) {
+      
+      // Use message from API response if available, otherwise use default
+      const message = response.data?.message || t('rooms.deleted')
+      toast.success(message)
+    } catch (error: unknown) {
       console.error('Failed to delete room:', error)
-      toast.error(t('rooms.error.delete'))
+      
+      // Use error message from API if available
+      const errorData = (error as any)?.response?.data
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        // Show multiple errors
+        errorData.errors.forEach((errorMsg: string) => {
+          toast.error(errorMsg)
+        })
+      } else {
+        const errorMessage = errorData?.message || t('rooms.error.delete')
+        toast.error(errorMessage)
+      }
     }
   }
 
@@ -309,30 +325,13 @@ export default function Rooms() {
                         </button>
                       )}
                       {canDeleteRooms(user) && (
-                        deleteConfirm === room.id ? (
-                          <div className="flex items-center space-x-1">
-                            <button
-                              onClick={() => handleDelete(room.id)}
-                              className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                            >
-                              {t('common.confirm')}
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(null)}
-                              className="text-xs px-2 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                            >
-                              {t('common.cancel')}
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setDeleteConfirm(room.id)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                            title={t('rooms.deleteRoom')}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )
+                        <button
+                          onClick={() => handleDelete(room.id)}
+                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          title={t('rooms.deleteRoom')}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                   </td>
@@ -463,12 +462,12 @@ export default function Rooms() {
       </Modal>
 
       {/* Toast Notifications */}
-      {toast.toasts.map((toast) => (
+      {toast.toasts.map((t) => (
         <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => toast.removeToast(toast.id)}
+          key={t.id}
+          message={t.message}
+          type={t.type}
+          onClose={() => toast.removeToast(t.id)}
         />
       ))}
     </div>

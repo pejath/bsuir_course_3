@@ -28,7 +28,12 @@ class Api::V1::BookingsController < Api::V1::BaseController
     bookings = bookings.where("check_out_date >= ?", params[:check_out_from]) if params[:check_out_from].present?
     bookings = bookings.where("check_out_date <= ?", params[:check_out_to]) if params[:check_out_to].present?
 
-    bookings = bookings.order(check_in_date: :desc)
+    # Sort: pending bookings first (by check_in_date asc), then others by check_in_date desc
+    bookings = bookings.order(
+      Arel.sql("CASE WHEN bookings.status = 0 THEN 0 ELSE 1 END"),
+      Arel.sql("CASE WHEN bookings.status = 0 THEN bookings.check_in_date ELSE NULL END ASC"),
+      Arel.sql("CASE WHEN bookings.status != 0 THEN bookings.check_in_date ELSE NULL END DESC")
+    )
     pagy, @bookings = pagy(bookings, limit: params[:limit] || 50)
     render json: {
       data: @bookings.as_json(include: {
@@ -52,9 +57,43 @@ class Api::V1::BookingsController < Api::V1::BaseController
     authorize @booking
 
     if @booking.save
-      render json: @booking, include: { booking_services: { include: :service } }, status: :created
+      render json: { 
+        success: true,
+        message: I18n.t('bookings.create.success'),
+        data: @booking
+      }, status: :created
     else
-      render json: { errors: @booking.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = @booking.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.booking.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.booking.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      # Also return field errors for highlighting
+      field_errors = @booking.errors.messages.transform_values do |messages|
+        messages.map { |msg| I18n.t("activerecord.errors.models.booking.attributes.#{msg.downcase.gsub(' ', '_')}", default: msg) }
+      end
+      
+      render json: { 
+        success: false,
+        message: I18n.t('bookings.create.failed'),
+        errors: translated_errors,
+        field_errors: field_errors
+      }, status: :unprocessable_entity
     end
   end
 
@@ -62,16 +101,60 @@ class Api::V1::BookingsController < Api::V1::BaseController
     authorize @booking
 
     if @booking.update(booking_params)
-      render json: @booking, include: { booking_services: { include: :service } }
+      render json: { 
+        success: true,
+        message: I18n.t('bookings.update.success'),
+        data: @booking
+      }
     else
-      render json: { errors: @booking.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = @booking.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.booking.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.booking.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      # Also return field errors for highlighting
+      field_errors = @booking.errors.messages.transform_values do |messages|
+        messages.map { |msg| I18n.t("activerecord.errors.models.booking.attributes.#{msg.downcase.gsub(' ', '_')}", default: msg) }
+      end
+      
+      render json: { 
+        success: false,
+        message: I18n.t('bookings.update.failed'),
+        errors: translated_errors,
+        field_errors: field_errors
+      }, status: :unprocessable_entity
     end
   end
 
   def destroy
     authorize @booking
-    @booking.destroy
-    head :no_content
+    if @booking.destroy
+      render json: { 
+        message: 'Booking deleted successfully',
+        booking_id: @booking.id,
+        room_number: @booking.room&.number
+      }
+    else
+      render json: { 
+        errors: @booking.errors.full_messages,
+        message: 'Failed to delete booking'
+      }, status: :unprocessable_entity
+    end
   end
 
   def cancel

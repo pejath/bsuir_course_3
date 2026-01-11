@@ -20,6 +20,7 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
   const [guestSearchTimeout, setGuestSearchTimeout] = useState<number | null>(null)
   const [guestMode, setGuestMode] = useState<'existing' | 'new'>('existing')
   const [bookingServices, setBookingServices] = useState<BookingService[]>([])
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
   const [formData, setFormData] = useState({
     room_id: '',
     guest_id: '',
@@ -46,11 +47,13 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
     fetchRooms()
     if (booking) {
       // When editing, fetch the specific guest first to ensure it's in the list
-      fetchGuest(booking.guest_id)
+      if (booking.guest_id) {
+        fetchGuest(booking.guest_id)
+      }
       setBookingServices(booking.booking_services || [])
       setFormData({
         room_id: booking.room_id.toString(),
-        guest_id: booking.guest_id.toString(),
+        guest_id: booking.guest_id?.toString() || '',
         check_in_date: booking.check_in_date.split('T')[0],
         check_out_date: booking.check_out_date.split('T')[0],
         number_of_guests: booking.number_of_guests.toString(),
@@ -127,6 +130,15 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    // Clear field error when user starts typing
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[e.target.name]
+        return newErrors
+      })
+    }
+    
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -140,6 +152,13 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
 
     try {
       let guestId = formData.guest_id
+
+      // Validate guest for new bookings
+      if (!booking && !guestId && guestMode !== 'new') {
+        setError(t('bookings.error.guestRequired'))
+        setLoading(false)
+        return
+      }
 
       if (guestMode === 'new') {
         const existingGuest = await api.get('/guests', {
@@ -167,18 +186,18 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
       const data = {
         booking: {
           room_id: parseInt(formData.room_id),
-          guest_id: parseInt(guestId),
+          guest_id: guestId ? parseInt(guestId) : null,
           check_in_date: formData.check_in_date,
           check_out_date: formData.check_out_date,
           number_of_guests: parseInt(formData.number_of_guests),
           status: formData.status,
           notes: formData.notes,
-          booking_services_attributes: bookingServices.filter(s => s.service_id > 0).map(s => ({
+          booking_services_attributes: bookingServices.map(s => ({
             id: s.id || undefined,
             service_id: s.service_id,
             quantity: s.quantity,
             price: s.price,
-            _destroy: false
+            _destroy: s._destroy || false
           }))
         }
       }
@@ -193,7 +212,19 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
 
       onSuccess()
     } catch (err: any) {
-      setError(err.response?.data?.error || t('bookings.saveError'))
+      const response = err.response?.data
+      if (response?.field_errors) {
+        // Set field errors for highlighting
+        setFieldErrors(response.field_errors)
+      }
+      
+      if (response?.errors && Array.isArray(response.errors)) {
+        setError(response.errors.join(', '))
+      } else if (response?.message) {
+        setError(response.message)
+      } else {
+        setError(t('bookings.saveError'))
+      }
       toast.error(booking ? t('bookings.error.update') : t('bookings.error.create'))
     } finally {
       setLoading(false)
@@ -432,8 +463,17 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
             required
             value={formData.check_in_date}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
+            className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+              fieldErrors.check_in_date
+                ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+            }`}
           />
+          {fieldErrors.check_in_date && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {fieldErrors.check_in_date[0]}
+            </p>
+          )}
         </div>
 
         <div>
@@ -447,8 +487,17 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
             required
             value={formData.check_out_date}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
+            className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+              fieldErrors.check_out_date
+                ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+            }`}
           />
+          {fieldErrors.check_out_date && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {fieldErrors.check_out_date[0]}
+            </p>
+          )}
         </div>
       </div>
 
@@ -462,7 +511,11 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
           required
           value={formData.room_id}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
+          className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+            fieldErrors.room_id
+              ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+              : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+          }`}
         >
           <option value="">{t('bookings.selectRoom')}</option>
           {rooms.map((room) => (
@@ -471,6 +524,11 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
             </option>
           ))}
         </select>
+        {fieldErrors.room_id && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            {fieldErrors.room_id[0]}
+          </p>
+        )}
       </div>
       <div>
         <label htmlFor="number_of_guests" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -505,7 +563,6 @@ export default function BookingForm({ booking, onSuccess, onCancel }: BookingFor
           <option value="checked_in">{t('bookings.statuses.checkedIn')}</option>
           <option value="checked_out">{t('bookings.statuses.checkedOut')}</option>
           <option value="cancelled">{t('bookings.statuses.cancelled')}</option>
-          <option value="completed">{t('bookings.statuses.completed')}</option>
         </select>
       </div>
 

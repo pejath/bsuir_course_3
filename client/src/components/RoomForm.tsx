@@ -12,6 +12,7 @@ interface RoomFormProps {
 export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
   const { t } = useTranslation()
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
   const [formData, setFormData] = useState<{
     number: string
     room_type_id: string
@@ -94,13 +95,35 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
 
       onSuccess()
     } catch (err: any) {
-      setError(err.response?.data?.error || t('rooms.saveError'))
+      const response = err.response?.data
+      if (response?.field_errors) {
+        // Set field errors for highlighting
+        setFieldErrors(response.field_errors)
+      }
+      
+      if (response?.errors && Array.isArray(response.errors)) {
+        // Show all errors joined together
+        setError(response.errors.join(', '))
+      } else if (response?.message) {
+        setError(response.message)
+      } else {
+        setError(t('rooms.saveError'))
+      }
     } finally {
       setLoading(false)
     }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    // Clear field error when user starts typing
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[e.target.name]
+        return newErrors
+      })
+    }
+    
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -126,8 +149,17 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           required
           value={formData.number}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
+          className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+            fieldErrors.number
+              ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+              : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+          }`}
         />
+        {fieldErrors.number && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            {fieldErrors.number[0]}
+          </p>
+        )}
       </div>
 
       <div>
@@ -197,8 +229,17 @@ export default function RoomForm({ room, onSuccess, onCancel }: RoomFormProps) {
           value={formData.capacity}
           onChange={handleChange}
           placeholder={t('rooms.capacityPlaceholder')}
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2 text-gray-900 dark:text-white"
+          className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm border px-3 py-2 text-gray-900 dark:text-white ${
+            fieldErrors.capacity
+              ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 focus:border-red-500 focus:ring-red-500'
+              : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-primary-500 focus:ring-primary-500'
+          }`}
         />
+        {fieldErrors.capacity && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            {fieldErrors.capacity[0]}
+          </p>
+        )}
       </div>
 
       <div>

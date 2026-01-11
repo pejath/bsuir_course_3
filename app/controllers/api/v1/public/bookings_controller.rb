@@ -35,11 +35,10 @@ class Api::V1::Public::BookingsController < ApplicationController
 
   def show
     @booking = Booking.includes(:guest, room: :room_type, booking_services: :service).find_by(
-      id: params[:id],
-      guest: { email: params[:email] }
+      id: params[:id]
     )
 
-    if @booking
+    if @booking && @booking.guest&.email == params[:email]
       render json: @booking, include: { room: { include: :room_type }, guest: {}, booking_services: { include: :service } }
     else
       render json: { error: 'Booking not found' }, status: :not_found

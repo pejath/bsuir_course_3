@@ -1,7 +1,7 @@
 class Booking < ApplicationRecord
   # Associations
   belongs_to :room
-  belongs_to :guest
+  belongs_to :guest, optional: true  # Make optional for deleted guests
   belongs_to :user
   has_many :booking_services, dependent: :destroy
   has_many :services, through: :booking_services
@@ -20,9 +20,14 @@ class Booking < ApplicationRecord
   validates :check_in_date, presence: true
   validates :check_out_date, presence: true
   validates :number_of_guests, presence: true, numericality: { only_integer: true, greater_than: 0 }
-  validates :total_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :guest, presence: true, on: :create  # Guest required when creating booking
   validate :check_out_after_check_in
   validate :no_overlapping_bookings
+
+  # Human attribute names for localization
+  def self.human_attribute_name(attr, options = {})
+    I18n.t("activerecord.attributes.booking.#{attr}", default: attr.to_s.humanize, **options)
+  end
 
   # Scopes
   scope :active, -> { where(status: [ :pending, :confirmed, :checked_in ]) }
@@ -42,11 +47,17 @@ class Booking < ApplicationRecord
     self.total_price = nights * base_price
   end
 
+  def store_guest_name
+    return unless guest.present?
+    self.guest_first_name = guest.first_name
+    self.guest_last_name = guest.last_name
+  end
+
   def check_out_after_check_in
     return unless check_in_date && check_out_date
 
     if check_out_date <= check_in_date
-      errors.add(:check_out_date, 'must be after check-in date')
+      errors.add(:check_out_date, :after_check_in_date)
     end
   end
 

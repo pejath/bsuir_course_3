@@ -57,7 +57,15 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
 
       onSuccess()
     } catch (err: any) {
-      setError(err.response?.data?.error || t('guests.saveError'))
+      const response = err.response?.data
+      if (response?.errors && Array.isArray(response.errors)) {
+        // Show all errors joined together
+        setError(response.errors.join(', '))
+      } else if (response?.message) {
+        setError(response.message)
+      } else {
+        setError(t('guests.saveError'))
+      }
     } finally {
       setLoading(false)
     }
@@ -128,12 +136,13 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-            {t('guests.phone')}
+            {t('guests.phone')} *
           </label>
           <input
             type="tel"
             id="phone"
             name="phone"
+            required
             value={formData.phone}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
@@ -142,12 +151,13 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
 
         <div>
           <label htmlFor="passport_number" className="block text-sm font-medium text-gray-700">
-            {t('guests.passportNumber')}
+            {t('guests.passportNumber')} *
           </label>
           <input
             type="text"
             id="passport_number"
             name="passport_number"
+            required
             value={formData.passport_number}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"
@@ -158,12 +168,13 @@ export default function GuestForm({ guest, onSuccess, onCancel }: GuestFormProps
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700">
-            {t('guests.dateOfBirth')}
+            {t('guests.dateOfBirth')} *
           </label>
           <input
             type="date"
             id="date_of_birth"
             name="date_of_birth"
+            required
             value={formData.date_of_birth}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border px-3 py-2"

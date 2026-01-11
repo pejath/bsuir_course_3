@@ -3,7 +3,7 @@ class Api::V1::RoomsController < Api::V1::BaseController
 
   def index
     authorize Room
-    rooms = Room.includes(:room_type).all
+    rooms = Room.includes(:room_type).order(:number)
 
     rooms = rooms.where(status: params[:status]) if params[:status].present?
     rooms = rooms.where(room_type_id: params[:room_type_id]) if params[:room_type_id].present?
@@ -42,9 +42,38 @@ class Api::V1::RoomsController < Api::V1::BaseController
     authorize @room
 
     if @room.save
-      render json: @room, status: :created
+      render json: { 
+        success: true,
+        message: I18n.t('rooms.create.success'),
+        data: @room
+      }, status: :created
     else
-      render json: { errors: @room.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = @room.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.room.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      # Also return field errors for highlighting
+      field_errors = @room.errors.messages.transform_values do |messages|
+        messages.map { |msg| I18n.t("activerecord.errors.models.room.attributes.#{msg.downcase.gsub(' ', '_')}", default: msg) }
+      end
+
+      render json: { 
+        success: false,
+        message: I18n.t('rooms.create.failed') ,
+        errors: translated_errors,
+        field_errors: field_errors
+      }, status: :unprocessable_entity
     end
   end
 
@@ -52,16 +81,72 @@ class Api::V1::RoomsController < Api::V1::BaseController
     authorize @room
 
     if @room.update(room_params)
-      render json: @room
+      render json: { 
+        success: true,
+        message: I18n.t('rooms.update.success'),
+        data: @room
+      }
     else
-      render json: { errors: @room.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = @room.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.room.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      render json: { 
+        success: false,
+        message: I18n.t('rooms.update.failed'),
+        errors: translated_errors
+      }, status: :unprocessable_entity
     end
   end
 
   def destroy
     authorize @room
-    @room.destroy
-    head :no_content
+    if @room.destroy
+      render json: { 
+        success: true,
+        message: I18n.t('rooms.destroy.success'),
+        room_id: @room.id,
+        room_number: @room.number
+      }
+    else
+      # Translate each error properly
+      translated_errors = @room.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.room.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.room.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      render json: { 
+        success: false,
+        message: I18n.t('rooms.destroy.failed'),
+        errors: translated_errors
+      }, status: :unprocessable_entity
+    end
   end
 
   def available

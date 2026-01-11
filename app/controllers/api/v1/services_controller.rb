@@ -17,9 +17,37 @@ class Api::V1::ServicesController < Api::V1::BaseController
     authorize @service
 
     if @service.save
-      render json: @service, status: :created
+      render json: { 
+        success: true,
+        message: I18n.t('services.create.success'),
+        data: @service
+      }, status: :created
     else
-      render json: { errors: @service.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = @service.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.service.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.service.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      render json: { 
+        success: false,
+        message: I18n.t('services.create.failed'),
+        errors: translated_errors
+      }, status: :unprocessable_entity
     end
   end
 
@@ -27,16 +55,77 @@ class Api::V1::ServicesController < Api::V1::BaseController
     authorize @service
 
     if @service.update(service_params)
-      render json: @service
+      render json: { 
+        success: true,
+        message: I18n.t('services.update.success'),
+        data: @service
+      }
     else
-      render json: { errors: @service.errors.full_messages }, status: :unprocessable_entity
+      translated_errors = @service.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.service.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.service.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      render json: { 
+        success: false,
+        message: I18n.t('services.update.failed'),
+        errors: translated_errors
+      }, status: :unprocessable_entity
     end
   end
 
   def destroy
     authorize @service
-    @service.destroy
-    head :no_content
+    if @service.destroy
+      render json: { 
+        success: true,
+        message: I18n.t('services.destroy.success'),
+        service_id: @service.id,
+        service_name: @service.name
+      }
+    else
+      # Translate each error properly
+      translated_errors = @service.errors.messages.map do |field, messages|
+        messages.map do |msg|
+          # Try to translate the error message
+          error_key = msg.downcase.gsub(' ', '_')
+          translated_msg = I18n.t("activerecord.errors.models.service.attributes.#{field}.#{error_key}", default: msg)
+          
+          # If translation not found, try general messages
+          if translated_msg == msg
+            translated_msg = I18n.t("activerecord.errors.messages.#{error_key}", default: msg)
+          end
+          
+          # For base errors, try base translations
+          if translated_msg == msg && field == :base
+            translated_msg = I18n.t("activerecord.errors.models.service.base.#{error_key}", default: msg)
+          end
+          
+          translated_msg
+        end
+      end.flatten
+      
+      render json: { 
+        success: false,
+        message: I18n.t('services.destroy.failed'),
+        errors: translated_errors
+      }, status: :unprocessable_entity
+    end
   end
 
   private

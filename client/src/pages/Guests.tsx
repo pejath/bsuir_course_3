@@ -5,6 +5,8 @@ import api from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { canDeleteGuests } from '../lib/roles'
 import { useDebounce } from '../hooks/useDebounce'
+import { useToast } from '../hooks/useToast'
+import Toast from '../components/Toast'
 import Modal from '../components/Modal'
 import GuestForm from '../components/GuestForm'
 import type { Guest } from '../types'
@@ -23,6 +25,7 @@ interface PaginationMeta {
 export default function Guests() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
+  const toast = useToast()
   const [guests, setGuests] = useState<Guest[]>([])
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
@@ -89,11 +92,27 @@ export default function Guests() {
     if (!deleteConfirm) return
     
     try {
-      await api.delete(`/guests/${deleteConfirm}`)
+      const response = await api.delete(`/guests/${deleteConfirm}`)
       setDeleteConfirm(null)
       fetchGuests(currentPage)
-    } catch (error) {
+      
+      // Use message from API response if available, otherwise use default
+      const message = response.data?.message || t('guests.deleted')
+      toast.success(message)
+    } catch (error: unknown) {
       console.error('Failed to delete guest:', error)
+      
+      // Use error message from API if available
+      const errorData = (error as any)?.response?.data
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        // Show multiple errors
+        errorData.errors.forEach((errorMsg: string) => {
+          toast.error(errorMsg)
+        })
+      } else {
+        const errorMessage = errorData?.message || t('guests.error.delete')
+        toast.error(errorMessage)
+      }
     }
   }
 
@@ -373,6 +392,16 @@ export default function Guests() {
           </div>
         </Modal>
       )}
+      
+      {/* Toast Notifications */}
+      {toast.toasts.map((t) => (
+        <Toast
+          key={t.id}
+          message={t.message}
+          type={t.type}
+          onClose={() => toast.removeToast(t.id)}
+        />
+      ))}
     </div>
   )
 }

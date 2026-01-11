@@ -26,5 +26,9 @@ module Course
 
     # API only mode
     config.api_only = true
+    
+    # Set available locales
+    config.i18n.available_locales = [:en, :ru]
+    config.i18n.default_locale = :ru
   end
 end

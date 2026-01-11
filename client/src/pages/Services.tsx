@@ -4,12 +4,15 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react'
 import api from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { canManageServices } from '../lib/roles'
+import { useToast } from '../hooks/useToast'
+import Toast from '../components/Toast'
 import Modal from '../components/Modal'
 import type { Service } from '../types'
 
 export default function Services() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
+  const toast = useToast()
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -88,11 +91,26 @@ export default function Services() {
     if (!confirm(t('services.confirmDelete'))) return
 
     try {
-      await api.delete(`/services/${id}`)
+      const response = await api.delete(`/services/${id}`)
       fetchServices()
-    } catch (error) {
+      
+      // Use message from API response if available, otherwise use default
+      const message = response.data?.message || t('services.deleted')
+      toast.success(message)
+    } catch (error: unknown) {
       console.error('Failed to delete service:', error)
-      alert(t('services.deleteError'))
+      
+      // Use error message from API if available
+      const errorData = (error as any)?.response?.data
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        // Show multiple errors
+        errorData.errors.forEach((errorMsg: string) => {
+          toast.error(errorMsg)
+        })
+      } else {
+        const errorMessage = errorData?.message || t('services.deleteError')
+        toast.error(errorMessage)
+      }
     }
   }
 
@@ -285,6 +303,16 @@ export default function Services() {
           </form>
         </Modal>
       )}
+      
+      {/* Toast Notifications */}
+      {toast.toasts.map((t) => (
+        <Toast
+          key={t.id}
+          message={t.message}
+          type={t.type}
+          onClose={() => toast.removeToast(t.id)}
+        />
+      ))}
     </div>
   )
 }
